@@ -1,0 +1,27 @@
+{
+  "application": "hyundana-face-quiz",
+  "version": "1.2.0",
+  "notes": "최초 업데이트 지원 버전: 프로그램 내 업데이트 확인, 코드 업데이트, 자동 재시작 및 이전 버전 복구",
+  "files": [
+    {
+      "path": "studio.html",
+      "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
+      "sha256": "4902855e4f1bcceadd06db314e3e70ec6e38dee2a9dd0aada8338e9245eb9692"
+    },
+    {
+      "path": "server.py",
+      "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
+      "sha256": "77985294fd3e9b8defbcebb60ea69a9fbb9541d945ba79ca96603cedacd94c72"
+    },
+    {
+      "path": "obs.html",
+      "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
+      "sha256": "524934291159e9382820aea4a124ec411c7fdf787f86d134722753d694364e4a"
+    },
+    {
+      "path": "bridge.js",
+      "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/bridge.js",
+      "sha256": "35c01ee0b5db7da4b24d4d64ba97f6232442603074db3c21ee197a566c8a5816"
+    }
+  ]
+}
