@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.1.2</title>
+<style>
+/* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
+.ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
+.ctrl .fine-row input[type="range"]{width:100%;min-width:0;flex:1}
+.ctrl .fine-button{min-width:34px;width:34px;height:30px;flex:0 0 34px;border-radius:8px;border:1px solid #dbe2f0;background:#fff;color:#496083;font-size:19px;line-height:1;font-weight:800;display:inline-flex;align-items:center;justify-content:center;padding:0;font-variant-numeric:tabular-nums}
+.ctrl .fine-button:hover:not(:disabled){background:#fff0f7;border-color:#ef9ac1;color:#c94085}
+.ctrl .fine-button:focus-visible{outline:2px solid #ea72a9;outline-offset:2px}
+.ctrl .fine-button:disabled{opacity:.35;cursor:not-allowed}
+.ctrl .micro-hint{color:#7b8aa0;font-size:10px;margin-top:3px}
+
+:root{--pink:#ec6da2;--pale:#fff0f7;--bg:#f5f7fc;--line:#e5e9f1;--text:#223047;--muted:#758199;--blue:#6588dd}
+*{box-sizing:border-box}body{margin:0;color:var(--text);background:var(--bg);font:13px/1.5 'Pretendard','Malgun Gothic',system-ui,sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.48}.top{position:sticky;top:0;z-index:20;background:#fff;box-shadow:0 1px 0 var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 24px;min-height:64px}.brand{font-size:17px;font-weight:900;white-space:nowrap}.brand .logo{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#ef8bb8,#9fb7f6);color:white;margin-right:7px}.top-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.btn{border:1px solid #dce3ee;color:#3f4e6b;border-radius:9px;padding:9px 12px;background:#fff;font-weight:750;white-space:nowrap}.btn:hover:enabled{background:#f9f0f6}.btn.primary{background:var(--pink);border-color:var(--pink);color:white}.btn.tint{background:var(--pale);border-color:#fad1e3;color:#be4679}.btn.active{border-color:#e57fab;background:#fff1f7;color:#bb3873}.intro{padding:19px 24px 13px}.intro h1{font-size:23px;letter-spacing:-.5px;margin:0 0 3px}.intro p{margin:0;color:var(--muted)}.workspace{padding:0 20px 32px;display:grid;grid-template-columns:263px minmax(510px,1fr) 307px;align-items:start;gap:14px;min-width:1120px}.panel{background:#fff;border:1px solid var(--line);border-radius:17px;min-width:0;box-shadow:0 4px 25px #21304707;padding:16px}.panel h2{font-size:14px;margin:0 0 2px}.desc{color:var(--muted);font-size:11px}.divider{height:1px;background:var(--line);margin:14px 0}.subhead{font-size:11px;font-weight:800;margin:13px 0 7px}.countbar{display:flex;gap:5px;margin-top:7px}.countbar button{flex:1;border:1px solid #e0e6ef;background:white;border-radius:8px;height:32px;font-weight:800;color:#69768c}.countbar button.active{background:var(--pale);color:#df4b8a;border-color:#ffb8d5}.slot{width:100%;margin:8px 0 0;border:1px solid var(--line);background:#fff;border-radius:11px;padding:8px;display:flex;align-items:center;gap:10px;text-align:left;min-height:63px}.slot.active{background:#fff6fa;border-color:#f393be;box-shadow:0 0 0 2px #ffe1ee}.slot.off{opacity:.46}.slot .thumb{width:43px;height:43px;border-radius:8px;border:1px dashed #dbe4ef;background:#f8fafd;display:grid;place-items:center;overflow:hidden;font-size:21px;color:#aab8ca;flex-shrink:0}.thumb img{width:100%;height:100%;object-fit:cover}.slot .slottitle{font-weight:850;font-size:12px}.slot .slotstatus{font-size:10px;color:#8b94a4}.letter{background:#e9edfc;color:#4a71d8;padding:2px 5px;border-radius:5px;margin-right:3px}.slot.active .letter{background:#fbe0ef;color:#ce4086}.note{padding:10px 11px;border-radius:10px;background:#f3f6ff;color:#5b6c90;font-size:11px;line-height:1.55;margin-top:10px}.note.pink{background:#fff6fb;color:#aa5280;border:1px dashed #f4bdd5}.fieldlabel{font-size:11px;font-weight:750;display:block;margin:11px 0 5px}input[type=text],input[type=number],textarea{border:1px solid #dae2ef;border-radius:9px;background:#fff;padding:8px 9px;width:100%;outline:none;min-width:0}input:focus,textarea:focus{border-color:#ed8fb8;box-shadow:0 0 0 2px #fbe2ed}textarea{resize:vertical;min-height:60px}.two-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.two-buttons .btn{padding:8px 3px;font-size:11px}.small{padding:6px 9px;font-size:11px}.muted{color:var(--muted)}.centerHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.pill{font-size:10px;border-radius:20px;background:#edf3ff;color:#5474b8;padding:4px 9px;font-weight:850}.editArea{background:#f4f6fb;border-radius:13px;display:grid;place-items:center;padding:14px;min-height:320px}.canvasWrap{position:relative;max-width:500px;width:100%;aspect-ratio:1/1;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px #25324915;background-color:#fff;background-image:linear-gradient(45deg,#eff1f6 25%,transparent 25%),linear-gradient(-45deg,#eff1f6 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eff1f6 75%),linear-gradient(-45deg,transparent 75%,#eff1f6 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}canvas{display:block;width:100%;height:100%;touch-action:none}#editCanvas{cursor:grab}#editCanvas:active{cursor:grabbing}.empty{pointer-events:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#7c8ca4;background:#ffffffdb;border:1px solid #e4e9f2;border-radius:10px;padding:14px;width:80%;font-size:11px}.hide{display:none!important}.toolbar{background:#f5f8ff;border:1px solid #e6ecfa;border-radius:11px;padding:12px;margin:14px 0}.toolbar strong{display:block;margin-bottom:5px}.toolbar .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.status{font-size:11px;color:#5a6e91;margin-top:8px}.status.bad{color:#bc5275}.ctrls{display:grid;grid-template-columns:1fr 1fr;gap:12px 15px;margin-top:14px}.ctrl label{display:flex;justify-content:space-between;font-weight:700;font-size:11px;margin-bottom:5px}.ctrl input[type=range]{width:100%;accent-color:#ea7aaf}.ctrl .vals{font-variant-numeric:tabular-nums}.help{color:#8290a8;font-size:11px;margin-top:10px}.right{position:sticky;top:81px;max-height:calc(100vh - 94px);overflow-y:auto}.right .preview{width:100%;border-radius:12px;background-color:white;background-image:linear-gradient(45deg,#f0f1f5 25%,transparent 25%),linear-gradient(-45deg,#f0f1f5 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#f0f1f5 75%),linear-gradient(-45deg,transparent 75%,#f0f1f5 75%);background-position:0 0,0 10px,10px -10px,-10px 0;background-size:20px 20px;border:1px solid #e8ecf4;overflow:hidden;margin:13px 0 7px}.right .preview canvas{aspect-ratio:1/1;height:auto}.row{display:flex;justify-content:space-between;gap:6px;align-items:center}.weights{margin:10px 0}.weights .row{margin:5px 0;font-size:11px;color:#617089}.weights b{color:#33476e}.right .btn{font-size:11px}.toast{position:fixed;z-index:90;bottom:24px;left:50%;transform:translateX(-50%);background:#2d3e59;color:#fff;border-radius:11px;padding:11px 16px;max-width:min(90vw,680px);display:none;box-shadow:0 6px 22px #17203933}.toast.show{display:block}@media(max-width:1350px){.workspace{grid-template-columns:245px minmax(480px,1fr) 278px;gap:9px;padding:0 10px 25px}.panel{padding:12px}.intro{padding-left:12px}}@media(max-width:1100px){body{overflow-x:auto}}
+
+/* v1.1: 제작실·문제 관리실 */
+[hidden]{display:none!important}.viewtabs{display:flex;gap:8px;align-items:center;background:#fff;border-bottom:1px solid var(--line);padding:8px 24px}.viewtab{background:transparent;color:#728098;border:0;padding:8px 13px;font-weight:800;border-radius:9px}.viewtab.active{color:#d54484;background:#fff0f7}.countpill{display:inline-block;border-radius:100px;background:#f1dfea;color:#bc4678;margin-left:5px;padding:1px 7px;font-size:11px}.library-save{margin-top:12px;width:100%;white-space:normal}.manager{max-width:1600px;margin:0 auto;padding:0 24px 32px;display:grid;gap:13px}.manager-header{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.manage-actions{display:flex;gap:7px;flex-wrap:wrap}.manager-controls{display:flex;gap:14px;align-items:end;flex-wrap:wrap}.manager-controls label{display:grid;gap:4px;font-weight:800}.manager-controls input,.manager-controls select{border:1px solid #dfe5ee;border-radius:9px;background:#fff;padding:9px 12px;min-height:38px;color:#26364d}.manager-controls input{width:min(370px,80vw)}.manager-controls #managerMessage{margin-left:auto;max-width:420px}.manager-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:13px}.question-card{background:white;border:1px solid var(--line);border-radius:16px;padding:12px;box-shadow:0 5px 16px #33445d08;min-width:0}.question-card .card-top{display:flex;gap:11px;align-items:flex-start}.question-card img{width:104px;height:104px;object-fit:contain;border-radius:10px;border:1px solid #e5e9f1;background:repeating-conic-gradient(#f3f4f7 0 25%,white 0 50%) 50% / 16px 16px}.question-card .card-info{min-width:0;flex:1}.question-card h3{margin:4px 0 5px;overflow-wrap:anywhere;font-size:14px}.question-card .info-text{font-size:11px;color:#66748a;margin-top:4px;overflow-wrap:anywhere}.statustag{display:inline-block;font-size:10px;font-weight:850;padding:3px 9px;border-radius:20px;background:#e9efff;color:#476bd1}.statustag.draft{background:#fff4e3;color:#ac7636}.card-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.card-actions .btn{font-size:11px;padding:6px 9px}.question-card .reorder{margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:5px;color:#8793a5;font-size:11px}.question-card .reorder .btn{padding:4px 8px}.empty-library{background:#fff;padding:44px 20px;text-align:center;border:1px dashed #dfe5ee;border-radius:16px;color:#7c899f;grid-column:1 / -1}.manager-note{margin:0}.manager button[data-act="delete"]{color:#a84f59}.right{scrollbar-width:thin}
+
+/* v1.1 broadcast control room — visual broadcast theme is intentionally external */
+.showroom{max-width:1640px;margin:0 auto;padding:0 22px 32px;display:grid;gap:14px}
+.show-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.show-head h2{margin:0 0 4px;font-size:20px}
+.show-main{display:grid;grid-template-columns:minmax(320px,1.08fr) minmax(340px,1.15fr) minmax(255px,.84fr);gap:14px;align-items:start}
+.show-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 4px 22px #1b2a4d0b;min-width:0}
+.show-card h3{font-size:15px;margin:0 0 11px;color:#283a56}
+.show-small{font-size:12px;color:#758199}
+.showfield{display:grid;gap:7px;font-weight:750;font-size:12px;margin:12px 0}
+.showfield select,.showfield input,.showfield textarea{width:100%;border:1px solid #dce3ef;border-radius:10px;padding:10px 11px;background:white;color:#24364f;font-weight:500}
+.showfield textarea{min-height:90px;resize:vertical}
+.show-buttons{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.show-buttons button{white-space:normal}
+.show-alert{border:1px solid #e6e9f3;background:#f5f7fb;padding:12px;border-radius:11px;color:#4f6281;font-size:12px;line-height:1.6}
+.show-alert.warn{background:#fff5ee;border-color:#f1cfad;color:#80532c}
+.show-priv-item{display:flex;align-items:center;gap:10px;border:1px solid #e7ebf3;border-radius:10px;padding:9px;margin-bottom:7px}
+.show-priv-item img{width:52px;height:52px;object-fit:contain;background:#edf0f7;border-radius:7px}
+.show-priv-item span{font-size:13px;font-weight:700;overflow-wrap:anywhere}
+.show-private{border:1px solid #edd2de;background:#fff8fb;padding:11px;border-radius:12px}
+.show-stage{display:inline-block;background:#f3e8f0;color:#a64d7d;border-radius:20px;padding:5px 10px;font-size:12px;font-weight:750}
+.show-screen{border:1px solid #e3e7ef;background:#f2f4f8;border-radius:14px;aspect-ratio:16/9;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;position:relative;padding:14px;text-align:center}
+.show-screen .broadcast-img{object-fit:contain;min-height:0;max-width:55%;max-height:76%;border-radius:6px}
+.show-screen .broadcast-title{font-weight:800;color:#283952;font-size:clamp(13px,1.4vw,20px)}
+.show-screen .broadcast-hint{padding:4px 11px;border-radius:9px;background:#fff;border:1px solid #ddd;color:#283952;max-width:100%;font-size:11px;word-break:break-word}
+.show-revealed{display:flex;gap:7px;justify-content:center;max-width:100%;flex-wrap:wrap}
+.show-revealed .revealed-person{width:68px;font-size:10px;display:grid;gap:3px;justify-items:center;font-weight:700}
+.show-revealed img{width:51px;height:51px;object-fit:contain;border-radius:5px;background:#fff}
+#showMainImage[hidden],#showHintPreview[hidden],#showRevealedPreview[hidden]{display:none}
+.show-output-status{display:flex;gap:8px;align-items:center;margin:8px 0 2px}
+.show-output-dot{width:8px;height:8px;border-radius:50%;background:#b9c1ce}
+.show-output-dot.connected{background:#35ac7a}
+.show-footer{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px;color:#64748a;font-size:12px}
+@media(max-width:1380px){.show-main{grid-template-columns:1fr 1fr}.show-main .show-side{grid-column:1/-1}}
+@media(max-width:860px){.show-main{grid-template-columns:1fr}.show-main .show-side{grid-column:auto}}
+</style></head><body>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.2.0</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
+
+<div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>프로그램 업데이트</strong><button id="updateClose" class="btn small" type="button">닫기</button></div>
+ <div id="updateInfo" style="white-space:pre-wrap;line-height:1.6;color:#5e6b80;font-size:12px;margin:12px 0">버전을 확인하고 있어요.</div>
+ <div style="display:flex;gap:7px;flex-wrap:wrap"><button class="btn primary" id="updateApply" type="button" hidden>새 버전 적용</button><button class="btn" id="updateCheckAgain" type="button">다시 확인</button><button class="btn" id="updateRollback" type="button" hidden>이전 버전 복구</button></div>
+ <p style="font-size:11px;color:#8390a4;margin:12px 0 0">업데이트는 제작한 문제를 삭제하지 않습니다. 방송 도중에는 업데이트하지 마세요. 중요한 문제는 관리실에서 JSON 백업해 두세요.</p>
+</div>
+<div class="intro"><h1 id="pageTitle">연예인 얼굴 합성 · 문제 제작실</h1><p id="pageSubtitle">원본 사진 그대로 겹치기 · 수동 눈 정렬과 확대 고정 · AI 얼굴 인식 및 마스크 없음</p></div>
+<main class="workspace">
+<aside class="panel"><h2>① 원본 사진</h2><div class="desc">최대 4명 · 캡처 이미지 붙여넣기 지원</div><div class="subhead">합성 인원 선택</div><div class="countbar" id="countbar"><button class="active" data-count="2">2명</button><button data-count="3">3명</button><button data-count="4">4명</button></div><div id="slots"></div>
+<div class="note pink">📋 캡처 등록: 사진 칸 선택 → Windows <b>Win+Shift+S</b> → 프로그램에서 <b>Ctrl+V</b></div>
+<div class="two-buttons"><button class="btn" id="uploadBtn">▣ 사진 올리기·교체</button><button class="btn" id="deleteBtn">사진 제거</button></div>
+<label class="fieldlabel" for="personName">선택한 인물 이름 (방송 전용)</label><input id="personName" type="text" placeholder="정답 이름 입력">
+<div class="divider"></div><h2>② 눈 수동 정렬·확대 기준점</h2><p class="desc">분홍 가이드 기준으로 눈을 직접 지정 · 외부 모델 로딩 없음</p>
+<div class="two-buttons"><button class="btn" id="anchorLeft">왼쪽 눈 기준 · 즉시 고정</button><button class="btn" id="anchorRight">오른쪽 눈 기준 · 즉시 고정</button><button class="btn" id="manualEyeLeft">수동 왼쪽 눈</button><button class="btn" id="manualEyeRight">수동 오른쪽 눈</button><button class="btn tint" id="alignManual">양쪽 눈 맞춤</button><button class="btn" id="clearPin">기준점 해제</button></div>
+<div class="note" id="anchorMessage">왼쪽/오른쪽 눈 기준을 누르면 분홍 가이드의 해당 눈 위치가 즉시 확대 기준으로 고정돼요. 실제 눈과 가이드가 다르면 「수동 왼쪽/오른쪽 눈」을 눌러 눈동자를 직접 한 번 찍어줘요.</div></aside>
+<section class="panel"><div class="centerHead"><div><h2>③ 원본 사진 편집 <span class="pill" id="selectedLabel">사진 A</span></h2><div class="desc">정렬 가이드는 표시용입니다. PNG에는 저장되지 않으며 원본은 그대로 보존돼요.</div></div><label class="btn small guide-toggle" style="white-space:nowrap"><input type="checkbox" id="guideCheck" checked> 👁 눈·코·입 가이드 표시</label></div>
+<div class="editArea"><div class="canvasWrap"><canvas id="editCanvas" width="560" height="560"></canvas><div class="empty" id="emptyEdit">왼쪽에서 사진을 등록해주세요. 마우스로 드래그하면 위치를 이동할 수 있어요.</div></div></div>
+<div class="help" style="margin-top:8px">분홍 점선 = 눈·코·입 목표 위치. 눈 기준 버튼을 누르고 실제 눈동자를 찍으면 그 자리를 고정한 채 확대할 수 있어요.</div><div class="toolbar"><strong>수동 정렬 상태</strong><div class="status" id="editStatus">필요하면 왼쪽에서 양쪽 눈을 찍고 정렬할 수 있어요.</div><div class="actions"><button class="btn small" id="resetTransform">위치·확대 초기화</button><label class="btn small"><input type="checkbox" id="lockCheck"> 사진 위치 잠금</label></div></div>
+<div class="ctrls"><div class="ctrl"><label for="xNum">가로 이동 X <span id="xVal">0px</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="xNum" data-dir="-1" aria-label="가로 위치 0.5픽셀 감소" title="−0.5px">−</button><input id="xNum" type="number" step="0.5" value="0"><button type="button" class="fine-button" data-fine="xNum" data-dir="1" aria-label="가로 위치 0.5픽셀 증가" title="+0.5px">+</button></div></div><div class="ctrl"><label for="yNum">세로 이동 Y <span id="yVal">0px</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="yNum" data-dir="-1" aria-label="세로 위치 0.5픽셀 감소" title="−0.5px">−</button><input id="yNum" type="number" step="0.5" value="0"><button type="button" class="fine-button" data-fine="yNum" data-dir="1" aria-label="세로 위치 0.5픽셀 증가" title="+0.5px">+</button></div></div><div class="ctrl"><label for="zoom">기준점 고정 확대·축소 <span id="zoomVal">100%</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="zoom" data-dir="-1" aria-label="기준점 고정 확대·축소 0.5 감소" title="−0.5">−</button><input id="zoom" type="range" min="25" max="1200" value="100" step="0.5"><button type="button" class="fine-button" data-fine="zoom" data-dir="1" aria-label="기준점 고정 확대·축소 0.5 증가" title="+0.5">+</button></div></div><div class="ctrl"><label for="rotate">회전 <span id="rotateVal">0°</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="rotate" data-dir="-1" aria-label="회전 0.5 감소" title="−0.5">−</button><input id="rotate" type="range" min="-15" max="15" step="0.5" value="0"><button type="button" class="fine-button" data-fine="rotate" data-dir="1" aria-label="회전 0.5 증가" title="+0.5">+</button></div></div><div class="ctrl"><label for="weight">사진 비중 <span id="weightVal">100%</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="weight" data-dir="-1" aria-label="사진 비중 0.5 감소" title="−0.5">−</button><input id="weight" type="range" min="0" max="200" value="100" step="0.5"><button type="button" class="fine-button" data-fine="weight" data-dir="1" aria-label="사진 비중 0.5 증가" title="+0.5">+</button></div></div><div class="ctrl"><label for="opacity">불투명도 <span id="opacityVal">100%</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="opacity" data-dir="-1" aria-label="불투명도 0.5 감소" title="−0.5">−</button><input id="opacity" type="range" min="0" max="100" value="100" step="0.5"><button type="button" class="fine-button" data-fine="opacity" data-dir="1" aria-label="불투명도 0.5 증가" title="+0.5">+</button></div></div></div>
+<p class="help">각 조절바의 − / + 버튼은 클릭할 때마다 0.5 단위로 조절 · X/Y도 ±0.5px 가능 · 방향키 1px 이동 · Shift+방향키 10px 이동 · 눈 고정 후 확대하면 기준점 유지</p>
+</section>
+<aside class="panel right"><div class="row"><div><h2>④ 실시간 합성 미리보기</h2><div class="desc">오른쪽에 고정된 합성 결과</div></div><span class="pill">LIVE</span></div><div class="preview"><canvas id="previewCanvas" width="560" height="560"></canvas></div><div class="row desc"><span id="countText">등록 사진 0/2</span><span>원본 겹치기 · 마스크 없음</span></div><div class="subhead">실제 합성 기여율</div><div id="weights" class="weights"></div><div class="note">눈 위치는 수동으로 지정할 수 있어요. 사진의 투명도와 비중은 각각 조절됩니다.</div><div class="divider"></div><label class="fieldlabel" for="questionName">문제 제목</label><input id="questionName" type="text" value="문제 01"><label class="fieldlabel" for="hintText">힌트 (진행자 전용)</label><textarea id="hintText" placeholder="방송 전까진 공개되지 않아요."></textarea><label class="fieldlabel" for="noteText">제작 메모</label><textarea id="noteText" placeholder="제작 과정의 메모"></textarea><div class="two-buttons"><button id="sideSave" class="btn">프로젝트 저장</button><button id="sideExport" class="btn primary">PNG 출력</button></div><div class="status" id="savedStatus">원본과 편집 위치·수동 눈 좌표를 프로젝트에 함께 저장해요.</div>
+<button class="btn primary library-save" id="librarySave">현재 문제를 문제 관리실에 저장</button><p class="desc">문제 관리실은 이 브라우저에 저장되며, 백업 파일을 별도로 보관하세요.</p></aside>
+</main>
+<main class="manager" id="managerView" hidden>
+ <section class="panel manager-header">
+  <div><h2>문제 관리실</h2><div class="desc">문제를 여러 개 보관하고 순서를 정리하세요. 정답 정보는 진행자 화면에서만 확인합니다.</div></div>
+  <div class="manage-actions"><button class="btn" id="backupAll">전체 문제 백업 JSON</button><button class="btn" id="restoreAll">백업 불러오기</button><button class="btn primary" id="managerNew">＋ 새 문제 제작</button></div>
+ </section>
+ <section class="panel manager-controls">
+  <label for="searchQuestion">문제 찾기 <input id="searchQuestion" type="search" placeholder="문제 제목 또는 정답 이름 검색"></label>
+  <label for="statusFilter">상태 <select id="statusFilter"><option value="all">전체</option><option value="draft">제작 중</option><option value="ready">진행 준비</option></select></label>
+  <div id="managerMessage" class="desc">저장된 문제를 불러오고 있어요.</div>
+ </section>
+ <section id="managerGrid" class="manager-grid"></section>
+ <div class="note manager-note">저장 위치: 가능하면 현재 브라우저의 로컬 데이터베이스(IndexedDB). 저장소가 차단되면 이번 실행 중에만 임시 보관됩니다. 브라우저 데이터를 삭제하거나 다른 PC로 이동하면 사라질 수 있으니 <b>전체 문제 백업 JSON</b>을 내려받아 보관하세요. “진행 준비”는 문제 내용 점검 상태입니다. OBS 연동은 로컬 서버를 실행하고 방송 진행실에서 확인하세요.</div>
+</main>
+
+<main class="showroom" id="showView" hidden>
+ <section class="show-card show-head"><div><h2>방송 진행실</h2><div class="show-small">진행자 전용 제어 · 정답과 미공개 힌트는 출력창에 보내지 않습니다.</div></div><div class="show-buttons"><button class="btn" id="showRefresh">↻ 준비 문제 새로고침</button><button class="btn primary" id="openPublicOutput">◫ 송출용 임시 출력창 열기</button></div></section>
+ <div class="show-main">
+  <section class="show-card">
+   <h3>① 라운드 준비</h3>
+   <div id="showQueueStatus" class="show-alert">문제 관리실에서 「진행 준비」로 표시한 문제만 사용할 수 있어요.</div>
+   <label class="showfield">진행할 문제 <select id="showQuestionSelect"><option value="">준비된 문제 없음</option></select></label>
+   <div class="show-buttons"><button class="btn primary" id="showPrepare">선택 문제 준비(방송 비공개)</button><button class="btn" id="showPrepareNext">다음 문제 준비</button></div>
+   <div class="show-alert" id="showPreparedInfo">현재 준비된 문제가 없습니다.</div>
+   <div class="show-buttons"><button class="btn" id="showWaiting">대기 화면</button><button class="btn" id="showTitle">콘텐츠 제목</button><button class="btn primary" id="showStart">문제 공개</button></div>
+   <hr style="border:0;border-top:1px solid #e8eaf2;margin:16px 0">
+   <h3>② 힌트 진행</h3>
+   <label class="showfield">힌트 작성(진행자만 볼 수 있음)<textarea id="showHintInput" placeholder="힌트를 입력해도 공개 버튼을 누르기 전까지 방송에 표시되지 않아요."></textarea></label>
+   <div class="show-buttons"><button class="btn primary" id="showHintReveal">힌트 공개</button><button class="btn" id="showHintHide">힌트 숨기기</button></div>
+   <hr style="border:0;border-top:1px solid #e8eaf2;margin:16px 0">
+   <h3>③ 정답 단계별 공개</h3>
+   <div class="show-alert warn">정답 공개를 먼저 무장(준비)해야 단계 진행 버튼이 활성화됩니다. 공개 직전 확인 창도 표시됩니다.</div>
+   <div class="show-buttons"><button class="btn" id="showArm">🔒 정답 공개 준비</button><button class="btn primary" id="showReveal">다음 정답 공개</button></div>
+   <p class="show-small" id="showRevealText">아직 정답을 공개하지 않았습니다.</p>
+   <div class="show-buttons"><button class="btn" id="showSummary">최종 정답 화면</button><button class="btn" id="showEmergency" style="border-color:#d89898;color:#9f4040">긴급 안전 화면</button></div>
+  </section>
+  <section class="show-card">
+   <div class="row"><h3 style="margin:0">④ 시청자 화면 미리보기</h3><span id="showStageBadge" class="show-stage">대기</span></div>
+   <div id="showScreen" class="show-screen" aria-label="실제 송출용으로 허용된 정보만 사용하는 미리보기">
+    <div id="showRoundPreview" class="broadcast-title">잠시 후 시작합니다</div>
+    <img id="showMainImage" class="broadcast-img" alt="합성 문제 화면" hidden>
+    <div id="showHintPreview" class="broadcast-hint" hidden></div>
+    <div id="showRevealedPreview" class="show-revealed" hidden></div>
+   </div>
+   <div class="show-output-status"><span class="show-output-dot" id="showOutputDot"></span><span class="show-small" id="showOutputStatus">출력창 연결 전 · 진행실 내부 미리보기만 표시</span></div><div class="show-output-status" style="gap:8px;flex-wrap:wrap;align-items:center"><span class="show-small" id="obsRelayIndicator">OBS 로컬 연결 확인 중…</span><button class="btn" id="obsOpen" style="height:32px">OBS 화면 열기</button><button class="btn" id="obsCopy" style="height:32px">OBS 주소 복사</button><button class="btn" id="obsTakeover" style="height:32px" hidden>송출 제어권 가져오기</button></div>
+   <div class="show-alert">OBS 브라우저 소스 주소는 http://127.0.0.1:8765/obs 입니다. 이 화면은 기능 검사용이고, 별도 채팅에서 만든 송출 디자인을 나중에 연결합니다.</div>
+   <hr style="border:0;border-top:1px solid #e8eaf2;margin:16px 0">
+   <h3>⑤ 진행자 전용 정답</h3>
+   <div class="show-private" id="showPrivateAnswers">문제를 준비하면 이곳에만 정답이 표시됩니다.</div>
+  </section>
+  <aside class="show-card show-side"><h3>진행 체크</h3>
+   <div class="show-alert" id="showRuntimeState">대기 · 아직 선택된 문제가 없습니다.</div>
+   <p class="show-small" style="margin-top:14px">공개 예정: 4명이라면 D → C → B → A 순서로 원본 얼굴과 이름을 한 명씩 공개합니다. 중앙에는 ABC → AB → A 합성 이미지가 남아요.</p>
+   <div class="show-alert warn">OBS에는 반드시 <b>별도로 열린 임시 출력창</b>만 창 캡처로 연결하세요. 진행실 자체를 캡처하면 정답이 노출됩니다.</div>
+   <div class="show-alert" style="margin-top:10px">현재 v1.1은 같은 PC의 로컬 서버를 통해 OBS 브라우저 소스로 연결됩니다. 송출 화면의 최종 디자인은 별도 채팅에서 제작 중이며 이후 연결됩니다.</div>
+  </aside>
+ </div>
+ <div class="show-footer">기능 기준: 문제 이미지는 사전에 계산하고, 방송 중에는 준비된 이미지만 전환합니다. 진행실은 원본 및 정답을 보유하지만 출력창에는 공개된 사진·이름과 공개 버튼을 누른 힌트만 전달합니다.</div>
+</main>
+<div class="toast" id="toast"></div><input id="fileInput" type="file" accept="image/*" hidden><input id="projectInput" type="file" accept=".json,application/json" hidden><input id="backupInput" type="file" accept=".json,application/json" hidden>
+<script>
+'use strict';
+const S=560;const $=id=>document.getElementById(id);const letters=['A','B','C','D'];
+const blankLayer=(letter)=>({letter,image:null,dataUrl:null,fileName:'',name:'',x:0,y:0,zoom:1,rotate:0,weight:100,opacity:100,locked:false,eyes:{left:null,right:null},pin:null,faceStatus:'미지정',previousTransform:null});
+let layers=letters.map(blankLayer),selected=0,count=2,manualPicking=null,drag=null,pending=false,dirty=false,activeProjectId=null,currentStatus='draft',managerEntries=[];
+const edit=$('editCanvas'),preview=$('previewCanvas'),ec=edit.getContext('2d',{willReadFrequently:true}),pc=preview.getContext('2d',{willReadFrequently:true});let toastTimeout;
+function toast(str){$('toast').textContent=str;$('toast').classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>$('toast').classList.remove('show'),3300)}
+function touch(){dirty=true;$('savedStatus').textContent='● 변경 사항이 있어요. 프로젝트를 저장해주세요.';schedule()}
+function schedule(){if(!pending){pending=true;requestAnimationFrame(()=>{pending=false;render()})}}
+function fileData(f){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.readAsDataURL(f)})}
+function imageData(url){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=()=>reject(new Error('이미지를 열 수 없습니다'));im.src=url})}
+function safeText(v){return String(v||'').replace(/[&<>"']/g,t=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[t]))}
+function makeSlots(){let html='';for(let i=0;i<4;i++){const l=layers[i];html+=`<button class="slot ${selected===i?'active':''} ${i>=count?'off':''}" data-slot="${i}"><span class="thumb">${l.dataUrl?`<img src="${l.dataUrl}" alt="">`:'＋'}</span><span><span class="slottitle"><span class="letter">${l.letter}</span> ${safeText(l.name||'이름 미입력')}</span><br><span class="slotstatus">${l.image?'사진 등록됨 · 수동 편집':i<count?'사진을 등록해주세요':'현재 인원에서 제외'}</span></span></button>`}$('slots').innerHTML=html;document.querySelectorAll('[data-slot]').forEach(b=>{const i=Number(b.dataset.slot);b.onclick=()=>selectLayer(i);b.ondblclick=()=>{$('fileInput').click()};b.ondragover=e=>{e.preventDefault()};b.ondrop=async e=>{e.preventDefault();selectLayer(i);if(e.dataTransfer.files.length)await loadImage(e.dataTransfer.files[0])}})}
+function selectLayer(i){selected=i;manualPicking=null;if(selected>=count){count=selected+1;updateCountButtons()}makeSlots();updateControls();schedule()}
+function updateCountButtons(){document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===count))}
+function status(txt,isBad=false){$('editStatus').textContent=txt;$('editStatus').classList.toggle('bad',isBad)}
+function formatFine(v){const num=Number(v);return Number(num.toFixed(2)).toString()}
+function updateControls(){const l=layers[selected];$('selectedLabel').textContent='사진 '+l.letter;$('personName').value=l.name;$('xNum').value=Number(l.x.toFixed(3));$('yNum').value=Number(l.y.toFixed(3));$('xVal').textContent=formatFine(l.x)+'px';$('yVal').textContent=formatFine(l.y)+'px';$('zoom').value=Number((l.zoom*100).toFixed(3));$('zoomVal').textContent=formatFine(l.zoom*100)+'%';$('rotate').value=l.rotate;$('rotateVal').textContent=formatFine(l.rotate)+'°';$('weight').value=l.weight;$('weightVal').textContent=formatFine(l.weight)+'%';$('opacity').value=l.opacity;$('opacityVal').textContent=formatFine(l.opacity)+'%';$('lockCheck').checked=l.locked;$('anchorLeft').classList.toggle('active',!!l.pin&&['left','left-guide'].includes(l.pin.eye));$('anchorRight').classList.toggle('active',!!l.pin&&['right','right-guide'].includes(l.pin.eye));$('manualEyeLeft').classList.toggle('active',manualPicking==='left');$('manualEyeRight').classList.toggle('active',manualPicking==='right');$('editStatus').textContent=l.eyes?.left&&l.eyes?.right?'양쪽 눈 위치 지정됨 · 필요하면 「양쪽 눈 맞춤」을 누르세요.':l.eyes?.left||l.eyes?.right?'한쪽 눈 지정됨 · 나머지 눈도 찍어 정렬할 수 있어요.':'수동 정렬 가능 · 왼쪽에서 양쪽 눈을 지정하세요.';$('anchorMessage').textContent=manualPicking?`${manualPicking==='left'?'왼쪽':'오른쪽'} 눈동자를 사진에서 한 번 클릭하세요. 실제 눈 위치로 확대 기준을 지정합니다.`:l.pin?`${l.pin.eye==='left-guide'?'왼쪽 가이드':l.pin.eye==='right-guide'?'오른쪽 가이드':l.pin.eye==='left'?'수동 왼쪽 눈':l.pin.eye==='right'?'수동 오른쪽 눈':'선택한 위치'} 고정 중 · 확대/축소 시 눈 기준이 제자리예요.`:'눈 기준 버튼 한 번이면 가이드 위치에서 즉시 고정돼요. 실제 눈이 다른 위치에 있으면 수동 눈 버튼으로 지정하세요.';['xNum','yNum','zoom','rotate','weight','opacity','resetTransform','anchorLeft','anchorRight','manualEyeLeft','manualEyeRight','alignManual','clearPin'].forEach(id=>$(id).disabled=(!l.image)||l.locked);$('alignManual').disabled=!l.image||l.locked||!l.eyes?.left||!l.eyes?.right;document.querySelectorAll('[data-fine]').forEach(b=>{const target=$(b.dataset.fine),v=Number(target?.value),min=target?.min===''?-Infinity:Number(target.min),max=target?.max===''?Infinity:Number(target.max);b.disabled=(!l.image)||l.locked||(!Number.isFinite(v))||(Number(b.dataset.dir)>0&&v>=max)||(Number(b.dataset.dir)<0&&v<=min)});}
+function cover(l,size){return Math.max(size/l.image.width,size/l.image.height)*l.zoom}
+function paintImage(ctx,l,size){ctx.clearRect(0,0,size,size);if(!l.image)return;const sc=cover(l,size);ctx.save();ctx.translate(size/2+l.x*size/S,size/2+l.y*size/S);ctx.rotate(l.rotate*Math.PI/180);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(l.image,-l.image.width*sc/2,-l.image.height*sc/2,l.image.width*sc,l.image.height*sc);ctx.restore()}
+function drawGuide(ctx){
+  const W=S;ctx.save();ctx.strokeStyle='rgba(238,61,142,.84)';ctx.fillStyle='rgba(238,61,142,.9)';ctx.lineWidth=1.1;ctx.setLineDash([6,7]);
+  ctx.beginPath();ctx.ellipse(W/2,W*.51,W*.235,W*.33,0,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(W*.27,W*.4);ctx.lineTo(W*.73,W*.4);ctx.moveTo(W*.5,W*.22);ctx.lineTo(W*.5,W*.79);ctx.stroke();ctx.setLineDash([]);
+  [[.39,.4],[.61,.4],[.5,.555],[.5,.675]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(W*x,W*y,2.7,0,Math.PI*2);ctx.fill()});ctx.restore();}
+function blendImages(size){const sources=[];for(let i=0;i<count;i++){const l=layers[i];if(!l.image||l.weight<=0||l.opacity<=0)continue;const c=document.createElement('canvas');c.width=size;c.height=size;const cx=c.getContext('2d',{willReadFrequently:true});paintImage(cx,l,size);const d=cx.getImageData(0,0,size,size).data;sources.push({data:d,weight:l.weight,opacity:l.opacity/100})}const result=new ImageData(size,size);const dest=result.data;for(let p=0;p<dest.length;p+=4){let sum=0,r=0,g=0,b=0,remain=1;for(const item of sources){const a=item.data[p+3]/255*item.opacity,w=item.weight*a;if(w<=0)continue;sum+=w;r+=item.data[p]*w;g+=item.data[p+1]*w;b+=item.data[p+2]*w;remain*=1-a}if(sum>0){dest[p]=Math.round(r/sum);dest[p+1]=Math.round(g/sum);dest[p+2]=Math.round(b/sum);dest[p+3]=Math.round((1-remain)*255)}}return result}
+function render(){const l=layers[selected];paintImage(ec,l,S);if($('guideCheck').checked)drawGuide(ec);$('emptyEdit').classList.toggle('hide',!!l.image);pc.clearRect(0,0,S,S);pc.putImageData(blendImages(S),0,0);let n=0,all=0;const weights=layers.slice(0,count).map(l=>{const w=l.image?l.weight*l.opacity/100:0;all+=w;if(l.image)n++;return w});$('countText').textContent=`등록 사진 ${n}/${count}`;$('weights').innerHTML=weights.map((v,i)=>`<div class="row"><span>${letters[i]} · ${safeText(layers[i].name||'이름 미입력')}</span><b>${all?Math.round(1000*v/all)/10:0}%</b></div>`).join('')}
+function canvasPoint(e){const r=edit.getBoundingClientRect();return {x:(e.clientX-r.left)*S/r.width,y:(e.clientY-r.top)*S/r.height}}
+function sourcePoint(l,x,y){const sc=cover(l,S),ang=l.rotate*Math.PI/180,dx=x-S/2-l.x,dy=y-S/2-l.y;return {sx:l.image.width/2+(dx*Math.cos(ang)+dy*Math.sin(ang))/sc,sy:l.image.height/2+(-dx*Math.sin(ang)+dy*Math.cos(ang))/sc}}
+function applyPin(l){if(!l.image||!l.pin)return;const p=l.pin,ang=l.rotate*Math.PI/180,sc=cover(l,S),dx=(p.sx-l.image.width/2)*sc,dy=(p.sy-l.image.height/2)*sc;l.x=p.tx-S/2-(Math.cos(ang)*dx-Math.sin(ang)*dy);l.y=p.ty-S/2-(Math.sin(ang)*dx+Math.cos(ang)*dy)}
+function anchorTo(side){
+ const l=layers[selected];
+ if(!l.image||l.locked){toast('사진을 등록하고 잠금을 해제해줘.');return;}
+ // One click immediately anchors the fixed eye GUIDE when no actual eye point was recorded.
+ // Once the user has marked the actual pupil with the separate manual-eye button,
+ // reuse that precise source pixel instead. No face detection or image generation.
+ const savedEye=l.eyes?.[side];
+ const tx=S*(side==='left'?.39:.61),ty=S*.4;
+ let sx,sy,screenX,screenY,kind;
+ if(savedEye&&Number.isFinite(savedEye.sx)&&Number.isFinite(savedEye.sy)){
+  sx=savedEye.sx;sy=savedEye.sy;
+  const ang=l.rotate*Math.PI/180,sc=cover(l,S);
+  const dx=(sx-l.image.width/2)*sc,dy=(sy-l.image.height/2)*sc;
+  screenX=S/2+l.x+Math.cos(ang)*dx-Math.sin(ang)*dy;
+  screenY=S/2+l.y+Math.sin(ang)*dx+Math.cos(ang)*dy;
+  kind=side;
+ }else{
+  const point=sourcePoint(l,tx,ty);
+  sx=point.sx;sy=point.sy;screenX=tx;screenY=ty;
+  kind=side+'-guide';
+ }
+ l.pin={sx,sy,tx:screenX,ty:screenY,eye:kind};
+ manualPicking=null;
+ touch();updateControls();
+ toast(savedEye?'실제 눈동자 기준 확대 고정 완료':'분홍 눈 가이드 위치에서 즉시 확대 고정! 실제 눈 위치와 다르면 수동 눈 버튼을 이용해줘.');
+}
+function snapshot(l){return {x:l.x,y:l.y,zoom:l.zoom,rotate:l.rotate,eyes:JSON.parse(JSON.stringify(l.eyes||{})),pin:l.pin?{...l.pin}:null,faceStatus:l.faceStatus}}
+function restore(l,s){l.x=s.x;l.y=s.y;l.zoom=s.zoom;l.rotate=s.rotate;l.eyes=s.eyes||{left:null,right:null};l.pin=s.pin||null;l.faceStatus=s.faceStatus||'미지정'}
+function alignFromManualEyes(l,left,right){const mid={sx:(left.sx+right.sx)/2,sy:(left.sy+right.sy)/2};const angle=Math.atan2(right.sy-left.sy,right.sx-left.sx);const eyeDistance=Math.hypot(right.sx-left.sx,right.sy-left.sy);if(eyeDistance<3)throw new Error('두 눈 사이 거리가 너무 작아');const newRotate=-angle*180/Math.PI;if(Math.abs(newRotate)>15)throw new Error('얼굴 기울기가 ±15°를 넘어. 정면 사진을 사용하거나 수동으로 맞춰줘.');const scale=(S*.22)/eyeDistance;const newZoom=scale/Math.max(S/l.image.width,S/l.image.height);if(newZoom<.25||newZoom>12)throw new Error('사진 크기가 정렬 범위를 벗어났어. 더 크게 캡처해줘.');const a=-angle,dx=(mid.sx-l.image.width/2)*scale,dy=(mid.sy-l.image.height/2)*scale;l.zoom=newZoom;l.rotate=newRotate;l.x=-(Math.cos(a)*dx-Math.sin(a)*dy);l.y=S*.405-S/2-(Math.sin(a)*dx+Math.cos(a)*dy);l.eyes={left,right};l.pin=null;l.faceStatus=`수동 정렬 완료 · 눈 간격 ${Math.round(eyeDistance)}px · 회전 ${newRotate.toFixed(1)}°`;}
+async function loadImage(file){if(!file||!file.type.startsWith('image/')){toast('이미지 파일이나 캡처를 선택해줘.');return}const index=selected;try{const dataUrl=await fileData(file),image=await imageData(dataUrl),l=layers[index];Object.assign(l,blankLayer(l.letter),{image,dataUrl,fileName:file.name});touch();makeSlots();updateControls();toast(`사진 ${l.letter} 등록 완료 · 원본 보존`)}catch(e){toast('이미지 등록 실패: '+e.message)}}
+function download(blob,name){const link=document.createElement('a'),u=URL.createObjectURL(blob);link.href=u;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(u),3000)}
+function cleanName(){return ($('questionName').value.trim()||'문제01').replace(/[\\/:*?"<>|]/g,'_').slice(0,72)}
+function serializeProject(){return {format:'hyundana-face-quiz',version:9,savedAt:new Date().toISOString(),questionName:$('questionName').value,hint:$('hintText').value,note:$('noteText').value,count,selected,settings:{guide:$('guideCheck').checked},layers:layers.map(l=>({letter:l.letter,name:l.name,dataUrl:l.dataUrl,fileName:l.fileName,x:l.x,y:l.y,zoom:l.zoom,rotate:l.rotate,weight:l.weight,opacity:l.opacity,locked:l.locked,eyes:l.eyes,pin:l.pin,faceStatus:l.faceStatus}))}}
+function save(){const data=serializeProject();download(new Blob([JSON.stringify(data)],{type:'application/json;charset=utf-8'}),cleanName()+'_프로젝트.json');dirty=false;$('savedStatus').textContent='✓ 프로젝트 JSON 백업 완료 · 원본 포함';toast('프로젝트 JSON을 내려받았어요.');}
+async function importProject(f){try{const d=JSON.parse(await f.text());if(d.format!=='hyundana-face-quiz'||!Array.isArray(d.layers))throw new Error('올바른 프로젝트 파일이 아니야');const newLayers=letters.map((letter,i)=>{const old=d.layers[i]||{};return {...blankLayer(letter),name:old.name||'',dataUrl:old.dataUrl||null,fileName:old.fileName||'',x:Number(old.x)||0,y:Number(old.y)||0,zoom:Number(old.zoom)||1,rotate:Number(old.rotate)||0,weight:old.weight===undefined?100:Number(old.weight),opacity:old.opacity===undefined?100:Number(old.opacity),locked:!!old.locked,eyes:old.eyes||{left:null,right:null},pin:old.pin||null,faceStatus:'미지정'}});for(const l of newLayers)if(l.dataUrl)l.image=await imageData(l.dataUrl);activeProjectId=null;currentStatus='draft';layers=newLayers;count=Math.max(2,Math.min(4,Number(d.count)||2));selected=Math.max(0,Math.min(count-1,Number(d.selected)||0));$('questionName').value=d.questionName||'문제 01';$('hintText').value=d.hint||'';$('noteText').value=d.note||'';$('guideCheck').checked=true;dirty=false;updateCountButtons();makeSlots();updateControls();schedule();$('savedStatus').textContent='✓ 프로젝트 불러오기 완료 · 원본과 수동 편집 정보 복원';toast('프로젝트 불러오기 완료 · 기존 원본은 보존해요')}catch(e){toast('프로젝트 불러오기 실패: '+e.message)}}
+function exportPng(){if(!layers.some((l,i)=>i<count&&l.image)){toast('먼저 사진을 등록해줘');return}status('1080×1080 PNG 출력 중…');setTimeout(()=>{try{const c=document.createElement('canvas');c.width=1080;c.height=1080;c.getContext('2d').putImageData(blendImages(1080),0,0);c.toBlob(b=>{if(b)download(b,cleanName()+'_합성.png');status('투명 PNG 출력 완료 · 가이드와 정답 정보는 포함되지 않아요.')},'image/png')}catch(e){toast('PNG 출력 실패: '+e.message)}},40)}
+// UI events
+$('uploadBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=async e=>{if(e.target.files?.[0])await loadImage(e.target.files[0]);e.target.value=''};
+$('deleteBtn').onclick=()=>{if(!layers[selected].image)return;if(!confirm('선택한 사진과 이 사진의 편집 정보만 지울까?'))return;layers[selected]=blankLayer(letters[selected]);touch();makeSlots();updateControls()};
+$('personName').oninput=e=>{layers[selected].name=e.target.value;makeSlots();touch()};
+document.querySelectorAll('[data-count]').forEach(b=>b.onclick=()=>{count=Number(b.dataset.count);if(selected>=count)selected=count-1;updateCountButtons();makeSlots();updateControls();touch()});
+$('anchorLeft').onclick=()=>anchorTo('left');$('anchorRight').onclick=()=>anchorTo('right');$('manualEyeLeft').onclick=()=>{manualPicking='left';updateControls();toast('가운데 사진에서 실제 왼쪽 눈동자를 한 번 클릭해줘')};$('manualEyeRight').onclick=()=>{manualPicking='right';updateControls();toast('가운데 사진에서 실제 오른쪽 눈동자를 한 번 클릭해줘')};$('clearPin').onclick=()=>{layers[selected].pin=null;manualPicking=null;updateControls();touch();toast('확대 기준점 해제 · 눈 표시도 남지 않아')};$('alignManual').onclick=()=>{const l=layers[selected];if(!l.eyes.left||!l.eyes.right)return toast('먼저 양쪽 눈 위치를 지정해줘');const s=snapshot(l);try{alignFromManualEyes(l,l.eyes.left,l.eyes.right);l.previousTransform=s;updateControls();touch();toast('양쪽 눈을 정렬 가이드에 맞췄어요.')}catch(e){toast(e.message)}};
+$('resetTransform').onclick=()=>{const l=layers[selected];l.x=0;l.y=0;l.zoom=1;l.rotate=0;l.pin=null;manualPicking=null;touch();updateControls()};$('lockCheck').onchange=e=>{layers[selected].locked=e.target.checked;touch();updateControls()};
+for(const [id,key,parse] of [['xNum','x',Number],['yNum','y',Number],['zoom','zoom',v=>Number(v)/100],['rotate','rotate',Number],['weight','weight',Number],['opacity','opacity',Number]]){$(id).oninput=e=>{const l=layers[selected];if(l.locked)return;let v=parse(e.target.value);if(!Number.isFinite(v))return;const beforeX=l.x,beforeY=l.y;l[key]=v;if(l.pin&&(key==='zoom'||key==='rotate'))applyPin(l);else if(l.pin&&key==='x')l.pin.tx+=l.x-beforeX;else if(l.pin&&key==='y')l.pin.ty+=l.y-beforeY;touch();updateControls()}}
+
+// Fine controls reuse the SAME input event path as dragging a slider.
+// This retains eye/anchor pinning when adjusting scale or rotation.
+for(const btn of document.querySelectorAll('[data-fine]')){
+  btn.addEventListener('click',()=>{
+    const l=layers[selected];if(!l.image||l.locked)return;
+    const field=$(btn.dataset.fine);if(!field)return;
+    const raw=Number(field.value);if(!Number.isFinite(raw))return;
+    const dir=Number(btn.dataset.dir);if(dir!==1&&dir!==-1)return;
+    const min=field.min===''?-Infinity:Number(field.min),max=field.max===''?Infinity:Number(field.max);
+    const next=Math.max(min,Math.min(max,Number((raw+dir*0.5).toFixed(3))));
+    if(next===raw)return;
+    field.value=String(next);
+    field.dispatchEvent(new Event('input',{bubbles:true}));
+  });
+}
+$('guideCheck').onchange=()=>{touch();toast($('guideCheck').checked?'눈·코·입 가이드 표시 중 · PNG 저장에는 포함되지 않아요.':'가이드를 숨겼어요. 정렬 좌표는 유지돼요.')};$('questionName').oninput=touch;$('hintText').oninput=touch;$('noteText').oninput=touch;
+edit.onpointerdown=e=>{const l=layers[selected];if(!l.image||l.locked)return;const p=canvasPoint(e);if(manualPicking){const eye=manualPicking;const pt=sourcePoint(l,p.x,p.y);l.eyes[eye]=pt;l.faceStatus='눈 좌표 수동 지정 · 두 눈 지정 후 수동 눈 정렬 가능';l.pin={...pt,eye,tx:p.x,ty:p.y};manualPicking=null;updateControls();touch();toast(`${eye==='left'?'왼쪽':'오른쪽'} 눈 위치 지정과 확대 기준점 고정 완료`);return}drag={px:e.clientX,py:e.clientY,x:l.x,y:l.y,lastX:l.x,lastY:l.y,scale:S/edit.getBoundingClientRect().width};edit.setPointerCapture(e.pointerId)};
+edit.onpointermove=e=>{if(!drag)return;const l=layers[selected],nextX=drag.x+(e.clientX-drag.px)*drag.scale,nextY=drag.y+(e.clientY-drag.py)*drag.scale;if(l.pin){l.pin.tx+=nextX-drag.lastX;l.pin.ty+=nextY-drag.lastY}l.x=nextX;l.y=nextY;drag.lastX=nextX;drag.lastY=nextY;touch();updateControls()};edit.onpointerup=()=>{drag=null};edit.onpointercancel=()=>{drag=null};
+edit.addEventListener('wheel',e=>{const l=layers[selected];if(!l.image||l.locked)return;e.preventDefault();let wasCursor=false;if(!l.pin){const p=canvasPoint(e);l.pin={...sourcePoint(l,p.x,p.y),tx:p.x,ty:p.y,eye:'cursor'};wasCursor=true}l.zoom=Math.max(.25,Math.min(12,l.zoom*(e.deltaY<0?1.08:1/1.08)));applyPin(l);if(wasCursor)l.pin=null;touch();updateControls()},{passive:false});
+document.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)||['INPUT','TEXTAREA'].includes(document.activeElement?.tagName))return;const l=layers[selected];if(!l.image||l.locked)return;e.preventDefault();const n=e.shiftKey?10:1;let dx=0,dy=0;if(e.key==='ArrowLeft')dx=-n;if(e.key==='ArrowRight')dx=n;if(e.key==='ArrowUp')dy=-n;if(e.key==='ArrowDown')dy=n;l.x+=dx;l.y+=dy;if(l.pin){l.pin.tx+=dx;l.pin.ty+=dy}touch();updateControls()});
+window.addEventListener('paste',async e=>{const item=Array.from(e.clipboardData?.items||[]).find(x=>x.kind==='file'&&x.type.startsWith('image/'));if(!item)return;e.preventDefault();const file=item.getAsFile();if(file)await loadImage(file)});
+$('newBtn').onclick=()=>{if(dirty&&!confirm('저장하지 않은 내용이 사라져요. 새 문제를 시작할까요?'))return;activeProjectId=null;currentStatus='draft';layers=letters.map(blankLayer);count=2;selected=0;manualPicking=null;drag=null;$('questionName').value='문제 01';$('hintText').value='';$('noteText').value='';$('guideCheck').checked=true;dirty=false;updateCountButtons();makeSlots();updateControls();status('새 문제를 시작했어. 사진을 등록해줘.');$('savedStatus').textContent='새 문제 · 아직 저장되지 않았어';schedule()};
+$('importBtn').onclick=()=>$('projectInput').click();$('projectInput').onchange=async e=>{if(e.target.files?.[0])await importProject(e.target.files[0]);e.target.value=''};$('saveBtn').onclick=save;$('sideSave').onclick=save;$('exportBtn').onclick=exportPng;$('sideExport').onclick=exportPng;
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
+// Problem manager v1.1: all images and edit data stay in the local browser (IndexedDB).
+const DB_NAME='hyundana-face-quiz-library-v1', DB_STORE='questions';
+let managerDbPromise=null,managerAvailable=true,managerBusy=false,managerStorageMode='persistent';const memoryStore=new Map();
+function newQuestionId(){return (typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():`q-${Date.now()}-${Math.random().toString(36).slice(2)}`}
+function openManagerDB(){if(managerDbPromise)return managerDbPromise;managerDbPromise=new Promise((resolve,reject)=>{try{const request=indexedDB.open(DB_NAME,1);request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains(DB_STORE))request.result.createObjectStore(DB_STORE,{keyPath:'id'})};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||new Error('저장소 연결 실패'));request.onblocked=()=>reject(new Error('다른 탭에서 데이터베이스를 사용 중입니다'))}catch(e){reject(e)}});return managerDbPromise}
+async function managerRequest(mode,operation){let db;try{db=await openManagerDB()}catch(e){managerStorageMode='memory';const copy=x=>JSON.parse(JSON.stringify(x));const store={getAll:()=>({result:Array.from(memoryStore.values()).map(copy)}),get:id=>({result:memoryStore.has(id)?copy(memoryStore.get(id)):undefined}),put:entry=>{memoryStore.set(entry.id,copy(entry));return {result:entry.id}},delete:id=>{memoryStore.delete(id);return {result:undefined}}};return operation(store).result}return new Promise((resolve,reject)=>{let finished=false;const tx=db.transaction(DB_STORE,mode);const store=tx.objectStore(DB_STORE);const req=operation(store);let value;req.onsuccess=()=>{value=req.result};req.onerror=()=>{if(!finished){finished=true;reject(req.error||new Error('저장 요청 실패'))}};tx.oncomplete=()=>{if(!finished){finished=true;resolve(value)}};tx.onerror=()=>{if(!finished){finished=true;reject(tx.error||new Error('저장소 오류'))}};tx.onabort=()=>{if(!finished){finished=true;reject(tx.error||new Error('저장 취소'))}}})}
+const allStored=()=>managerRequest('readonly',s=>s.getAll());
+const putStored=entry=>managerRequest('readwrite',s=>s.put(entry));
+const deleteStored=id=>managerRequest('readwrite',s=>s.delete(id));
+function sortEntries(entries){return entries.sort((a,b)=>(a.order??0)-(b.order??0)||(a.createdAt||'').localeCompare(b.createdAt||''))}
+function requiredForReady(project){const relevant=(project.layers||[]).slice(0,project.count||2);const n=Number(project.count)||2;if(n<2||n>4)return '합성 인원 2~4명을 선택해주세요.';if(relevant.length<n||relevant.some(x=>!x.dataUrl))return '선택한 인원 모두 사진을 등록해주세요.';if(relevant.some(x=>!String(x.name||'').trim()))return '각 사진의 정답 이름을 입력해주세요.';return null}
+function renderManager(){const grid=$('managerGrid');if(!managerAvailable){grid.innerHTML='<div class="empty-library">브라우저의 로컬 저장소를 사용할 수 없습니다. 단일 프로젝트 JSON 저장은 계속 사용할 수 있어요.</div>';return}const search=$('searchQuestion').value.trim().toLowerCase(),filter=$('statusFilter').value;const visible=managerEntries.filter(e=>(filter==='all'||e.status===filter)&&(!search||[e.project?.questionName,...(e.project?.layers||[]).map(l=>l.name||'')].join(' ').toLowerCase().includes(search)));$('managerMessage').textContent=`총 ${managerEntries.length}문제 · 진행 준비 ${managerEntries.filter(e=>e.status==='ready').length}문제`+(managerStorageMode==='memory'?' · 임시 보관 모드! JSON 백업 필수':' · 이 브라우저에 저장됨');if(!visible.length){grid.innerHTML='<div class="empty-library">저장된 문제가 없거나 검색 조건에 맞는 문제가 없어요. 제작실에서 문제를 저장해보세요.</div>';return}
+ grid.innerHTML=visible.map(e=>{const idx=managerEntries.findIndex(x=>x.id===e.id);const people=(e.project?.layers||[]).slice(0,e.project?.count||2).map(x=>x.name||'이름 미입력').join(' · ');return `<article class="question-card"><div class="card-top"><img src="${e.thumbnail||''}" alt="합성 문제 미리보기"><div class="card-info"><span class="statustag ${e.status==='ready'?'':'draft'}">${e.status==='ready'?'진행 준비':'제작 중'}</span><h3>${safeText(e.project?.questionName||'제목 없음')}</h3><div class="info-text">참여 ${e.project?.count||2}명 · ${safeText(people)}</div><div class="info-text">수정 ${safeText((e.updatedAt||'').slice(0,16).replace('T',' '))}</div></div></div><div class="card-actions"><button class="btn primary" data-act="open" data-id="${e.id}">편집</button><button class="btn" data-act="ready" data-id="${e.id}">${e.status==='ready'?'제작 중으로 변경':'진행 준비 표시'}</button><button class="btn" data-act="copy" data-id="${e.id}">복제</button><button class="btn" data-act="delete" data-id="${e.id}">삭제</button></div><div class="reorder"><span>순서 ${idx+1}</span><span><button class="btn" data-act="up" data-id="${e.id}" ${idx===0?'disabled':''} aria-label="앞 순서로 이동">↑</button> <button class="btn" data-act="down" data-id="${e.id}" ${idx===managerEntries.length-1?'disabled':''} aria-label="뒤 순서로 이동">↓</button></span></div></article>`}).join('')}
+async function refreshManager(){try{managerEntries=sortEntries(await allStored());$('savedCount').textContent=managerEntries.length;managerAvailable=true;renderManager()}catch(e){managerAvailable=false;$('managerMessage').textContent='저장소 연결 오류: '+e.message;renderManager();toast('로컬 보관함을 열 수 없어요. JSON 프로젝트 저장을 이용해주세요.')}}
+function switchView(view){const managing=view==='manager',showing=view==='show';$('managerView').hidden=!managing;$('showView').hidden=!showing;document.querySelector('.workspace').hidden=view!=='editor';for(const [id,active] of [['editorTab',view==='editor'],['managerTab',managing],['showTab',showing]]){$(id).classList.toggle('active',active);$(id).setAttribute('aria-selected',String(active))}$('pageTitle').textContent=showing?'방송 조작 · 방송 진행실':managing?'저장한 문제를 한눈에 · 문제 관리실':'연예인 얼굴 합성 · 문제 제작실';$('pageSubtitle').textContent=showing?'진행자 전용 조작 · 시청자 출력에는 공개된 정보만 전송':managing?'문제 목록, 순서 정렬, 상태 확인, 백업 관리':'원본 사진 그대로 겹치기 · 수동 눈 정렬과 확대 고정 · AI 얼굴 인식 및 마스크 없음';window.scrollTo({top:0,behavior:'instant'});if(managing)refreshManager();else if(showing)refreshShowQueue();else schedule()}
+$('editorTab').onclick=()=>switchView('editor');$('managerTab').onclick=()=>switchView('manager');$('showTab').onclick=()=>switchView('show');$('searchQuestion').oninput=renderManager;$('statusFilter').onchange=renderManager;
+function currentThumbnail(){const size=300,c=document.createElement('canvas');c.width=size;c.height=size;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.putImageData(blendImages(size),0,0);return c.toDataURL('image/png')}
+async function saveToManager(){if(managerBusy)return;if(!layers.some((l,i)=>i<count&&l.image)){toast('저장할 사진을 한 장 이상 등록해주세요.');return}managerBusy=true;$('librarySave').disabled=true;try{const p=serializeProject(),now=new Date().toISOString();let existing=activeProjectId?await managerRequest('readonly',s=>s.get(activeProjectId)):null;if(!existing){const all=await allStored();existing={id:newQuestionId(),createdAt:now,order:all.reduce((acc,e)=>Math.max(acc,e.order??0),-1)+1,status:'draft'};}const statusNew=dirty?'draft':(existing.status||currentStatus||'draft');const entry={...existing,project:p,thumbnail:currentThumbnail(),updatedAt:now,status:statusNew};await putStored(entry);activeProjectId=entry.id;currentStatus=entry.status;dirty=false;$('savedStatus').textContent=managerStorageMode==='memory'?'⚠ 임시 보관됨 · 종료 전 전체 JSON 백업 필수':'✓ 문제 관리실에 저장 완료 · JSON 백업도 권장해요.';await refreshManager();toast(managerStorageMode==='memory'?'임시 보관됐어요. 관리실에서 전체 JSON 백업을 꼭 내려받으세요.':'문제 관리실에 저장했어요.')}catch(e){toast('문제 저장 실패: '+e.message)}finally{managerBusy=false;$('librarySave').disabled=false}}
+$('librarySave').onclick=saveToManager;
+async function openStored(e){if(dirty&&!confirm('저장되지 않은 편집 내용이 있어요. 다른 문제를 열까요?'))return;const f=new File([JSON.stringify(e.project)],'관리실_문제.json',{type:'application/json'});await importProject(f);activeProjectId=e.id;currentStatus=e.status;dirty=false;$('savedStatus').textContent=`✓ 관리실 문제 열림 · ${e.status==='ready'?'진행 준비':'제작 중'}`;switchView('editor')}
+async function changeReady(e){const desired=e.status!=='ready';if(desired){const problem=requiredForReady(e.project);if(problem){toast('진행 준비 표시 불가: '+problem);return}}e.status=desired?'ready':'draft';e.updatedAt=new Date().toISOString();await putStored(e);if(activeProjectId===e.id)currentStatus=e.status;await refreshManager();toast(desired?'진행 준비로 표시했어요. 방송 진행실에서 사용할 수 있어요.':'제작 중으로 변경했어요.')}
+async function swapOrder(e,direction){const sorted=sortEntries(await allStored()),index=sorted.findIndex(x=>x.id===e.id),otherIndex=index+direction;if(index<0||otherIndex<0||otherIndex>=sorted.length)return;[sorted[index],sorted[otherIndex]]=[sorted[otherIndex],sorted[index]];for(let i=0;i<sorted.length;i++){sorted[i].order=i;await putStored(sorted[i])}await refreshManager()}
+async function duplicateStored(e){const now=new Date().toISOString(),all=await allStored();const project=JSON.parse(JSON.stringify(e.project));project.questionName=(project.questionName||'문제')+' (복사본)';const entry={id:newQuestionId(),createdAt:now,updatedAt:now,order:all.reduce((acc,x)=>Math.max(acc,x.order??0),-1)+1,status:'draft',project,thumbnail:e.thumbnail};await putStored(entry);await refreshManager();toast('문제를 복제했어요. 편집 후 저장해주세요.')}
+$('managerGrid').onclick=async ev=>{const button=ev.target.closest('button[data-act]');if(!button||managerBusy)return;const e=managerEntries.find(x=>x.id===button.dataset.id);if(!e)return;managerBusy=true;try{switch(button.dataset.act){case'open':await openStored(e);break;case'ready':await changeReady(e);break;case'up':await swapOrder(e,-1);break;case'down':await swapOrder(e,1);break;case'copy':await duplicateStored(e);break;case'delete':if(confirm(`「${e.project?.questionName||'문제'}」를 문제 관리실에서 삭제할까요?`)){await deleteStored(e.id);if(activeProjectId===e.id){activeProjectId=null;currentStatus='draft'}await refreshManager();toast('관리실에서 삭제했어요.')}break;}}catch(err){toast('작업 실패: '+err.message)}finally{managerBusy=false}};
+$('managerNew').onclick=()=>{$('newBtn').click();if(!dirty&&activeProjectId===null)switchView('editor')};
+$('backupAll').onclick=async()=>{try{const entries=sortEntries(await allStored());if(!entries.length)return toast('백업할 문제가 없어요.');const backup={format:'hyundana-face-quiz-library',version:1,exportedAt:new Date().toISOString(),entries};download(new Blob([JSON.stringify(backup)],{type:'application/json;charset=utf-8'}),'현단아_전체문제_백업.json');toast(`${entries.length}개 문제의 전체 백업을 다운로드했어요.`)}catch(e){toast('백업 실패: '+e.message)}};
+$('restoreAll').onclick=()=>$('backupInput').click();$('backupInput').onchange=async ev=>{const f=ev.target.files?.[0];ev.target.value='';if(!f)return;try{const b=JSON.parse(await f.text());if(b.format!=='hyundana-face-quiz-library'||!Array.isArray(b.entries))throw new Error('문제 관리실 전체 백업 JSON이 아니에요.');if(!confirm(`${b.entries.length}개 문제를 현재 문제 관리실에 추가할까요? 기존 문제는 유지됩니다.`))return;const previous=await allStored();let next=previous.reduce((acc,e)=>Math.max(acc,e.order??0),-1)+1;for(const item of b.entries){if(!item.project||item.project.format!=='hyundana-face-quiz')continue;const now=new Date().toISOString();await putStored({id:newQuestionId(),createdAt:now,updatedAt:now,order:next++,status:item.status==='ready'?'ready':'draft',thumbnail:item.thumbnail||'',project:item.project})}await refreshManager();toast('전체 백업에서 문제들을 추가했어요.')}catch(e){toast('백업 불러오기 실패: '+e.message)}};
+async function initializeManager(){await refreshManager()}
+
+
+// v1.1 broadcast controller. Output data is intentionally whitelisted.
+const showControl={queue:[],active:null,assets:null,preparing:false,stage:'waiting',round:'',hint:'',revealCount:0,armed:false};
+let publicOutputWin=null;
+const isLive=()=>['question','reveal','summary'].includes(showControl.stage);
+function neutralState(){return {version:1,stage:'waiting',round:'',image:null,hint:'',revealed:[]};}
+let publicScreen=neutralState();
+function composePreparedData(project,images){const size=720;
+ function renderLayer(index){const li=project.layers[index],img=images[index];const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;if(img)paintImage(canvas.getContext('2d'),{...li,image:img},size);return canvas;}
+ const n=Number(project.count)||2;
+ const paintLayers=Array.from({length:n},(_,i)=>renderLayer(i));
+ function mix(indices){const c=document.createElement('canvas');c.width=size;c.height=size;const cx=c.getContext('2d',{willReadFrequently:true});const items=indices.map(i=>{const l=project.layers[i];return {data:paintLayers[i].getContext('2d',{willReadFrequently:true}).getImageData(0,0,size,size).data,weight:Math.max(0,Number(l.weight)||0),opacity:Math.max(0,Number(l.opacity)||0)/100};});const res=cx.createImageData(size,size),dest=res.data;for(let p=0;p<dest.length;p+=4){let total=0,r=0,g=0,b=0,left=1;for(const it of items){const a=it.data[p+3]/255*it.opacity,w=it.weight*a;if(w<=0)continue;total+=w;r+=it.data[p]*w;g+=it.data[p+1]*w;b+=it.data[p+2]*w;left*=1-a;}if(total){dest[p]=Math.round(r/total);dest[p+1]=Math.round(g/total);dest[p+2]=Math.round(b/total);dest[p+3]=Math.round(255*(1-left));}}cx.putImageData(res,0,0);return c.toDataURL('image/png');}
+ // Assets are pre-rendered *privately* and no step is sent until its release button is clicked.
+ const partials=[];for(let left=n;left>=1;left--)partials.push(mix(Array.from({length:left},(_,i)=>i)));
+ const persons=Array.from({length:n},(_,i)=>({slot:letters[i],name:project.layers[i].name,image:paintLayers[i].toDataURL('image/png')}));
+ return {partials,persons,count:n};
+}
+async function refreshShowQueue(){try{const all=sortEntries(await allStored());showControl.queue=all.filter(e=>e.status==='ready'&&!requiredForReady(e.project));const current=$('showQuestionSelect').value;const sel=$('showQuestionSelect');sel.innerHTML=showControl.queue.length?showControl.queue.map((e,i)=>`<option value="${safeText(e.id)}">${String(i+1).padStart(2,'0')} · ${safeText(e.project.questionName||'문제')}</option>`).join(''):'<option value="">진행 준비된 문제가 없어요</option>';if(showControl.queue.some(e=>e.id===current))sel.value=current;$('showQueueStatus').textContent=`진행 준비 ${showControl.queue.length}개 · 총 ${all.length}개 문제 · ${managerStorageMode==='memory'?'임시 저장소(백업 필수)':'로컬 저장소'}`;showUpdateControls()}catch(e){$('showQueueStatus').textContent='문제 목록을 불러오지 못했어요: '+e.message;}}
+function showUpdateControls(){const a=showControl.active,live=isLive(),armed=showControl.armed,ready=!!a?.assets;const stage=showControl.stage;const steps=ready?a.assets.count:0;let revealed=showControl.revealCount;
+ $('showPreparedInfo').textContent=ready?`준비 완료: ${a.entry.project.questionName} · ${a.round} · 원본 ${steps}장 및 정답 단계 이미지 사전 생성 완료`:'현재 준비된 문제가 없습니다.';
+ $('showRuntimeState').textContent=`상태: ${stage==='waiting'?'대기':stage==='title'?'콘텐츠 제목':stage==='question'?'문제 공개':stage==='reveal'?'정답 분리 중':stage==='summary'?'최종 정답':stage==='emergency'?'긴급 안전 화면':'대기'} · 공개 ${revealed}/${steps}명 · ${armed?'정답 공개 잠금 해제':'정답 공개 잠금'}${publicOutputWin&&!publicOutputWin.closed?' · 출력창 연결됨':' · 출력창 없음'}`;
+ $('showArm').textContent=armed?'🔓 공개 준비됨 (눌러 잠금)':'🔒 정답 공개 준비';$('showArm').classList.toggle('primary',armed);
+ $('showRevealText').textContent=ready?`공개 ${revealed}/${steps}명 · 다음 ${revealed<steps?letters[steps-1-revealed]:'전체 공개 완료'}${armed?' · 공개 대기':' · 공개 잠금'}`:'문제를 준비한 뒤 공개할 수 있어요.';
+ $('showArm').disabled=!ready||!live||revealed>=steps;
+ $('showReveal').disabled=!ready||!armed||!live||revealed>=steps;
+ $('showSummary').disabled=!ready||revealed<steps;
+ $('showHintReveal').disabled=!ready||!live;
+ $('showHintHide').disabled=!ready||!live;
+ $('showStart').disabled=!ready;
+ $('showPrepare').disabled=showControl.preparing;
+ $('showPrepareNext').disabled=showControl.preparing||!showControl.queue.length;
+ $('showStageBadge').textContent=stage==='waiting'?'대기':stage==='title'?'타이틀':stage==='question'?'문제':stage==='reveal'?'정답 공개':stage==='summary'?'정답 정리':stage==='emergency'?'긴급 화면':'대기';
+ if(!ready){$('showPrivateAnswers').textContent='문제를 준비하면 이곳에만 정답이 표시됩니다.';}else{const html=a.assets.persons.map((p,i)=>`<div class="show-priv-item"><img src="${p.image}" alt=""><span>${p.slot} · ${safeText(p.name)} ${i>=steps-revealed?'✓ 공개됨':''}</span></div>`).join('');$('showPrivateAnswers').innerHTML=html;}
+}
+function showComputePublic(){const state={version:1,stage:showControl.stage,round:showControl.round,image:null,hint:'',revealed:[]},a=showControl.active;
+ if(a?.assets&&['question','reveal','summary'].includes(state.stage)){
+  const total=a.assets.count,shown=Math.min(total,showControl.revealCount);
+  if(state.stage!=='summary')state.image=a.assets.partials[shown]||null;
+  if(state.stage!=='summary')state.hint=showControl.hint;
+  for(let k=0;k<shown;k++){const p=a.assets.persons[total-1-k];state.revealed.push({slot:p.slot,name:p.name,image:p.image});}
+  if(state.stage==='summary'&&shown===total)state.revealed=[...a.assets.persons].map(p=>({slot:p.slot,name:p.name,image:p.image}));
+ }
+ return state;
+}
+function publicRender(node,st){if(!node)return;const stage=st.stage;const lab=node.getElementById('outRound'),im=node.getElementById('outImage'),hint=node.getElementById('outHint'),cards=node.getElementById('outCards');
+ if(!lab||!im||!hint||!cards)return;
+ lab.textContent=stage==='emergency'?'안전 화면':stage==='waiting'?'잠시 후 시작합니다':stage==='title'?'현단아 연예인 합성 퀴즈':stage==='summary'?`${st.round} · 정답 공개`:st.round||'라운드 01';
+ im.hidden=!st.image;if(st.image)im.src=st.image;else im.removeAttribute('src');
+ hint.hidden=!st.hint;hint.textContent=st.hint||'';
+ cards.replaceChildren();cards.hidden=!st.revealed.length;
+ for(const p of st.revealed){const div=node.createElement('div');div.className='person';const photo=node.createElement('img');photo.src=p.image;photo.alt='공개된 정답 사진';const cap=node.createElement('div');cap.textContent=`${p.slot} · ${p.name}`;div.append(photo,cap);cards.append(div);}
+ if(stage==='summary')node.body.dataset.summary='yes';else node.body.dataset.summary='no';
+}
+function publicRenderLocal(st){const node={getElementById(id){return {'outRound':$('showRoundPreview'),'outImage':$('showMainImage'),'outHint':$('showHintPreview'),'outCards':$('showRevealedPreview')}[id]},createElement(tag){return document.createElement(tag)},body:{dataset:{}}};publicRender(node,st);}
+function publishScreen(){publicScreen=showComputePublic();publicRenderLocal(publicScreen);if(publicOutputWin&&!publicOutputWin.closed){try{publicRender(publicOutputWin.document,publicScreen);$('showOutputDot').classList.add('connected');$('showOutputStatus').textContent='임시 출력창 연결됨 · 공개 허용 상태만 전송';}catch(e){$('showOutputDot').classList.remove('connected');$('showOutputStatus').textContent='출력창 갱신 실패 · 다시 열어주세요.';}}else{$('showOutputDot').classList.remove('connected');$('showOutputStatus').textContent='출력창 연결 전 · 진행실 내부 미리보기만 표시';}
+ // Integration contract for the separate OBS design project. No hidden answer fields are included.
+ window.dispatchEvent(new CustomEvent('hyundana:public-screen',{detail:structuredClone(publicScreen)}));showUpdateControls();}
+function openOutputWindow(){const w=window.open('','HyundanaPublicOutput','width=1280,height=720,resizable=yes,scrollbars=no');if(!w){toast('팝업이 차단됐어요. 이 사이트의 팝업 허용을 확인해주세요.');return;}publicOutputWin=w;
+ w.document.open();w.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>현단아 · 송출용 임시 출력</title><style>*{box-sizing:border-box}body{margin:0;background:#eff2f7;font:700 19px 'Malgun Gothic',sans-serif;color:#26364d;display:flex;align-items:center;justify-content:center;height:100vh}main{width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2%;padding:3%}h1{font-size:2.2vw;margin:0;text-align:center}#outImage{height:63%;max-width:75%;min-height:0;object-fit:contain;border-radius:6px}#outHint{font-size:1.45vw;background:white;border:1px solid #d8e0ec;padding:1% 2%;border-radius:10px;max-width:90%;text-align:center}#outCards{display:flex;gap:1.6%;align-items:center;justify-content:center;width:100%;max-height:28%;flex-wrap:wrap}.person{display:flex;flex-direction:column;gap:6px;align-items:center;font-size:1.25vw}.person img{width:7.5vw;height:7.5vw;object-fit:contain}body[data-summary=yes] #outCards .person img{width:13vw;height:13vw}body[data-summary=yes] #outCards{max-height:75%}</style></head><body><main><h1 id="outRound"></h1><img id="outImage" alt="공개된 문제 이미지" hidden><div id="outHint" hidden></div><div id="outCards" hidden></div></main></body></html>`);w.document.close();publishScreen();w.focus();toast('송출용 임시 출력창을 열었어요. OBS에는 이 창만 캡처하세요.');}
+async function showPrepareEntry(entry){if(!entry)return toast('진행할 문제를 선택해주세요.');if(showControl.preparing)return;
+ if(isLive()&&showControl.revealCount<showControl.active.assets.count&&!confirm('현재 문제가 진행 중이에요. 다른 문제를 비공개로 준비할까요? 방송 화면은 대기 화면으로 전환됩니다.'))return;
+ showControl.stage='waiting';showControl.hint='';showControl.revealCount=0;showControl.armed=false;publishScreen();showControl.preparing=true;showUpdateControls();
+ try{const project=entry.project,error=requiredForReady(project);if(error)throw new Error(error);const n=project.count;const images=await Promise.all(project.layers.slice(0,n).map(l=>imageData(l.dataUrl)));const assets=composePreparedData(project,images);const idx=showControl.queue.findIndex(x=>x.id===entry.id);showControl.active={entry,assets,round:`라운드 ${String(idx+1).padStart(2,'0')}`};showControl.round=showControl.active.round;$('showHintInput').value=project.hint||'';toast(`${showControl.round} 준비 완료 · 이미지는 사전 생성했어요.`);}catch(e){showControl.active=null;showControl.round='';toast('문제 준비 실패: '+e.message);}finally{showControl.preparing=false;publishScreen();}}
+function showSetStage(stage){showControl.stage=stage;if(['waiting','title','emergency'].includes(stage)){showControl.hint='';showControl.armed=false;}publishScreen();}
+$('showRefresh').onclick=refreshShowQueue;
+$('openPublicOutput').onclick=openOutputWindow;
+$('showPrepare').onclick=async()=>{const e=showControl.queue.find(x=>x.id===$('showQuestionSelect').value);await showPrepareEntry(e);};
+$('showPrepareNext').onclick=async()=>{const idx=showControl.queue.findIndex(e=>e.id===showControl.active?.entry.id),next=showControl.queue[idx+1]||showControl.queue[0];if(!next)return toast('준비된 문제가 없어요.');$('showQuestionSelect').value=next.id;await showPrepareEntry(next);};
+$('showWaiting').onclick=()=>showSetStage('waiting');
+$('showTitle').onclick=()=>showSetStage('title');
+$('showEmergency').onclick=()=>{showSetStage('emergency');toast('비상 안전 화면으로 전환했어요. 공개 정보는 모두 숨겼습니다.');};
+$('showStart').onclick=()=>{if(!showControl.active)return toast('먼저 문제를 준비해주세요.');showControl.hint='';showControl.revealCount=0;showControl.armed=false;showSetStage('question');};
+$('showHintReveal').onclick=()=>{if(!showControl.active||!isLive())return;const value=$('showHintInput').value.trim();if(!value)return toast('힌트를 입력해주세요.');showControl.hint=value;publishScreen();};
+$('showHintHide').onclick=()=>{showControl.hint='';publishScreen();};
+$('showArm').onclick=()=>{if(!showControl.active||!isLive())return;showControl.armed=!showControl.armed;showUpdateControls();};
+$('showReveal').onclick=()=>{if(!showControl.armed||!showControl.active||!isLive())return;const n=showControl.active.assets.count;if(showControl.revealCount>=n)return;if(showControl.revealCount===0&&!confirm('이제 정답 사진과 이름이 시청자 화면에 공개됩니다. 정말 시작할까요?'))return;showControl.revealCount++;showControl.stage=showControl.revealCount===n?'summary':'reveal';if(showControl.revealCount===n)showControl.armed=false;publishScreen();};
+$('showSummary').onclick=()=>{if(!showControl.active||showControl.revealCount!==showControl.active.assets.count)return toast('전체 정답 공개 이후에 사용할 수 있어요.');showControl.stage='summary';publishScreen();};
+window.HyundanaShowAdapter={getPublicState:()=>structuredClone(publicScreen),protocol:'hyundana:public-screen'};
+
+makeSlots();updateControls();schedule();
+initializeManager();
+publishScreen();
+
+// Safe local updater: only code assets update; existing IndexedDB user projects are untouched.
+(()=>{
+ const panel=document.getElementById('updatePanel'),info=document.getElementById('updateInfo');
+ const apply=document.getElementById('updateApply'),rollback=document.getElementById('updateRollback');
+ let latest=null;
+ async function call(path){const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}',cache:'no-store'});const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d}
+ async function status(){try{const r=await fetch('/api/update/status',{cache:'no-store'}),d=await r.json();document.getElementById('appVersion').textContent='v'+d.version;rollback.hidden=!d.has_rollback;}catch(e){info.textContent='업데이트 서버에 연결되지 않았어요.'}}
+ async function check(){apply.hidden=true;latest=null;info.textContent='GitHub 업데이트 목록을 확인하고 있어요…';try{const d=await call('/api/update/check');latest=d.latest;if(d.available)document.getElementById('updateBtn').textContent='🔔 새 버전 '+d.latest;else document.getElementById('updateBtn').textContent='🔄 업데이트 확인';info.textContent=d.available?`현재 버전 ${d.current}
+새 버전 ${d.latest} 발견!
+${d.notes||''}
+
+[새 버전 적용]을 누르면 코드만 교체하고 프로그램이 다시 열립니다.`:`현재 버전 ${d.current}
+최신 버전입니다.`;apply.hidden=!d.available;}catch(e){info.textContent='업데이트 확인 실패: '+e.message+'\n\n기존 프로그램은 그대로 사용할 수 있습니다.';}}
+ document.getElementById('updateBtn').onclick=()=>{panel.hidden=false;status().then(check)};
+ document.getElementById('updateClose').onclick=()=>{panel.hidden=true};
+ document.getElementById('updateCheckAgain').onclick=check;
+ apply.onclick=async()=>{if(!confirm(`새 버전 ${latest}을 적용할까요?
+방송 중에는 실행하지 말고, 저장하지 않은 작업이 있다면 먼저 저장해주세요.`))return;apply.disabled=true;info.textContent='검증한 업데이트 파일을 설치하고 서버를 다시 시작합니다…';try{const d=await call('/api/update/apply');if(d.updated){info.textContent='업데이트 완료. 다시 연결하는 중…';let attempts=0;const timer=setInterval(async()=>{attempts++;try{const r=await fetch('/health',{cache:'no-store'}),h=await r.json();if(h.version===d.version){clearInterval(timer);location.reload()}}catch(e){}if(attempts>40){clearInterval(timer);info.textContent='업데이트가 완료됐지만 자동 재연결에 실패했습니다. 127.0.0.1:8765/studio를 새로고침해 주세요.'}},500)}else info.textContent=d.message||'이미 최신 버전입니다.';}catch(e){info.textContent='업데이트 실패: '+e.message;}finally{apply.disabled=false;}};
+ rollback.onclick=async()=>{if(!confirm('직전 버전의 프로그램 코드로 되돌릴까요? 문제 데이터는 변경되지 않습니다.'))return;rollback.disabled=true;info.textContent='이전 버전 코드 복구 중…';try{const d=await call('/api/update/rollback');info.textContent=`복구 완료: v${d.version}. 서버 재시작 중…`;setTimeout(()=>location.reload(),1600)}catch(e){info.textContent='복구 실패: '+e.message}finally{rollback.disabled=false;}};
+ status();
+ setTimeout(()=>{if(panel.hidden)check()},1800);
+})();
+</script><script src="/bridge.js"></script></body></html>
