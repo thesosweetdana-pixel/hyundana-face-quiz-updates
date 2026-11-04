@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.2.0",
-  "notes": "방송 진행실·제작실 유지, 자동 업데이트 기능 추가",
+  "version": "1.2.1",
+  "notes": "자동 업데이트 작동 확인용 첫 업데이트: 프로그램 버전 표시 v1.2.1, 기존 문제 및 OBS 설정 유지",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "8c3d20fb7ac832cc0b0555416690b22aee4b04e941b2c1a45e3ffffb9c612034"
+      "sha256": "24b7dacb21ae31402d1ee3399182a34b14b23539cf079bd80d807031a5bf4287"
     },
     {
       "path": "obs.html",
