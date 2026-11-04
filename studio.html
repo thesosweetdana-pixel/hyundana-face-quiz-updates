@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.1.2</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.3.0</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -51,7 +51,7 @@
 @media(max-width:1380px){.show-main{grid-template-columns:1fr 1fr}.show-main .show-side{grid-column:1/-1}}
 @media(max-width:860px){.show-main{grid-template-columns:1fr}.show-main .show-side{grid-column:auto}}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.2.1</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.3.0</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -65,7 +65,7 @@
 <aside class="panel"><h2>① 원본 사진</h2><div class="desc">최대 4명 · 캡처 이미지 붙여넣기 지원</div><div class="subhead">합성 인원 선택</div><div class="countbar" id="countbar"><button class="active" data-count="2">2명</button><button data-count="3">3명</button><button data-count="4">4명</button></div><div id="slots"></div>
 <div class="note pink">📋 캡처 등록: 사진 칸 선택 → Windows <b>Win+Shift+S</b> → 프로그램에서 <b>Ctrl+V</b></div>
 <div class="two-buttons"><button class="btn" id="uploadBtn">▣ 사진 올리기·교체</button><button class="btn" id="deleteBtn">사진 제거</button></div>
-<label class="fieldlabel" for="personName">선택한 인물 이름 (방송 전용)</label><input id="personName" type="text" placeholder="정답 이름 입력">
+<label class="fieldlabel" for="personName">선택한 인물 이름 (방송 전용)</label><input id="personName" type="text" placeholder="정답 이름 입력" maxlength="120"><label class="fieldlabel" for="personSource">선택한 사진 출처 (방송 공개용)</label><input id="personSource" type="text" placeholder="예: 공식 프로필 / 방송사 / 사진 URL" maxlength="400"><div class="desc" style="margin-top:5px">사진 위에 출처, 아래에 이름을 표시할 수 있도록 원본별로 저장해요.</div>
 <div class="divider"></div><h2>② 눈 수동 정렬·확대 기준점</h2><p class="desc">분홍 가이드 기준으로 눈을 직접 지정 · 외부 모델 로딩 없음</p>
 <div class="two-buttons"><button class="btn" id="anchorLeft">왼쪽 눈 기준 · 즉시 고정</button><button class="btn" id="anchorRight">오른쪽 눈 기준 · 즉시 고정</button><button class="btn" id="manualEyeLeft">수동 왼쪽 눈</button><button class="btn" id="manualEyeRight">수동 오른쪽 눈</button><button class="btn tint" id="alignManual">양쪽 눈 맞춤</button><button class="btn" id="clearPin">기준점 해제</button></div>
 <div class="note" id="anchorMessage">왼쪽/오른쪽 눈 기준을 누르면 분홍 가이드의 해당 눈 위치가 즉시 확대 기준으로 고정돼요. 실제 눈과 가이드가 다르면 「수동 왼쪽/오른쪽 눈」을 눌러 눈동자를 직접 한 번 찍어줘요.</div></aside>
@@ -107,17 +107,17 @@
    <label class="showfield">힌트 작성(진행자만 볼 수 있음)<textarea id="showHintInput" placeholder="힌트를 입력해도 공개 버튼을 누르기 전까지 방송에 표시되지 않아요."></textarea></label>
    <div class="show-buttons"><button class="btn primary" id="showHintReveal">힌트 공개</button><button class="btn" id="showHintHide">힌트 숨기기</button></div>
    <hr style="border:0;border-top:1px solid #e8eaf2;margin:16px 0">
-   <h3>③ 정답 단계별 공개</h3>
+   <h3>③ 정답 원본 ↔ 합성 전환</h3>
    <div class="show-alert warn">정답 공개를 먼저 무장(준비)해야 단계 진행 버튼이 활성화됩니다. 공개 직전 확인 창도 표시됩니다.</div>
-   <div class="show-buttons"><button class="btn" id="showArm">🔒 정답 공개 준비</button><button class="btn primary" id="showReveal">다음 정답 공개</button></div>
+   <div class="show-buttons"><button class="btn" id="showArm">🔒 정답 공개 준비</button><button class="btn primary" id="showReveal">다음 화면 전환</button></div>
    <p class="show-small" id="showRevealText">아직 정답을 공개하지 않았습니다.</p>
-   <div class="show-buttons"><button class="btn" id="showSummary">최종 정답 화면</button><button class="btn" id="showEmergency" style="border-color:#d89898;color:#9f4040">긴급 안전 화면</button></div>
+   <div class="show-buttons"><button class="btn" id="showSummary">전체 합성 화면</button><button class="btn" id="showEmergency" style="border-color:#d89898;color:#9f4040">긴급 안전 화면</button></div>
   </section>
   <section class="show-card">
    <div class="row"><h3 style="margin:0">④ 시청자 화면 미리보기</h3><span id="showStageBadge" class="show-stage">대기</span></div>
    <div id="showScreen" class="show-screen" aria-label="실제 송출용으로 허용된 정보만 사용하는 미리보기">
     <div id="showRoundPreview" class="broadcast-title">잠시 후 시작합니다</div>
-    <img id="showMainImage" class="broadcast-img" alt="합성 문제 화면" hidden>
+    <div id="showFocusedSource" class="show-small" hidden></div><img id="showMainImage" class="broadcast-img" alt="합성 문제 화면" hidden><div id="showFocusedName" style="font-weight:800;color:#4b276e" hidden></div>
     <div id="showHintPreview" class="broadcast-hint" hidden></div>
     <div id="showRevealedPreview" class="show-revealed" hidden></div>
    </div>
@@ -129,18 +129,18 @@
   </section>
   <aside class="show-card show-side"><h3>진행 체크</h3>
    <div class="show-alert" id="showRuntimeState">대기 · 아직 선택된 문제가 없습니다.</div>
-   <p class="show-small" style="margin-top:14px">공개 예정: 4명이라면 D → C → B → A 순서로 원본 얼굴과 이름을 한 명씩 공개합니다. 중앙에는 ABC → AB → A 합성 이미지가 남아요.</p>
-   <div class="show-alert warn">OBS에는 반드시 <b>별도로 열린 임시 출력창</b>만 창 캡처로 연결하세요. 진행실 자체를 캡처하면 정답이 노출됩니다.</div>
+   <p class="show-small" style="margin-top:14px">새 공개 순서: ABCD 합성 → A 원본 → 합성 → B 원본 → 합성 → C 원본 → 합성 → D 원본 → 합성. 출처와 이름은 해당 인물 공개 시에만 전송됩니다.</p>
+   <div class="show-alert warn">OBS에는 <b>http://127.0.0.1:8765/obs</b> 브라우저 소스를 연결하세요. 진행실 자체를 캡처하면 정답이 노출됩니다.</div>
    <div class="show-alert" style="margin-top:10px">현재 v1.1은 같은 PC의 로컬 서버를 통해 OBS 브라우저 소스로 연결됩니다. 송출 화면의 최종 디자인은 별도 채팅에서 제작 중이며 이후 연결됩니다.</div>
   </aside>
  </div>
- <div class="show-footer">기능 기준: 문제 이미지는 사전에 계산하고, 방송 중에는 준비된 이미지만 전환합니다. 진행실은 원본 및 정답을 보유하지만 출력창에는 공개된 사진·이름과 공개 버튼을 누른 힌트만 전달합니다.</div>
+ <div class="show-footer">기능 기준: 합성 및 원본 사진은 사전에 준비합니다. 정답 공개는 전체 합성 → A → 전체 합성 → B → … → 전체 합성 순서입니다. 정답 이름과 출처는 해당 인물 공개 시점부터만 송출합니다.</div>
 </main>
 <div class="toast" id="toast"></div><input id="fileInput" type="file" accept="image/*" hidden><input id="projectInput" type="file" accept=".json,application/json" hidden><input id="backupInput" type="file" accept=".json,application/json" hidden>
 <script>
 'use strict';
 const S=560;const $=id=>document.getElementById(id);const letters=['A','B','C','D'];
-const blankLayer=(letter)=>({letter,image:null,dataUrl:null,fileName:'',name:'',x:0,y:0,zoom:1,rotate:0,weight:100,opacity:100,locked:false,eyes:{left:null,right:null},pin:null,faceStatus:'미지정',previousTransform:null});
+const blankLayer=(letter)=>({letter,image:null,dataUrl:null,fileName:'',name:'',source:'',x:0,y:0,zoom:1,rotate:0,weight:100,opacity:100,locked:false,eyes:{left:null,right:null},pin:null,faceStatus:'미지정',previousTransform:null});
 let layers=letters.map(blankLayer),selected=0,count=2,manualPicking=null,drag=null,pending=false,dirty=false,activeProjectId=null,currentStatus='draft',managerEntries=[];
 const edit=$('editCanvas'),preview=$('previewCanvas'),ec=edit.getContext('2d',{willReadFrequently:true}),pc=preview.getContext('2d',{willReadFrequently:true});let toastTimeout;
 function toast(str){$('toast').textContent=str;$('toast').classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>$('toast').classList.remove('show'),3300)}
@@ -154,7 +154,7 @@ function selectLayer(i){selected=i;manualPicking=null;if(selected>=count){count=
 function updateCountButtons(){document.querySelectorAll('[data-count]').forEach(b=>b.classList.toggle('active',Number(b.dataset.count)===count))}
 function status(txt,isBad=false){$('editStatus').textContent=txt;$('editStatus').classList.toggle('bad',isBad)}
 function formatFine(v){const num=Number(v);return Number(num.toFixed(2)).toString()}
-function updateControls(){const l=layers[selected];$('selectedLabel').textContent='사진 '+l.letter;$('personName').value=l.name;$('xNum').value=Number(l.x.toFixed(3));$('yNum').value=Number(l.y.toFixed(3));$('xVal').textContent=formatFine(l.x)+'px';$('yVal').textContent=formatFine(l.y)+'px';$('zoom').value=Number((l.zoom*100).toFixed(3));$('zoomVal').textContent=formatFine(l.zoom*100)+'%';$('rotate').value=l.rotate;$('rotateVal').textContent=formatFine(l.rotate)+'°';$('weight').value=l.weight;$('weightVal').textContent=formatFine(l.weight)+'%';$('opacity').value=l.opacity;$('opacityVal').textContent=formatFine(l.opacity)+'%';$('lockCheck').checked=l.locked;$('anchorLeft').classList.toggle('active',!!l.pin&&['left','left-guide'].includes(l.pin.eye));$('anchorRight').classList.toggle('active',!!l.pin&&['right','right-guide'].includes(l.pin.eye));$('manualEyeLeft').classList.toggle('active',manualPicking==='left');$('manualEyeRight').classList.toggle('active',manualPicking==='right');$('editStatus').textContent=l.eyes?.left&&l.eyes?.right?'양쪽 눈 위치 지정됨 · 필요하면 「양쪽 눈 맞춤」을 누르세요.':l.eyes?.left||l.eyes?.right?'한쪽 눈 지정됨 · 나머지 눈도 찍어 정렬할 수 있어요.':'수동 정렬 가능 · 왼쪽에서 양쪽 눈을 지정하세요.';$('anchorMessage').textContent=manualPicking?`${manualPicking==='left'?'왼쪽':'오른쪽'} 눈동자를 사진에서 한 번 클릭하세요. 실제 눈 위치로 확대 기준을 지정합니다.`:l.pin?`${l.pin.eye==='left-guide'?'왼쪽 가이드':l.pin.eye==='right-guide'?'오른쪽 가이드':l.pin.eye==='left'?'수동 왼쪽 눈':l.pin.eye==='right'?'수동 오른쪽 눈':'선택한 위치'} 고정 중 · 확대/축소 시 눈 기준이 제자리예요.`:'눈 기준 버튼 한 번이면 가이드 위치에서 즉시 고정돼요. 실제 눈이 다른 위치에 있으면 수동 눈 버튼으로 지정하세요.';['xNum','yNum','zoom','rotate','weight','opacity','resetTransform','anchorLeft','anchorRight','manualEyeLeft','manualEyeRight','alignManual','clearPin'].forEach(id=>$(id).disabled=(!l.image)||l.locked);$('alignManual').disabled=!l.image||l.locked||!l.eyes?.left||!l.eyes?.right;document.querySelectorAll('[data-fine]').forEach(b=>{const target=$(b.dataset.fine),v=Number(target?.value),min=target?.min===''?-Infinity:Number(target.min),max=target?.max===''?Infinity:Number(target.max);b.disabled=(!l.image)||l.locked||(!Number.isFinite(v))||(Number(b.dataset.dir)>0&&v>=max)||(Number(b.dataset.dir)<0&&v<=min)});}
+function updateControls(){const l=layers[selected];$('selectedLabel').textContent='사진 '+l.letter;$('personName').value=l.name;$('personSource').value=l.source||'';$('xNum').value=Number(l.x.toFixed(3));$('yNum').value=Number(l.y.toFixed(3));$('xVal').textContent=formatFine(l.x)+'px';$('yVal').textContent=formatFine(l.y)+'px';$('zoom').value=Number((l.zoom*100).toFixed(3));$('zoomVal').textContent=formatFine(l.zoom*100)+'%';$('rotate').value=l.rotate;$('rotateVal').textContent=formatFine(l.rotate)+'°';$('weight').value=l.weight;$('weightVal').textContent=formatFine(l.weight)+'%';$('opacity').value=l.opacity;$('opacityVal').textContent=formatFine(l.opacity)+'%';$('lockCheck').checked=l.locked;$('anchorLeft').classList.toggle('active',!!l.pin&&['left','left-guide'].includes(l.pin.eye));$('anchorRight').classList.toggle('active',!!l.pin&&['right','right-guide'].includes(l.pin.eye));$('manualEyeLeft').classList.toggle('active',manualPicking==='left');$('manualEyeRight').classList.toggle('active',manualPicking==='right');$('editStatus').textContent=l.eyes?.left&&l.eyes?.right?'양쪽 눈 위치 지정됨 · 필요하면 「양쪽 눈 맞춤」을 누르세요.':l.eyes?.left||l.eyes?.right?'한쪽 눈 지정됨 · 나머지 눈도 찍어 정렬할 수 있어요.':'수동 정렬 가능 · 왼쪽에서 양쪽 눈을 지정하세요.';$('anchorMessage').textContent=manualPicking?`${manualPicking==='left'?'왼쪽':'오른쪽'} 눈동자를 사진에서 한 번 클릭하세요. 실제 눈 위치로 확대 기준을 지정합니다.`:l.pin?`${l.pin.eye==='left-guide'?'왼쪽 가이드':l.pin.eye==='right-guide'?'오른쪽 가이드':l.pin.eye==='left'?'수동 왼쪽 눈':l.pin.eye==='right'?'수동 오른쪽 눈':'선택한 위치'} 고정 중 · 확대/축소 시 눈 기준이 제자리예요.`:'눈 기준 버튼 한 번이면 가이드 위치에서 즉시 고정돼요. 실제 눈이 다른 위치에 있으면 수동 눈 버튼으로 지정하세요.';['xNum','yNum','zoom','rotate','weight','opacity','resetTransform','anchorLeft','anchorRight','manualEyeLeft','manualEyeRight','alignManual','clearPin'].forEach(id=>$(id).disabled=(!l.image)||l.locked);$('alignManual').disabled=!l.image||l.locked||!l.eyes?.left||!l.eyes?.right;document.querySelectorAll('[data-fine]').forEach(b=>{const target=$(b.dataset.fine),v=Number(target?.value),min=target?.min===''?-Infinity:Number(target.min),max=target?.max===''?Infinity:Number(target.max);b.disabled=(!l.image)||l.locked||(!Number.isFinite(v))||(Number(b.dataset.dir)>0&&v>=max)||(Number(b.dataset.dir)<0&&v<=min)});}
 function cover(l,size){return Math.max(size/l.image.width,size/l.image.height)*l.zoom}
 function paintImage(ctx,l,size){ctx.clearRect(0,0,size,size);if(!l.image)return;const sc=cover(l,size);ctx.save();ctx.translate(size/2+l.x*size/S,size/2+l.y*size/S);ctx.rotate(l.rotate*Math.PI/180);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(l.image,-l.image.width*sc/2,-l.image.height*sc/2,l.image.width*sc,l.image.height*sc);ctx.restore()}
 function drawGuide(ctx){
@@ -199,14 +199,14 @@ function alignFromManualEyes(l,left,right){const mid={sx:(left.sx+right.sx)/2,sy
 async function loadImage(file){if(!file||!file.type.startsWith('image/')){toast('이미지 파일이나 캡처를 선택해줘.');return}const index=selected;try{const dataUrl=await fileData(file),image=await imageData(dataUrl),l=layers[index];Object.assign(l,blankLayer(l.letter),{image,dataUrl,fileName:file.name});touch();makeSlots();updateControls();toast(`사진 ${l.letter} 등록 완료 · 원본 보존`)}catch(e){toast('이미지 등록 실패: '+e.message)}}
 function download(blob,name){const link=document.createElement('a'),u=URL.createObjectURL(blob);link.href=u;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(u),3000)}
 function cleanName(){return ($('questionName').value.trim()||'문제01').replace(/[\\/:*?"<>|]/g,'_').slice(0,72)}
-function serializeProject(){return {format:'hyundana-face-quiz',version:9,savedAt:new Date().toISOString(),questionName:$('questionName').value,hint:$('hintText').value,note:$('noteText').value,count,selected,settings:{guide:$('guideCheck').checked},layers:layers.map(l=>({letter:l.letter,name:l.name,dataUrl:l.dataUrl,fileName:l.fileName,x:l.x,y:l.y,zoom:l.zoom,rotate:l.rotate,weight:l.weight,opacity:l.opacity,locked:l.locked,eyes:l.eyes,pin:l.pin,faceStatus:l.faceStatus}))}}
+function serializeProject(){return {format:'hyundana-face-quiz',version:9,savedAt:new Date().toISOString(),questionName:$('questionName').value,hint:$('hintText').value,note:$('noteText').value,count,selected,settings:{guide:$('guideCheck').checked},layers:layers.map(l=>({letter:l.letter,name:l.name,source:l.source||'',dataUrl:l.dataUrl,fileName:l.fileName,x:l.x,y:l.y,zoom:l.zoom,rotate:l.rotate,weight:l.weight,opacity:l.opacity,locked:l.locked,eyes:l.eyes,pin:l.pin,faceStatus:l.faceStatus}))}}
 function save(){const data=serializeProject();download(new Blob([JSON.stringify(data)],{type:'application/json;charset=utf-8'}),cleanName()+'_프로젝트.json');dirty=false;$('savedStatus').textContent='✓ 프로젝트 JSON 백업 완료 · 원본 포함';toast('프로젝트 JSON을 내려받았어요.');}
-async function importProject(f){try{const d=JSON.parse(await f.text());if(d.format!=='hyundana-face-quiz'||!Array.isArray(d.layers))throw new Error('올바른 프로젝트 파일이 아니야');const newLayers=letters.map((letter,i)=>{const old=d.layers[i]||{};return {...blankLayer(letter),name:old.name||'',dataUrl:old.dataUrl||null,fileName:old.fileName||'',x:Number(old.x)||0,y:Number(old.y)||0,zoom:Number(old.zoom)||1,rotate:Number(old.rotate)||0,weight:old.weight===undefined?100:Number(old.weight),opacity:old.opacity===undefined?100:Number(old.opacity),locked:!!old.locked,eyes:old.eyes||{left:null,right:null},pin:old.pin||null,faceStatus:'미지정'}});for(const l of newLayers)if(l.dataUrl)l.image=await imageData(l.dataUrl);activeProjectId=null;currentStatus='draft';layers=newLayers;count=Math.max(2,Math.min(4,Number(d.count)||2));selected=Math.max(0,Math.min(count-1,Number(d.selected)||0));$('questionName').value=d.questionName||'문제 01';$('hintText').value=d.hint||'';$('noteText').value=d.note||'';$('guideCheck').checked=true;dirty=false;updateCountButtons();makeSlots();updateControls();schedule();$('savedStatus').textContent='✓ 프로젝트 불러오기 완료 · 원본과 수동 편집 정보 복원';toast('프로젝트 불러오기 완료 · 기존 원본은 보존해요')}catch(e){toast('프로젝트 불러오기 실패: '+e.message)}}
+async function importProject(f){try{const d=JSON.parse(await f.text());if(d.format!=='hyundana-face-quiz'||!Array.isArray(d.layers))throw new Error('올바른 프로젝트 파일이 아니야');const newLayers=letters.map((letter,i)=>{const old=d.layers[i]||{};return {...blankLayer(letter),name:old.name||'',source:old.source||'',dataUrl:old.dataUrl||null,fileName:old.fileName||'',x:Number(old.x)||0,y:Number(old.y)||0,zoom:Number(old.zoom)||1,rotate:Number(old.rotate)||0,weight:old.weight===undefined?100:Number(old.weight),opacity:old.opacity===undefined?100:Number(old.opacity),locked:!!old.locked,eyes:old.eyes||{left:null,right:null},pin:old.pin||null,faceStatus:'미지정'}});for(const l of newLayers)if(l.dataUrl)l.image=await imageData(l.dataUrl);activeProjectId=null;currentStatus='draft';layers=newLayers;count=Math.max(2,Math.min(4,Number(d.count)||2));selected=Math.max(0,Math.min(count-1,Number(d.selected)||0));$('questionName').value=d.questionName||'문제 01';$('hintText').value=d.hint||'';$('noteText').value=d.note||'';$('guideCheck').checked=true;dirty=false;updateCountButtons();makeSlots();updateControls();schedule();$('savedStatus').textContent='✓ 프로젝트 불러오기 완료 · 원본과 수동 편집 정보 복원';toast('프로젝트 불러오기 완료 · 기존 원본은 보존해요')}catch(e){toast('프로젝트 불러오기 실패: '+e.message)}}
 function exportPng(){if(!layers.some((l,i)=>i<count&&l.image)){toast('먼저 사진을 등록해줘');return}status('1080×1080 PNG 출력 중…');setTimeout(()=>{try{const c=document.createElement('canvas');c.width=1080;c.height=1080;c.getContext('2d').putImageData(blendImages(1080),0,0);c.toBlob(b=>{if(b)download(b,cleanName()+'_합성.png');status('투명 PNG 출력 완료 · 가이드와 정답 정보는 포함되지 않아요.')},'image/png')}catch(e){toast('PNG 출력 실패: '+e.message)}},40)}
 // UI events
 $('uploadBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=async e=>{if(e.target.files?.[0])await loadImage(e.target.files[0]);e.target.value=''};
 $('deleteBtn').onclick=()=>{if(!layers[selected].image)return;if(!confirm('선택한 사진과 이 사진의 편집 정보만 지울까?'))return;layers[selected]=blankLayer(letters[selected]);touch();makeSlots();updateControls()};
-$('personName').oninput=e=>{layers[selected].name=e.target.value;makeSlots();touch()};
+$('personName').oninput=e=>{layers[selected].name=e.target.value;makeSlots();touch()};$('personSource').oninput=e=>{layers[selected].source=e.target.value;touch()};
 document.querySelectorAll('[data-count]').forEach(b=>b.onclick=()=>{count=Number(b.dataset.count);if(selected>=count)selected=count-1;updateCountButtons();makeSlots();updateControls();touch()});
 $('anchorLeft').onclick=()=>anchorTo('left');$('anchorRight').onclick=()=>anchorTo('right');$('manualEyeLeft').onclick=()=>{manualPicking='left';updateControls();toast('가운데 사진에서 실제 왼쪽 눈동자를 한 번 클릭해줘')};$('manualEyeRight').onclick=()=>{manualPicking='right';updateControls();toast('가운데 사진에서 실제 오른쪽 눈동자를 한 번 클릭해줘')};$('clearPin').onclick=()=>{layers[selected].pin=null;manualPicking=null;updateControls();touch();toast('확대 기준점 해제 · 눈 표시도 남지 않아')};$('alignManual').onclick=()=>{const l=layers[selected];if(!l.eyes.left||!l.eyes.right)return toast('먼저 양쪽 눈 위치를 지정해줘');const s=snapshot(l);try{alignFromManualEyes(l,l.eyes.left,l.eyes.right);l.previousTransform=s;updateControls();touch();toast('양쪽 눈을 정렬 가이드에 맞췄어요.')}catch(e){toast(e.message)}};
 $('resetTransform').onclick=()=>{const l=layers[selected];l.x=0;l.y=0;l.zoom=1;l.rotate=0;l.pin=null;manualPicking=null;touch();updateControls()};$('lockCheck').onchange=e=>{layers[selected].locked=e.target.checked;touch();updateControls()};
@@ -246,7 +246,7 @@ const allStored=()=>managerRequest('readonly',s=>s.getAll());
 const putStored=entry=>managerRequest('readwrite',s=>s.put(entry));
 const deleteStored=id=>managerRequest('readwrite',s=>s.delete(id));
 function sortEntries(entries){return entries.sort((a,b)=>(a.order??0)-(b.order??0)||(a.createdAt||'').localeCompare(b.createdAt||''))}
-function requiredForReady(project){const relevant=(project.layers||[]).slice(0,project.count||2);const n=Number(project.count)||2;if(n<2||n>4)return '합성 인원 2~4명을 선택해주세요.';if(relevant.length<n||relevant.some(x=>!x.dataUrl))return '선택한 인원 모두 사진을 등록해주세요.';if(relevant.some(x=>!String(x.name||'').trim()))return '각 사진의 정답 이름을 입력해주세요.';return null}
+function requiredForReady(project){const relevant=(project.layers||[]).slice(0,project.count||2);const n=Number(project.count)||2;if(n<2||n>4)return '합성 인원 2~4명을 선택해주세요.';if(relevant.length<n||relevant.some(x=>!x.dataUrl))return '선택한 인원 모두 사진을 등록해주세요.';if(relevant.some(x=>!String(x.name||'').trim()))return '각 사진의 정답 이름을 입력해주세요.';if(relevant.some(x=>!String(x.source||'').trim()))return '각 사진의 출처를 입력해주세요.';return null}
 function renderManager(){const grid=$('managerGrid');if(!managerAvailable){grid.innerHTML='<div class="empty-library">브라우저의 로컬 저장소를 사용할 수 없습니다. 단일 프로젝트 JSON 저장은 계속 사용할 수 있어요.</div>';return}const search=$('searchQuestion').value.trim().toLowerCase(),filter=$('statusFilter').value;const visible=managerEntries.filter(e=>(filter==='all'||e.status===filter)&&(!search||[e.project?.questionName,...(e.project?.layers||[]).map(l=>l.name||'')].join(' ').toLowerCase().includes(search)));$('managerMessage').textContent=`총 ${managerEntries.length}문제 · 진행 준비 ${managerEntries.filter(e=>e.status==='ready').length}문제`+(managerStorageMode==='memory'?' · 임시 보관 모드! JSON 백업 필수':' · 이 브라우저에 저장됨');if(!visible.length){grid.innerHTML='<div class="empty-library">저장된 문제가 없거나 검색 조건에 맞는 문제가 없어요. 제작실에서 문제를 저장해보세요.</div>';return}
  grid.innerHTML=visible.map(e=>{const idx=managerEntries.findIndex(x=>x.id===e.id);const people=(e.project?.layers||[]).slice(0,e.project?.count||2).map(x=>x.name||'이름 미입력').join(' · ');return `<article class="question-card"><div class="card-top"><img src="${e.thumbnail||''}" alt="합성 문제 미리보기"><div class="card-info"><span class="statustag ${e.status==='ready'?'':'draft'}">${e.status==='ready'?'진행 준비':'제작 중'}</span><h3>${safeText(e.project?.questionName||'제목 없음')}</h3><div class="info-text">참여 ${e.project?.count||2}명 · ${safeText(people)}</div><div class="info-text">수정 ${safeText((e.updatedAt||'').slice(0,16).replace('T',' '))}</div></div></div><div class="card-actions"><button class="btn primary" data-act="open" data-id="${e.id}">편집</button><button class="btn" data-act="ready" data-id="${e.id}">${e.status==='ready'?'제작 중으로 변경':'진행 준비 표시'}</button><button class="btn" data-act="copy" data-id="${e.id}">복제</button><button class="btn" data-act="delete" data-id="${e.id}">삭제</button></div><div class="reorder"><span>순서 ${idx+1}</span><span><button class="btn" data-act="up" data-id="${e.id}" ${idx===0?'disabled':''} aria-label="앞 순서로 이동">↑</button> <button class="btn" data-act="down" data-id="${e.id}" ${idx===managerEntries.length-1?'disabled':''} aria-label="뒤 순서로 이동">↓</button></span></div></article>`}).join('')}
 async function refreshManager(){try{managerEntries=sortEntries(await allStored());$('savedCount').textContent=managerEntries.length;managerAvailable=true;renderManager()}catch(e){managerAvailable=false;$('managerMessage').textContent='저장소 연결 오류: '+e.message;renderManager();toast('로컬 보관함을 열 수 없어요. JSON 프로젝트 저장을 이용해주세요.')}}
@@ -267,10 +267,10 @@ async function initializeManager(){await refreshManager()}
 
 
 // v1.1 broadcast controller. Output data is intentionally whitelisted.
-const showControl={queue:[],active:null,assets:null,preparing:false,stage:'waiting',round:'',hint:'',revealCount:0,armed:false};
+const showControl={queue:[],active:null,assets:null,preparing:false,stage:'waiting',round:'',hint:'',revealCount:0,revealStep:0,armed:false};
 let publicOutputWin=null;
 const isLive=()=>['question','reveal','summary'].includes(showControl.stage);
-function neutralState(){return {version:1,stage:'waiting',round:'',image:null,hint:'',revealed:[]};}
+function neutralState(){return {version:2,stage:'waiting',round:'',image:null,hint:'',revealed:[],focus:null,revealStep:0,revealTotal:0};}
 let publicScreen=neutralState();
 function composePreparedData(project,images){const size=720;
  function renderLayer(index){const li=project.layers[index],img=images[index];const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;if(img)paintImage(canvas.getContext('2d'),{...li,image:img},size);return canvas;}
@@ -278,55 +278,69 @@ function composePreparedData(project,images){const size=720;
  const paintLayers=Array.from({length:n},(_,i)=>renderLayer(i));
  function mix(indices){const c=document.createElement('canvas');c.width=size;c.height=size;const cx=c.getContext('2d',{willReadFrequently:true});const items=indices.map(i=>{const l=project.layers[i];return {data:paintLayers[i].getContext('2d',{willReadFrequently:true}).getImageData(0,0,size,size).data,weight:Math.max(0,Number(l.weight)||0),opacity:Math.max(0,Number(l.opacity)||0)/100};});const res=cx.createImageData(size,size),dest=res.data;for(let p=0;p<dest.length;p+=4){let total=0,r=0,g=0,b=0,left=1;for(const it of items){const a=it.data[p+3]/255*it.opacity,w=it.weight*a;if(w<=0)continue;total+=w;r+=it.data[p]*w;g+=it.data[p+1]*w;b+=it.data[p+2]*w;left*=1-a;}if(total){dest[p]=Math.round(r/total);dest[p+1]=Math.round(g/total);dest[p+2]=Math.round(b/total);dest[p+3]=Math.round(255*(1-left));}}cx.putImageData(res,0,0);return c.toDataURL('image/png');}
  // Assets are pre-rendered *privately* and no step is sent until its release button is clicked.
- const partials=[];for(let left=n;left>=1;left--)partials.push(mix(Array.from({length:left},(_,i)=>i)));
- const persons=Array.from({length:n},(_,i)=>({slot:letters[i],name:project.layers[i].name,image:paintLayers[i].toDataURL('image/png')}));
- return {partials,persons,count:n};
+ const composite=mix(Array.from({length:n},(_,i)=>i));
+ const persons=Array.from({length:n},(_,i)=>({slot:letters[i],name:project.layers[i].name,source:String(project.layers[i].source||''),image:paintLayers[i].toDataURL('image/png')}));
+ return {composite,persons,count:n};
 }
 async function refreshShowQueue(){try{const all=sortEntries(await allStored());showControl.queue=all.filter(e=>e.status==='ready'&&!requiredForReady(e.project));const current=$('showQuestionSelect').value;const sel=$('showQuestionSelect');sel.innerHTML=showControl.queue.length?showControl.queue.map((e,i)=>`<option value="${safeText(e.id)}">${String(i+1).padStart(2,'0')} · ${safeText(e.project.questionName||'문제')}</option>`).join(''):'<option value="">진행 준비된 문제가 없어요</option>';if(showControl.queue.some(e=>e.id===current))sel.value=current;$('showQueueStatus').textContent=`진행 준비 ${showControl.queue.length}개 · 총 ${all.length}개 문제 · ${managerStorageMode==='memory'?'임시 저장소(백업 필수)':'로컬 저장소'}`;showUpdateControls()}catch(e){$('showQueueStatus').textContent='문제 목록을 불러오지 못했어요: '+e.message;}}
-function showUpdateControls(){const a=showControl.active,live=isLive(),armed=showControl.armed,ready=!!a?.assets;const stage=showControl.stage;const steps=ready?a.assets.count:0;let revealed=showControl.revealCount;
- $('showPreparedInfo').textContent=ready?`준비 완료: ${a.entry.project.questionName} · ${a.round} · 원본 ${steps}장 및 정답 단계 이미지 사전 생성 완료`:'현재 준비된 문제가 없습니다.';
- $('showRuntimeState').textContent=`상태: ${stage==='waiting'?'대기':stage==='title'?'콘텐츠 제목':stage==='question'?'문제 공개':stage==='reveal'?'정답 분리 중':stage==='summary'?'최종 정답':stage==='emergency'?'긴급 안전 화면':'대기'} · 공개 ${revealed}/${steps}명 · ${armed?'정답 공개 잠금 해제':'정답 공개 잠금'}${publicOutputWin&&!publicOutputWin.closed?' · 출력창 연결됨':' · 출력창 없음'}`;
- $('showArm').textContent=armed?'🔓 공개 준비됨 (눌러 잠금)':'🔒 정답 공개 준비';$('showArm').classList.toggle('primary',armed);
- $('showRevealText').textContent=ready?`공개 ${revealed}/${steps}명 · 다음 ${revealed<steps?letters[steps-1-revealed]:'전체 공개 완료'}${armed?' · 공개 대기':' · 공개 잠금'}`:'문제를 준비한 뒤 공개할 수 있어요.';
- $('showArm').disabled=!ready||!live||revealed>=steps;
- $('showReveal').disabled=!ready||!armed||!live||revealed>=steps;
- $('showSummary').disabled=!ready||revealed<steps;
- $('showHintReveal').disabled=!ready||!live;
- $('showHintHide').disabled=!ready||!live;
- $('showStart').disabled=!ready;
- $('showPrepare').disabled=showControl.preparing;
- $('showPrepareNext').disabled=showControl.preparing||!showControl.queue.length;
- $('showStageBadge').textContent=stage==='waiting'?'대기':stage==='title'?'타이틀':stage==='question'?'문제':stage==='reveal'?'정답 공개':stage==='summary'?'정답 정리':stage==='emergency'?'긴급 화면':'대기';
- if(!ready){$('showPrivateAnswers').textContent='문제를 준비하면 이곳에만 정답이 표시됩니다.';}else{const html=a.assets.persons.map((p,i)=>`<div class="show-priv-item"><img src="${p.image}" alt=""><span>${p.slot} · ${safeText(p.name)} ${i>=steps-revealed?'✓ 공개됨':''}</span></div>`).join('');$('showPrivateAnswers').innerHTML=html;}
+function showUpdateControls(){
+ const a=showControl.active,ready=!!a?.assets,live=isLive(),n=ready?a.assets.count:0;
+ const step=showControl.revealStep||0,total=n*2,done=ready&&step>=total;
+ const current=step>0&&step%2===1?letters[Math.floor((step-1)/2)]:null;
+ const next=done?'모든 원본 공개 완료':step%2===0?`${letters[Math.floor(step/2)]} 원본`:'전체 합성';
+ $('showPreparedInfo').textContent=ready?`준비 완료: ${a.entry.project.questionName} · ${a.round} · 원본 ${n}장과 합성 이미지 준비`:'현재 준비된 문제가 없습니다.';
+ $('showRuntimeState').textContent=`상태: ${showControl.stage==='waiting'?'대기':showControl.stage==='title'?'콘텐츠 제목':showControl.stage==='question'?'문제 공개':showControl.stage==='reveal'?'정답 전환 중':showControl.stage==='emergency'?'긴급 안전 화면':'대기'} · ${step}/${total}단계 · ${showControl.armed?'정답 공개 잠금 해제':'정답 공개 잠금'}`;
+ $('showArm').textContent=showControl.armed?'🔓 공개 준비됨 (눌러 잠금)':'🔒 정답 공개 준비';$('showArm').classList.toggle('primary',showControl.armed);
+ $('showRevealText').textContent=ready?`다음: ${next} · 현재 ${current?'원본 '+current:'합성 얼굴'} · ${step}/${total}단계`:'문제를 준비한 뒤 공개할 수 있어요.';
+ $('showArm').disabled=!ready||!live||done;
+ $('showReveal').disabled=!ready||!showControl.armed||!live||done;
+ $('showSummary').disabled=!ready||!live||step===0;
+ $('showHintReveal').disabled=!ready||!live;$('showHintHide').disabled=!ready||!live;
+ $('showStart').disabled=!ready;$('showPrepare').disabled=showControl.preparing;$('showPrepareNext').disabled=showControl.preparing||!showControl.queue.length;
+ $('showStageBadge').textContent=showControl.stage==='waiting'?'대기':showControl.stage==='title'?'타이틀':showControl.stage==='question'?'문제':showControl.stage==='reveal'?'정답 공개':showControl.stage==='emergency'?'긴급 화면':'대기';
+ if(!ready){$('showPrivateAnswers').textContent='문제를 준비하면 이곳에만 정답이 표시됩니다.';}
+ else{$('showPrivateAnswers').innerHTML=a.assets.persons.map((p,i)=>`<div class="show-priv-item"><img src="${p.image}" alt=""><span>${p.slot} · ${safeText(p.name)} / 출처: ${safeText(p.source)} ${i<Math.ceil(step/2)?'✓ 공개됨':''}</span></div>`).join('');}
 }
-function showComputePublic(){const state={version:1,stage:showControl.stage,round:showControl.round,image:null,hint:'',revealed:[]},a=showControl.active;
- if(a?.assets&&['question','reveal','summary'].includes(state.stage)){
-  const total=a.assets.count,shown=Math.min(total,showControl.revealCount);
-  if(state.stage!=='summary')state.image=a.assets.partials[shown]||null;
-  if(state.stage!=='summary')state.hint=showControl.hint;
-  for(let k=0;k<shown;k++){const p=a.assets.persons[total-1-k];state.revealed.push({slot:p.slot,name:p.name,image:p.image});}
-  if(state.stage==='summary'&&shown===total)state.revealed=[...a.assets.persons].map(p=>({slot:p.slot,name:p.name,image:p.image}));
+
+function showComputePublic(){
+ const state={version:2,stage:showControl.stage,round:showControl.round,image:null,hint:'',revealed:[],focus:null,revealStep:0,revealTotal:0},a=showControl.active;
+ if(!a?.assets||!['question','reveal'].includes(state.stage))return state;
+ const n=a.assets.count,step=state.stage==='question'?0:Math.max(0,Math.min(showControl.revealStep,n*2));
+ state.revealStep=step;state.revealTotal=n*2;state.hint=showControl.hint;
+ // Alternate the *left main image*: full composite -> A -> full composite -> B -> ... -> full composite.
+ const personIndex=step%2===1?(step-1)/2:-1;
+ state.image=personIndex>=0?a.assets.persons[personIndex].image:a.assets.composite;
+ const disclosed=Math.ceil(step/2);
+ for(let i=0;i<disclosed;i++){
+  const p=a.assets.persons[i];state.revealed.push({slot:p.slot,name:p.name,source:p.source,image:p.image});
  }
+ if(personIndex>=0){const p=a.assets.persons[personIndex];state.focus={slot:p.slot,name:p.name,source:p.source,image:p.image};}
  return state;
 }
-function publicRender(node,st){if(!node)return;const stage=st.stage;const lab=node.getElementById('outRound'),im=node.getElementById('outImage'),hint=node.getElementById('outHint'),cards=node.getElementById('outCards');
+
+function publicRender(node,st){if(!node)return;const stage=st.stage,lab=node.getElementById('outRound'),im=node.getElementById('outImage'),hint=node.getElementById('outHint'),cards=node.getElementById('outCards');
  if(!lab||!im||!hint||!cards)return;
- lab.textContent=stage==='emergency'?'안전 화면':stage==='waiting'?'잠시 후 시작합니다':stage==='title'?'현단아 연예인 합성 퀴즈':stage==='summary'?`${st.round} · 정답 공개`:st.round||'라운드 01';
+ lab.textContent=stage==='emergency'?'안전 화면':stage==='waiting'?'잠시 후 시작합니다':stage==='title'?'현단아 연예인 합성 퀴즈':st.round||'라운드 01';
  im.hidden=!st.image;if(st.image)im.src=st.image;else im.removeAttribute('src');
  hint.hidden=!st.hint;hint.textContent=st.hint||'';
- cards.replaceChildren();cards.hidden=!st.revealed.length;
- for(const p of st.revealed){const div=node.createElement('div');div.className='person';const photo=node.createElement('img');photo.src=p.image;photo.alt='공개된 정답 사진';const cap=node.createElement('div');cap.textContent=`${p.slot} · ${p.name}`;div.append(photo,cap);cards.append(div);}
- if(stage==='summary')node.body.dataset.summary='yes';else node.body.dataset.summary='no';
+ // Temporary output: print source above/name below the highlighted main face; separately developed OBS design uses focus/revealed fields.
+ const sourceLabel=node.getElementById('outSource'),nameLabel=node.getElementById('outPersonName');
+ if(sourceLabel){sourceLabel.textContent=st.focus?.source?'출처 : '+st.focus.source:'';sourceLabel.hidden=!st.focus?.source;}
+ if(nameLabel){nameLabel.textContent=st.focus?.name||'';nameLabel.hidden=!st.focus?.name;}
+ cards.replaceChildren();cards.hidden=!st.revealed?.length;
+ for(const p of st.revealed||[]){const div=node.createElement('div');div.className='person';const photo=node.createElement('img');photo.src=p.image;photo.alt='공개된 정답 사진';const src=node.createElement('div');src.textContent='출처 : '+(p.source||'');const cap=node.createElement('div');cap.textContent=p.name;div.append(src,photo,cap);cards.append(div);}
+ if(node.body?.dataset)node.body.dataset.summary='no';
 }
-function publicRenderLocal(st){const node={getElementById(id){return {'outRound':$('showRoundPreview'),'outImage':$('showMainImage'),'outHint':$('showHintPreview'),'outCards':$('showRevealedPreview')}[id]},createElement(tag){return document.createElement(tag)},body:{dataset:{}}};publicRender(node,st);}
+function publicRenderLocal(st){const node={getElementById(id){return {'outRound':$('showRoundPreview'),'outImage':$('showMainImage'),'outHint':$('showHintPreview'),'outCards':$('showRevealedPreview'),'outSource':$('showFocusedSource'),'outPersonName':$('showFocusedName')}[id]},createElement(tag){return document.createElement(tag)},body:{dataset:{}}};publicRender(node,st);}
+
 function publishScreen(){publicScreen=showComputePublic();publicRenderLocal(publicScreen);if(publicOutputWin&&!publicOutputWin.closed){try{publicRender(publicOutputWin.document,publicScreen);$('showOutputDot').classList.add('connected');$('showOutputStatus').textContent='임시 출력창 연결됨 · 공개 허용 상태만 전송';}catch(e){$('showOutputDot').classList.remove('connected');$('showOutputStatus').textContent='출력창 갱신 실패 · 다시 열어주세요.';}}else{$('showOutputDot').classList.remove('connected');$('showOutputStatus').textContent='출력창 연결 전 · 진행실 내부 미리보기만 표시';}
  // Integration contract for the separate OBS design project. No hidden answer fields are included.
  window.dispatchEvent(new CustomEvent('hyundana:public-screen',{detail:structuredClone(publicScreen)}));showUpdateControls();}
 function openOutputWindow(){const w=window.open('','HyundanaPublicOutput','width=1280,height=720,resizable=yes,scrollbars=no');if(!w){toast('팝업이 차단됐어요. 이 사이트의 팝업 허용을 확인해주세요.');return;}publicOutputWin=w;
- w.document.open();w.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>현단아 · 송출용 임시 출력</title><style>*{box-sizing:border-box}body{margin:0;background:#eff2f7;font:700 19px 'Malgun Gothic',sans-serif;color:#26364d;display:flex;align-items:center;justify-content:center;height:100vh}main{width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2%;padding:3%}h1{font-size:2.2vw;margin:0;text-align:center}#outImage{height:63%;max-width:75%;min-height:0;object-fit:contain;border-radius:6px}#outHint{font-size:1.45vw;background:white;border:1px solid #d8e0ec;padding:1% 2%;border-radius:10px;max-width:90%;text-align:center}#outCards{display:flex;gap:1.6%;align-items:center;justify-content:center;width:100%;max-height:28%;flex-wrap:wrap}.person{display:flex;flex-direction:column;gap:6px;align-items:center;font-size:1.25vw}.person img{width:7.5vw;height:7.5vw;object-fit:contain}body[data-summary=yes] #outCards .person img{width:13vw;height:13vw}body[data-summary=yes] #outCards{max-height:75%}</style></head><body><main><h1 id="outRound"></h1><img id="outImage" alt="공개된 문제 이미지" hidden><div id="outHint" hidden></div><div id="outCards" hidden></div></main></body></html>`);w.document.close();publishScreen();w.focus();toast('송출용 임시 출력창을 열었어요. OBS에는 이 창만 캡처하세요.');}
+ w.document.open();w.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>현단아 · 송출용 임시 출력</title><style>*{box-sizing:border-box}body{margin:0;background:#eff2f7;font:700 19px 'Malgun Gothic',sans-serif;color:#26364d;display:flex;align-items:center;justify-content:center;height:100vh}main{width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2%;padding:3%}h1{font-size:2.2vw;margin:0;text-align:center}#outImage{height:63%;max-width:75%;min-height:0;object-fit:contain;border-radius:6px}#outHint{font-size:1.45vw;background:white;border:1px solid #d8e0ec;padding:1% 2%;border-radius:10px;max-width:90%;text-align:center}#outCards{display:flex;gap:1.6%;align-items:center;justify-content:center;width:100%;max-height:28%;flex-wrap:wrap}.person{display:flex;flex-direction:column;gap:6px;align-items:center;font-size:1.25vw}.person img{width:7.5vw;height:7.5vw;object-fit:contain}body[data-summary=yes] #outCards .person img{width:13vw;height:13vw}body[data-summary=yes] #outCards{max-height:75%}</style></head><body><main><h1 id="outRound"></h1><div id="outSource" hidden></div><img id="outImage" alt="공개된 문제 이미지" hidden><div id="outPersonName" hidden></div><div id="outHint" hidden></div><div id="outCards" hidden></div></main></body></html>`);w.document.close();publishScreen();w.focus();toast('송출용 임시 출력창을 열었어요. OBS에는 이 창만 캡처하세요.');}
 async function showPrepareEntry(entry){if(!entry)return toast('진행할 문제를 선택해주세요.');if(showControl.preparing)return;
  if(isLive()&&showControl.revealCount<showControl.active.assets.count&&!confirm('현재 문제가 진행 중이에요. 다른 문제를 비공개로 준비할까요? 방송 화면은 대기 화면으로 전환됩니다.'))return;
- showControl.stage='waiting';showControl.hint='';showControl.revealCount=0;showControl.armed=false;publishScreen();showControl.preparing=true;showUpdateControls();
+ showControl.stage='waiting';showControl.hint='';showControl.revealCount=0;showControl.revealStep=0;showControl.armed=false;publishScreen();showControl.preparing=true;showUpdateControls();
  try{const project=entry.project,error=requiredForReady(project);if(error)throw new Error(error);const n=project.count;const images=await Promise.all(project.layers.slice(0,n).map(l=>imageData(l.dataUrl)));const assets=composePreparedData(project,images);const idx=showControl.queue.findIndex(x=>x.id===entry.id);showControl.active={entry,assets,round:`라운드 ${String(idx+1).padStart(2,'0')}`};showControl.round=showControl.active.round;$('showHintInput').value=project.hint||'';toast(`${showControl.round} 준비 완료 · 이미지는 사전 생성했어요.`);}catch(e){showControl.active=null;showControl.round='';toast('문제 준비 실패: '+e.message);}finally{showControl.preparing=false;publishScreen();}}
 function showSetStage(stage){showControl.stage=stage;if(['waiting','title','emergency'].includes(stage)){showControl.hint='';showControl.armed=false;}publishScreen();}
 $('showRefresh').onclick=refreshShowQueue;
@@ -336,12 +350,29 @@ $('showPrepareNext').onclick=async()=>{const idx=showControl.queue.findIndex(e=>
 $('showWaiting').onclick=()=>showSetStage('waiting');
 $('showTitle').onclick=()=>showSetStage('title');
 $('showEmergency').onclick=()=>{showSetStage('emergency');toast('비상 안전 화면으로 전환했어요. 공개 정보는 모두 숨겼습니다.');};
-$('showStart').onclick=()=>{if(!showControl.active)return toast('먼저 문제를 준비해주세요.');showControl.hint='';showControl.revealCount=0;showControl.armed=false;showSetStage('question');};
+$('showStart').onclick=()=>{if(!showControl.active)return toast('먼저 문제를 준비해주세요.');showControl.hint='';showControl.revealCount=0;showControl.revealStep=0;showControl.armed=false;showSetStage('question');};
 $('showHintReveal').onclick=()=>{if(!showControl.active||!isLive())return;const value=$('showHintInput').value.trim();if(!value)return toast('힌트를 입력해주세요.');showControl.hint=value;publishScreen();};
 $('showHintHide').onclick=()=>{showControl.hint='';publishScreen();};
 $('showArm').onclick=()=>{if(!showControl.active||!isLive())return;showControl.armed=!showControl.armed;showUpdateControls();};
-$('showReveal').onclick=()=>{if(!showControl.armed||!showControl.active||!isLive())return;const n=showControl.active.assets.count;if(showControl.revealCount>=n)return;if(showControl.revealCount===0&&!confirm('이제 정답 사진과 이름이 시청자 화면에 공개됩니다. 정말 시작할까요?'))return;showControl.revealCount++;showControl.stage=showControl.revealCount===n?'summary':'reveal';if(showControl.revealCount===n)showControl.armed=false;publishScreen();};
-$('showSummary').onclick=()=>{if(!showControl.active||showControl.revealCount!==showControl.active.assets.count)return toast('전체 정답 공개 이후에 사용할 수 있어요.');showControl.stage='summary';publishScreen();};
+$('showReveal').onclick=()=>{
+ if(!showControl.armed||!showControl.active||!isLive())return;
+ const n=showControl.active.assets.count,max=n*2;
+ if(showControl.revealStep>=max)return;
+ if(showControl.revealStep===0&&!confirm('A 원본 사진과 이름·출처가 시청자 화면에 공개됩니다. 시작할까요?'))return;
+ showControl.revealStep++;
+ showControl.revealCount=Math.ceil(showControl.revealStep/2);
+ showControl.stage='reveal';
+ if(showControl.revealStep>=max)showControl.armed=false;
+ publishScreen();
+};
+$('showSummary').onclick=()=>{
+ if(!showControl.active||!isLive()||showControl.revealStep===0)return;
+ const n=showControl.active.assets.count;
+ if(showControl.revealStep%2===1){showControl.revealStep++;showControl.revealCount=Math.ceil(showControl.revealStep/2);}
+ // This is a non-revealing return to the composite; already revealed persons remain revealed.
+ showControl.stage='reveal';publishScreen();
+};
+
 window.HyundanaShowAdapter={getPublicState:()=>structuredClone(publicScreen),protocol:'hyundana:public-screen'};
 
 makeSlots();updateControls();schedule();
