@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.3.0",
-  "notes": "사진별 이름·출처 등록, 공개: 합성→A→합성→B→합성→C→합성 (2~4명), 미공개 정보 보호",
+  "version": "1.4.0",
+  "notes": "눈 메뉴 간소화·사진 좌우반전·출처 입력 위치 개선·힌트 제거·인물 이름 기반 문제 목록·자동 정답 페이드 재생·완료 문제 분리",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "8aa9982e65e1785096529098c95ea1a6882173153a10d88443c85d5c036d862d"
+      "sha256": "8166eda27308d31f5e00ebddf2d78a8540fea743bb581c2df8383f32839d9869"
     },
     {
       "path": "server.py",
@@ -16,7 +16,7 @@
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "ac371f042d5bdda6d8eac30a43d2de497a2e287a8b00139ec87fba06c0c2063c"
+      "sha256": "57e1a619ff47f562b63e4f38d0591fa33e80156dec9c76b5928178878967a590"
     },
     {
       "path": "bridge.js",
