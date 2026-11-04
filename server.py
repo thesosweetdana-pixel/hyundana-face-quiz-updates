@@ -26,7 +26,7 @@ UPDATER = Updater(ROOT)
 
 
 def safe_screen(stage='emergency'):
-    return {'version': 1, 'stage': stage, 'round': '', 'image': None, 'hint': '', 'revealed': []}
+    return {'version': 2, 'stage': stage, 'round': '', 'image': None, 'hint': '', 'revealed': [], 'focus': None, 'revealStep': 0, 'revealTotal': 0}
 
 
 def valid_image(value):
@@ -45,11 +45,11 @@ def sanitize_state(value):
         return safe_screen(stage)
     round_label = value.get('round', '')
     hint = value.get('hint', '')
-    data = {'version': 1, 'stage': stage,
+    data = {'version': 2, 'stage': stage,
             'round': str(round_label)[:100],
             'image': value.get('image') if valid_image(value.get('image')) else None,
             'hint': str(hint)[:1000] if stage != 'summary' else '',
-            'revealed': []}
+            'revealed': [], 'focus': None, 'revealStep': 0, 'revealTotal': 0}
     people = value.get('revealed', [])
     if stage == 'question':
         people = []
@@ -61,7 +61,20 @@ def sanitize_state(value):
             image = person.get('image')
             if slot not in {'A', 'B', 'C', 'D'} or not valid_image(image):
                 continue
-            data['revealed'].append({'slot': slot, 'name': str(person.get('name', ''))[:120], 'image': image})
+            data['revealed'].append({'slot': slot, 'name': str(person.get('name', ''))[:120], 'source': str(person.get('source', ''))[:400], 'image': image})
+    # Only an already disclosed slot may be highlighted. Never accept a raw undisclosed focus.
+    if stage == 'reveal':
+        focus = value.get('focus')
+        if isinstance(focus, dict):
+            allowed = next((p for p in data['revealed'] if p['slot'] == focus.get('slot')), None)
+            if allowed:
+                data['focus'] = allowed.copy()
+        # Normalize progress bounds to avoid leaking unrelated client metadata.
+        step = value.get('revealStep', 0)
+        total = value.get('revealTotal', 0)
+        if type(step) is int and type(total) is int and 0 <= step <= total <= 8:
+            data['revealStep'] = step
+            data['revealTotal'] = total
     if stage == 'summary':
         data['image'] = None
     return data
