@@ -1,27 +1,27 @@
 {
   "application": "hyundana-face-quiz",
   "version": "1.2.0",
-  "notes": "최초 업데이트 지원 버전: 프로그램 내 업데이트 확인, 코드 업데이트, 자동 재시작 및 이전 버전 복구",
+  "notes": "방송 진행실·제작실 유지, 자동 업데이트 기능 추가",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "4902855e4f1bcceadd06db314e3e70ec6e38dee2a9dd0aada8338e9245eb9692"
-    },
-    {
-      "path": "server.py",
-      "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
-      "sha256": "77985294fd3e9b8defbcebb60ea69a9fbb9541d945ba79ca96603cedacd94c72"
+      "sha256": "8c3d20fb7ac832cc0b0555416690b22aee4b04e941b2c1a45e3ffffb9c612034"
     },
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "524934291159e9382820aea4a124ec411c7fdf787f86d134722753d694364e4a"
+      "sha256": "667d27c905958de3b7baf0c81e28766effec2273a48f5c82115b536b520b38d2"
     },
     {
       "path": "bridge.js",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/bridge.js",
-      "sha256": "35c01ee0b5db7da4b24d4d64ba97f6232442603074db3c21ee197a566c8a5816"
+      "sha256": "ee597962e768dbaa5fdf61473e2112e2b31b98c0aa6e237023b75a34c4bed726"
+    },
+    {
+      "path": "server.py",
+      "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
+      "sha256": "3654dd43243dee3a8a60fc50cb80e61d51a3416a76b130adc96d220d90521f6b"
     }
   ]
 }
