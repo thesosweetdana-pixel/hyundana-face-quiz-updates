@@ -1,7 +1,7 @@
 {
   "application": "hyundana-face-quiz",
   "version": "1.5.0",
-  "notes": "문제 공개·정답 공개 디자인 연결, 등록한 인물 이름·출처 표시, 정답 자동 공개 후 3초 대기영상 재생 및 다음 문제 전환",
+  "notes": "OBS 디자인 연결: 문제·정답 화면 및 동적 라운드/이름/출처 표시, 정답 후 3초 대기 영상과 다음 문제 자동 전환. 방송 이미지·영상은 PC에 한 번만 별도 설치.",
   "files": [
     {
       "path": "studio.html",
@@ -11,12 +11,12 @@
     {
       "path": "server.py",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
-      "sha256": "b24571101715364b203e909ec1b6b482e80bf26ae7b0d370bebd4668fc737fd5"
+      "sha256": "de04b4588eace5575a91cae05b6a1b9bfa2bbdb06a9b1f6b4a13f9929aa62d35"
     },
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "3f05af7088a0c7612f73745b7c31ec2e8209b3d2017ae0fdd3d07d8e18fb5167"
+      "sha256": "635a7f7cc9eef263b38b9bab0b60b59affd0f4bf43ad0cbb23f40e65dae2a54c"
     },
     {
       "path": "bridge.js",
