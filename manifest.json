@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.5.0",
-  "notes": "OBS 디자인 연결: 문제·정답 화면 및 동적 라운드/이름/출처 표시, 정답 후 3초 대기 영상과 다음 문제 자동 전환. 방송 이미지·영상은 PC에 한 번만 별도 설치.",
+  "version": "1.5.1",
+  "notes": "3명 고정(A·B·C): 인원 선택 제거, 신규 문제 3명 기본, 2·4명 문제 방송 준비 제한, 기존 저장 데이터 보존",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "fd85ac4bf11de33d478dc37b88bfc05b00b675c958677e396bed8d1a242fd82c"
+      "sha256": "d6b5d8b095354d49dbb33a21362c8f0ea788a31740e9d6d0d7e0242a0b33f32c"
     },
     {
       "path": "server.py",
