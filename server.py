@@ -224,6 +224,12 @@ class Handler(BaseHTTPRequestHandler):
             self._file('obs.html', 'text/html; charset=utf-8')
         elif path == '/bridge.js':
             self._file('bridge.js', 'text/javascript; charset=utf-8')
+        elif path == '/assets/question.webp':
+            self._file('assets/question.webp', 'image/webp')
+        elif path == '/assets/answer.webp':
+            self._file('assets/answer.webp', 'image/webp')
+        elif path == '/assets/next.mp4':
+            self._file('assets/next.mp4', 'video/mp4')
         elif path == '/api/public':
             params = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
             since = params.get('rev', [''])[0]
