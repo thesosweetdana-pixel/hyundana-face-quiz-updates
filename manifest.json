@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.4.0",
-  "notes": "눈 메뉴 간소화·사진 좌우반전·출처 입력 위치 개선·힌트 제거·인물 이름 기반 문제 목록·자동 정답 페이드 재생·완료 문제 분리",
+  "version": "1.5.0",
+  "notes": "문제 공개·정답 공개 디자인 연결, 등록한 인물 이름·출처 표시, 정답 자동 공개 후 3초 대기영상 재생 및 다음 문제 전환",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "8166eda27308d31f5e00ebddf2d78a8540fea743bb581c2df8383f32839d9869"
+      "sha256": "fd85ac4bf11de33d478dc37b88bfc05b00b675c958677e396bed8d1a242fd82c"
     },
     {
       "path": "server.py",
@@ -16,7 +16,7 @@
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "57e1a619ff47f562b63e4f38d0591fa33e80156dec9c76b5928178878967a590"
+      "sha256": "3f05af7088a0c7612f73745b7c31ec2e8209b3d2017ae0fdd3d07d8e18fb5167"
     },
     {
       "path": "bridge.js",
