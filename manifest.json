@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.5.1",
-  "notes": "3명 고정(A·B·C): 인원 선택 제거, 신규 문제 3명 기본, 2·4명 문제 방송 준비 제한, 기존 저장 데이터 보존",
+  "version": "1.6.1",
+  "notes": "연예인 원본 사진 보관함(다른 문제에 재사용), 방송 회차별 문제 관리, 같은 회차 인물 재사용 경고, 이전 회차 동일 3인 조합 경고(다른 사진 허용), 원본 포함 백업",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "d6b5d8b095354d49dbb33a21362c8f0ea788a31740e9d6d0d7e0242a0b33f32c"
+      "sha256": "7a7901c9f713718080fc9325ea00d2a334bf21d61dfcecbbd7c0af1953c1a32b"
     },
     {
       "path": "server.py",
