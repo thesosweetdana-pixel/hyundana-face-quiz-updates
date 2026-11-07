@@ -21,7 +21,7 @@ HOST = '127.0.0.1'
 PORT = 8765
 HEARTBEAT_LIMIT = 15.0  # controller inactivity -> emergency screen
 MAX_BODY = 25 * 1024 * 1024
-ALLOWED_STAGES = {'waiting', 'title', 'question', 'reveal', 'summary', 'emergency'}
+ALLOWED_STAGES = {'waiting', 'title', 'question', 'reveal', 'summary', 'emergency', 'end'}
 UPDATER = Updater(ROOT)
 
 
@@ -40,7 +40,7 @@ def sanitize_state(value):
     stage = value.get('stage')
     if stage not in ALLOWED_STAGES:
         return safe_screen()
-    if stage in {'waiting', 'title', 'emergency'}:
+    if stage in {'waiting', 'title', 'emergency', 'end'}:
         # Public titles are drawn by OBS renderer, not sent as a hidden payload.
         return safe_screen(stage)
     round_label = value.get('round', '')
@@ -230,6 +230,8 @@ class Handler(BaseHTTPRequestHandler):
             self._file('assets/answer.webp', 'image/webp')
         elif path == '/assets/next.mp4':
             self._file('assets/next.mp4', 'video/mp4')
+        elif path == '/assets/end.webp':
+            self._file('assets/end.webp', 'image/webp')
         elif path == '/api/public':
             params = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
             since = params.get('rev', [''])[0]
