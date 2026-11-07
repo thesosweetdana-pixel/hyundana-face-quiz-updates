@@ -31,6 +31,11 @@
 #scene[data-stage='summary'] #videoPanel,#scene[data-stage='waiting'] #videoPanel{display:block}
 #safety{display:none;position:absolute;inset:0;background:#24152f;color:white;font-size:46px;font-weight:800;align-items:center;justify-content:center}
 #scene[data-stage='emergency'] #safety{display:flex}
+#endPanel{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#scene[data-stage='end'] #endPanel{display:block}
+#endFallback{display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:#fff;font-size:70px;font-weight:900;background:radial-gradient(circle,#693183,#29133f)}
+#scene[data-stage='end'][data-end-image='missing'] #endPanel{display:none}
+#scene[data-stage='end'][data-end-image='missing'] #endFallback{display:flex}
 #cardWarning{position:absolute;left:501px;top:320px;max-width:720px;padding:15px;color:#ffd4e9;font-size:23px;display:none}
 @media(prefers-reduced-motion:reduce){#mainStack img{transition:none}}
 </style></head>
@@ -38,7 +43,7 @@
 <img id="questionBg" alt="문제 공개 디자인"/><img id="answerBg" alt="정답 공개 디자인"/>
 <div id="roundNum" aria-label="현재 라운드"></div>
 <div id="mainStack"><img id="backPhoto" alt=""/><img id="frontPhoto" alt="합성 사진 또는 공개된 원본"/></div>
-<div id="answerCards"></div><video id="videoPanel" muted autoplay playsinline preload="auto"></video><div id="safety">방송 화면 준비 중</div><div id="cardWarning"></div>
+<div id="answerCards"></div><img id="endPanel" alt="현단아의 뉴뀨? · 감사합니다"><div id="endFallback">♡ 감사합니다 ♡</div><video id="videoPanel" muted autoplay playsinline preload="auto"></video><div id="safety">방송 화면 준비 중</div><div id="cardWarning"></div>
 </div>
 <script>
 (()=>{'use strict';
@@ -49,6 +54,7 @@
  const waitVideo='/assets/next.mp4';
  const scene=$('scene'),vid=$('videoPanel');
  $('questionBg').src=questionBg;$('answerBg').src=answerBg;vid.src=waitVideo;
+ const endPanel=$('endPanel');scene.dataset.endImage='missing';endPanel.onload=()=>{scene.dataset.endImage='ready'};endPanel.onerror=()=>{scene.dataset.endImage='missing'};endPanel.src='/assets/end.webp';
  const slots=['A','B','C'];
  const cards=[];
  for(let i=0;i<3;i++){
@@ -71,7 +77,7 @@
  }
  function resetPhotos(){photoUrl='';++moveToken;$('frontPhoto').removeAttribute('src');$('backPhoto').removeAttribute('src');$('frontPhoto').style.opacity='0';$('backPhoto').style.opacity='0';}
  function roundLabel(str){const m=String(str||'').match(/(\d+)/);return 'ROUND '+(m?String(Number(m[1])).padStart(2,'0'):'01');}
- function render(st,connected){let stage=(connected&&st&&typeof st.stage==='string')?st.stage:'emergency';if(!['question','reveal','summary','waiting','title','emergency'].includes(stage))stage='emergency';
+ function render(st,connected){let stage=(connected&&st&&typeof st.stage==='string')?st.stage:'emergency';if(!['question','reveal','summary','waiting','title','emergency','end'].includes(stage))stage='emergency';
    const changed=stage!==sceneStage;sceneStage=stage;scene.dataset.stage=stage;
    $('roundNum').textContent=roundLabel(st?.round);
    if(stage==='waiting'||stage==='summary'){
