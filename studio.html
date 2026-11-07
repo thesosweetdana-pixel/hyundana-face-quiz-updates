@@ -474,7 +474,7 @@ function schedulePostReveal(){
    postRevealTimer=setTimeout(async()=>{
      if(token!==postRevealToken||showControl.stage!=='summary')return;
      const next=showControl.queue[0];
-     if(!next){showControl.stage='waiting';publishScreen();toast('모든 준비된 문제를 진행했어요. 대기 화면으로 전환합니다.');return;}
+     if(!next){showControl.stage='end';publishScreen();toast('준비된 문제를 모두 진행했어요. 감사합니다 종료 화면으로 전환합니다.');return;}
      await showPrepareEntry(next);
      if(showControl.active?.assets&&showControl.active.entry.id===next.id){
        showControl.revealStep=0;showControl.revealCount=0;showControl.armed=false;
