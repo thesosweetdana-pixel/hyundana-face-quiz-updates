@@ -1,22 +1,22 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.6.1",
-  "notes": "연예인 원본 사진 보관함(다른 문제에 재사용), 방송 회차별 문제 관리, 같은 회차 인물 재사용 경고, 이전 회차 동일 3인 조합 경고(다른 사진 허용), 원본 포함 백업",
+  "version": "1.6.2",
+  "notes": "진행 중 수동 콘텐츠 종료·재개: 미진행 문제 보존, 자동 정답 공개/다음 문제 타이머 중단, 빈 대기목록은 자동 종료. 대기·오프닝·감사합니다 이미지는 PC에 한 번 설치.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "7a7901c9f713718080fc9325ea00d2a334bf21d61dfcecbbd7c0af1953c1a32b"
+      "sha256": "edb46b2bdec8484e2f55c78fa87753f6a43f4372162c19bdf317c2a2be2dd6de"
     },
     {
       "path": "server.py",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
-      "sha256": "de04b4588eace5575a91cae05b6a1b9bfa2bbdb06a9b1f6b4a13f9929aa62d35"
+      "sha256": "06396753956434d660697dea435db85776cd07340f09c257e5eea0b694c02e51"
     },
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "635a7f7cc9eef263b38b9bab0b60b59affd0f4bf43ad0cbb23f40e65dae2a54c"
+      "sha256": "83bc3f97b40071e8d7f3aed3dbb97dbe170863475b3128f9e1ec5ef480b32e4d"
     },
     {
       "path": "bridge.js",
