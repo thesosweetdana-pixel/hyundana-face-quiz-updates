@@ -232,6 +232,10 @@ class Handler(BaseHTTPRequestHandler):
             self._file('assets/next.mp4', 'video/mp4')
         elif path == '/assets/end.webp':
             self._file('assets/end.webp', 'image/webp')
+        elif path == '/assets/standby.webp':
+            self._file('assets/standby.webp', 'image/webp')
+        elif path == '/assets/intro.webp':
+            self._file('assets/intro.webp', 'image/webp')
         elif path == '/api/public':
             params = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
             since = params.get('rev', [''])[0]
