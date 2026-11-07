@@ -6,10 +6,10 @@
 #scene{position:absolute;width:1672px;height:941px;overflow:hidden;transform-origin:0 0;isolation:isolate;background:#271536}
 #questionBg,#answerBg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
 #questionBg,#answerBg{display:none}
-#scene[data-stage='question'] #questionBg,#scene[data-stage='title'] #questionBg{display:block}
+#scene[data-stage='question'] #questionBg{display:block}
 #scene[data-stage='reveal'] #answerBg{display:block}
 #roundNum{position:absolute;left:101px;top:72px;width:272px;height:63px;display:none;align-items:center;justify-content:center;white-space:nowrap;text-align:center;line-height:1;font-weight:1000;font-size:45px;letter-spacing:-2px;color:#3f136f;text-shadow:0px 1px 0 #fff,0px 2px 1px #ffdcff,1px 4px 4px #a738bf;filter:drop-shadow(0px 1px 1px #a9c6ff)}
-#scene[data-stage='question'] #roundNum,#scene[data-stage='reveal'] #roundNum,#scene[data-stage='title'] #roundNum{display:flex}
+#scene[data-stage='question'] #roundNum,#scene[data-stage='reveal'] #roundNum{display:flex}
 #mainStack{position:absolute;display:none;overflow:hidden;align-items:center;justify-content:center}
 #scene[data-stage='question'] #mainStack,#scene[data-stage='reveal'] #mainStack{display:flex}
 #scene[data-stage='question'] #mainStack{left:80px;top:228px;width:1092px;height:595px}
@@ -28,10 +28,12 @@
 .sourceText[data-col='1'],.nameText[data-col='1']{left:750px}
 .sourceText[data-col='2'],.nameText[data-col='2']{left:995px}
 #videoPanel{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:none;background:#171024}
-#scene[data-stage='summary'] #videoPanel,#scene[data-stage='waiting'] #videoPanel{display:block}
+#scene[data-stage='summary'] #videoPanel{display:block}
 #safety{display:none;position:absolute;inset:0;background:#24152f;color:white;font-size:46px;font-weight:800;align-items:center;justify-content:center}
 #scene[data-stage='emergency'] #safety{display:flex}
-#endPanel{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#endPanel,#standbyPanel,#introPanel{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#scene[data-stage='waiting'] #standbyPanel{display:block}
+#scene[data-stage='title'] #introPanel{display:block}
 #scene[data-stage='end'] #endPanel{display:block}
 #endFallback{display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:#fff;font-size:70px;font-weight:900;background:radial-gradient(circle,#693183,#29133f)}
 #scene[data-stage='end'][data-end-image='missing'] #endPanel{display:none}
@@ -43,7 +45,7 @@
 <img id="questionBg" alt="문제 공개 디자인"/><img id="answerBg" alt="정답 공개 디자인"/>
 <div id="roundNum" aria-label="현재 라운드"></div>
 <div id="mainStack"><img id="backPhoto" alt=""/><img id="frontPhoto" alt="합성 사진 또는 공개된 원본"/></div>
-<div id="answerCards"></div><img id="endPanel" alt="현단아의 뉴뀨? · 감사합니다"><div id="endFallback">♡ 감사합니다 ♡</div><video id="videoPanel" muted autoplay playsinline preload="auto"></video><div id="safety">방송 화면 준비 중</div><div id="cardWarning"></div>
+<div id="answerCards"></div><img id="standbyPanel" alt="참가자 세팅 대기 · 준비중"><img id="introPanel" alt="현단아의 뉴뀨? 콘텐츠 오프닝"><img id="endPanel" alt="현단아의 뉴뀨? · 감사합니다"><div id="endFallback">♡ 감사합니다 ♡</div><video id="videoPanel" muted autoplay playsinline preload="auto"></video><div id="safety">방송 화면 준비 중</div><div id="cardWarning"></div>
 </div>
 <script>
 (()=>{'use strict';
@@ -54,6 +56,7 @@
  const waitVideo='/assets/next.mp4';
  const scene=$('scene'),vid=$('videoPanel');
  $('questionBg').src=questionBg;$('answerBg').src=answerBg;vid.src=waitVideo;
+ $('standbyPanel').src='/assets/standby.webp';$('introPanel').src='/assets/intro.webp';
  const endPanel=$('endPanel');scene.dataset.endImage='missing';endPanel.onload=()=>{scene.dataset.endImage='ready'};endPanel.onerror=()=>{scene.dataset.endImage='missing'};endPanel.src='/assets/end.webp';
  const slots=['A','B','C'];
  const cards=[];
@@ -80,8 +83,8 @@
  function render(st,connected){let stage=(connected&&st&&typeof st.stage==='string')?st.stage:'emergency';if(!['question','reveal','summary','waiting','title','emergency','end'].includes(stage))stage='emergency';
    const changed=stage!==sceneStage;sceneStage=stage;scene.dataset.stage=stage;
    $('roundNum').textContent=roundLabel(st?.round);
-   if(stage==='waiting'||stage==='summary'){
-      if(changed){try{vid.currentTime=0;}catch(e){}vid.loop=stage==='waiting';vid.play().catch(()=>{});}
+   if(stage==='summary'){
+      if(changed){try{vid.currentTime=0;}catch(e){}vid.loop=false;vid.play().catch(()=>{});}
    }else{vid.pause();}
    if(stage==='question'||stage==='reveal'){setPhoto(st?.image)}else if(changed){resetPhotos();}
    for(let i=0;i<3;i++){
