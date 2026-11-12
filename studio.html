@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.6.2</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.6.3</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -37,6 +37,10 @@
 .show-private{border:1px solid #edd2de;background:#fff8fb;padding:11px;border-radius:12px}
 .show-stage{display:inline-block;background:#f3e8f0;color:#a64d7d;border-radius:20px;padding:5px 10px;font-size:12px;font-weight:750}
 .show-screen{border:1px solid #e3e7ef;background:#f2f4f8;border-radius:14px;aspect-ratio:16/9;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;position:relative;padding:14px;text-align:center}
+/* v1.6.3: Show the exact OBS renderer in the studio, never the old placeholder. */
+#showScreen{padding:0;background:#171024}
+#showScreen > :not(#showObsPreview){display:none!important}
+#showObsPreview{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;z-index:3;background:#171024;pointer-events:none}
 .show-screen .broadcast-img{object-fit:contain;min-height:0;max-width:55%;max-height:76%;border-radius:6px}
 .show-screen .broadcast-title{font-weight:800;color:#283952;font-size:clamp(13px,1.4vw,20px)}
 .show-screen .broadcast-hint{padding:4px 11px;border-radius:9px;background:#fff;border:1px solid #ddd;color:#283952;max-width:100%;font-size:11px;word-break:break-word}
@@ -93,7 +97,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.6.2</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.6.3</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -169,7 +173,7 @@
 </main>
 
 <main class="showroom" id="showView" hidden>
- <section class="show-card show-head"><div><h2>방송 진행실</h2><div class="show-small">진행자 전용 제어 · 정답 공개 전 원본과 이름/출처는 송출하지 않습니다.</div></div><div class="show-buttons"><button class="btn" id="showRefresh">↻ 준비 문제 새로고침</button><button class="btn" id="showResume" hidden>↩ 진행 재개</button><button class="btn" id="showEnd" style="border-color:#d77a95;color:#ac335e;font-weight:900">■ 컨텐츠 종료</button><button class="btn primary" id="openPublicOutput">◫ 송출용 임시 출력창 열기</button></div></section>
+ <section class="show-card show-head"><div><h2>방송 진행실</h2><div class="show-small">진행자 전용 제어 · 정답 공개 전 원본과 이름/출처는 송출하지 않습니다.</div></div><div class="show-buttons"><button class="btn" id="showRefresh">↻ 준비 문제 새로고침</button><button class="btn" id="showResume" hidden>↩ 진행 재개</button><button class="btn" id="showEnd" style="border-color:#d77a95;color:#ac335e;font-weight:900">■ 컨텐츠 종료</button><button class="btn primary" id="openPublicOutput">◫ 실제 OBS 화면 열기</button></div></section>
  <div class="show-main">
   <section class="show-card">
    <h3>① 라운드 준비</h3>
@@ -187,14 +191,15 @@
    <div class="show-buttons"><button class="btn" id="showSummary">합성 얼굴로 복귀</button><button class="btn" id="showEmergency" style="border-color:#d89898;color:#9f4040">긴급 안전 화면</button></div>
   </section>
   <section class="show-card">
-   <div class="row"><h3 style="margin:0">③ 시청자 화면 미리보기</h3><span id="showStageBadge" class="show-stage">대기</span></div>
-   <div id="showScreen" class="show-screen" aria-label="실제 송출용으로 허용된 정보만 사용하는 미리보기">
+   <div class="row"><h3 style="margin:0">③ OBS 실제 송출 화면 미리보기</h3><span id="showStageBadge" class="show-stage">대기</span></div>
+   <div id="showScreen" class="show-screen" aria-label="OBS와 동일한 송출 디자인 미리보기">
+    <iframe id="showObsPreview" src="/obs" title="실제 OBS 송출 화면 미리보기" loading="lazy" tabindex="-1" aria-label="OBS 실제 송출 화면"></iframe>
     <div id="showRoundPreview" class="broadcast-title">잠시 후 시작합니다</div>
     <div id="showFocusedSource" class="show-small" hidden></div><div id="showImageStack" class="show-image-stack" hidden><img id="showMainImagePrev" class="broadcast-img" alt="" hidden><img id="showMainImage" class="broadcast-img" alt="합성 문제 화면" hidden></div><div id="showFocusedName" style="font-weight:800;color:#4b276e" hidden></div>
 
    </div>
-   <div class="show-output-status"><span class="show-output-dot" id="showOutputDot"></span><span class="show-small" id="showOutputStatus">출력창 연결 전 · 진행실 내부 미리보기만 표시</span></div><div class="show-output-status" style="gap:8px;flex-wrap:wrap;align-items:center"><span class="show-small" id="obsRelayIndicator">OBS 로컬 연결 확인 중…</span><button class="btn" id="obsOpen" style="height:32px">OBS 화면 열기</button><button class="btn" id="obsCopy" style="height:32px">OBS 주소 복사</button><button class="btn" id="obsTakeover" style="height:32px" hidden>송출 제어권 가져오기</button></div>
-   <div class="show-alert">OBS 브라우저 소스 주소는 http://127.0.0.1:8765/obs 입니다. 이 화면은 기능 검사용이고, 별도 채팅에서 만든 송출 디자인을 나중에 연결합니다.</div>
+   <div class="show-output-status"><span class="show-output-dot" id="showOutputDot"></span><span class="show-small" id="showOutputStatus">OBS 최종 디자인으로 미리보기 표시 중</span></div><div class="show-output-status" style="gap:8px;flex-wrap:wrap;align-items:center"><span class="show-small" id="obsRelayIndicator">OBS 로컬 연결 확인 중…</span><button class="btn" id="obsOpen" style="height:32px">OBS 화면 열기</button><button class="btn" id="obsCopy" style="height:32px">OBS 주소 복사</button><button class="btn" id="obsTakeover" style="height:32px" hidden>송출 제어권 가져오기</button></div>
+   <div class="show-alert">OBS 브라우저 소스 주소는 http://127.0.0.1:8765/obs 입니다. 위 미리보기는 같은 OBS 화면을 축소해서 보여줍니다. 이미지가 보이지 않으면 ‘현단아_방송화면_한번만_적용.bat’ 적용 여부를 확인해주세요.</div>
    <hr style="border:0;border-top:1px solid #e8eaf2;margin:16px 0">
    <h3>④ 진행자 전용 정답</h3>
    <div class="show-private" id="showPrivateAnswers">문제를 준비하면 이곳에만 정답이 표시됩니다.</div>
@@ -560,7 +565,7 @@ function publicRender(node,st){if(!node)return;const stage=st.stage,lab=node.get
 }
 function publicRenderLocal(st){const node={getElementById(id){return {'outRound':$('showRoundPreview'),'outImage':$('showMainImage'),'outImagePrev':$('showMainImagePrev'),'outImageStack':$('showImageStack'),'outSource':$('showFocusedSource'),'outPersonName':$('showFocusedName')}[id]},createElement(tag){return document.createElement(tag)},body:{dataset:{}}};publicRender(node,st);}
 
-function publishScreen(){publicScreen=showComputePublic();publicRenderLocal(publicScreen);if(publicOutputWin&&!publicOutputWin.closed){try{publicRender(publicOutputWin.document,publicScreen);$('showOutputDot').classList.add('connected');$('showOutputStatus').textContent='임시 출력창 연결됨 · 공개 허용 상태만 전송';}catch(e){$('showOutputDot').classList.remove('connected');$('showOutputStatus').textContent='출력창 갱신 실패 · 다시 열어주세요.';}}else{$('showOutputDot').classList.remove('connected');$('showOutputStatus').textContent='출력창 연결 전 · 진행실 내부 미리보기만 표시';}
+function publishScreen(){publicScreen=showComputePublic();publicRenderLocal(publicScreen);if(publicOutputWin&&!publicOutputWin.closed){try{publicRender(publicOutputWin.document,publicScreen);$('showOutputDot').classList.add('connected');$('showOutputStatus').textContent='임시 출력창 연결됨 · 공개 허용 상태만 전송';}catch(e){$('showOutputDot').classList.remove('connected');$('showOutputStatus').textContent='출력창 갱신 실패 · 다시 열어주세요.';}}else{$('showOutputDot').classList.remove('connected');$('showOutputStatus').textContent='OBS 최종 디자인으로 미리보기 표시 중';}
  // Integration contract for the separate OBS design project. No hidden answer fields are included.
  window.dispatchEvent(new CustomEvent('hyundana:public-screen',{detail:structuredClone(publicScreen)}));showUpdateControls();}
 function openOutputWindow(){const w=window.open('','HyundanaPublicOutput','width=1280,height=720,resizable=yes,scrollbars=no');if(!w){toast('팝업이 차단됐어요. 이 사이트의 팝업 허용을 확인해주세요.');return;}publicOutputWin=w;
@@ -585,7 +590,7 @@ async function showPrepareEntry(entry){if(!entry)return toast('진행할 문제�
  try{const project=entry.project,error=requiredForReady(project);if(error)throw new Error(error);const n=project.count;const images=await Promise.all(project.layers.slice(0,n).map(l=>imageData(l.dataUrl)));if(prepEpoch!==showControl.prepEpoch||showControl.stage==='end')return;const assets=composePreparedData(project,images);const allOrdered=sortEntries(await allStored());const idx=allOrdered.findIndex(x=>x.id===entry.id);showControl.active={entry,assets,round:`라운드 ${String(Math.max(0,idx)+1).padStart(2,'0')}`};showControl.round=showControl.active.round;toast(`${showControl.round} 준비 완료 · 이미지는 사전 생성했어요.`);}catch(e){showControl.active=null;showControl.round='';toast('문제 준비 실패: '+e.message);}finally{showControl.preparing=false;publishScreen();}}
 function showSetStage(stage){if(stage!=='summary')stopPostReveal();showControl.stage=stage;if(['waiting','title','emergency','end'].includes(stage)){cancelAutoReveal(false);showControl.armed=false;}publishScreen();}
 $('showRefresh').onclick=refreshShowQueue;
-$('openPublicOutput').onclick=openOutputWindow;
+$('openPublicOutput').onclick=()=>{const w=window.open('/obs','HyundanaOBS','width=1280,height=720,resizable=yes');if(!w)toast('팝업이 차단되었어요. 아래 OBS 화면 열기를 이용해주세요.');};
 $('showPrepare').onclick=async()=>{const e=showControl.queue.find(x=>x.id===$('showQuestionSelect').value);await showPrepareEntry(e);};
 $('showPrepareNext').onclick=async()=>{const idx=showControl.queue.findIndex(e=>e.id===showControl.active?.entry.id),next=showControl.queue[idx+1]||showControl.queue[0];if(!next)return toast('준비된 문제가 없어요.');$('showQuestionSelect').value=next.id;await showPrepareEntry(next);};
 $('showWaiting').onclick=()=>showSetStage('waiting');
