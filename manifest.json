@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.6.2",
-  "notes": "진행 중 수동 콘텐츠 종료·재개: 미진행 문제 보존, 자동 정답 공개/다음 문제 타이머 중단, 빈 대기목록은 자동 종료. 대기·오프닝·감사합니다 이미지는 PC에 한 번 설치.",
+  "version": "1.6.3",
+  "notes": "방송 진행실의 회색 임시 미리보기를 제거하고 동일한 /obs 화면을 실시간 미리보기로 표시. 대기·오프닝·문제·정답·종료 디자인을 한 화면에서 확인.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "68fa696aeda882165fab014a61146ff7ed17e45d81e28392934855ac42ae804c"
+      "sha256": "139dd543c2d4c3bbfa368ec390c18506882e1dc0356daaa69d33ee8247fbfe13"
     },
     {
       "path": "server.py",
