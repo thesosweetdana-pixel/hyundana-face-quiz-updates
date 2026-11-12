@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.6.3",
-  "notes": "방송 진행실의 회색 임시 미리보기를 제거하고 동일한 /obs 화면을 실시간 미리보기로 표시. 대기·오프닝·문제·정답·종료 디자인을 한 화면에서 확인.",
+  "version": "1.6.4",
+  "notes": "선택된 구글시트 사진을 퀴즈실 사진 보관함에 동기화하고 촬영자·라이선스·원본 링크 기록. 기존 문제와 보관된 사진 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "139dd543c2d4c3bbfa368ec390c18506882e1dc0356daaa69d33ee8247fbfe13"
+      "sha256": "f49986a4df9d610291738f51117954d2807d093048833b722080a960cd0e72f1"
     },
     {
       "path": "server.py",
