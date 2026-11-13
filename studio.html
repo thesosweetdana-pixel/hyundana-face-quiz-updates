@@ -87,6 +87,11 @@
 .archive-batch-slot small{display:block;color:#746579;font-size:11px;margin-top:2px}
 .photo-person-card.archive-picked{border:2px solid #e5649f;box-shadow:0 1px 12px rgba(223,79,149,.12)}
 .photo-person-card .photo-pick-button[aria-pressed="true"]{background:#b33480;color:white}
+.eye-anchor-tools{margin:10px 0 14px;padding:11px 12px;border:1px solid #efb6d0;background:#fff8fc;border-radius:12px}
+.eye-anchor-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:9px;color:#8b3866}
+.eye-anchor-actions{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+.eye-anchor-actions .btn{flex:1;min-width:145px}
+.eye-anchor-tools .note{margin:0}
 .photo-library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:12px;align-items:start}
 .archive-person-group{background:#fafbff;border:1px solid #e4e7f0;border-radius:13px;padding:12px}
 .archive-person-group.archive-used{background:#f7f7f9;border-color:#dddfe6}
@@ -135,12 +140,20 @@
 <div class="two-buttons" style="margin-top:7px"><button class="btn tint" id="chooseArchivePhoto" type="button">📚 보관함에서 사진 선택</button><button class="btn" id="saveArchivePhoto" type="button">현재 사진 보관함에 저장</button></div>
 <p class="desc">문제를 관리실에 저장하면 A·B·C 원본도 사진 보관함에 자동 등록됩니다. 다른 조합에서도 다시 쓸 수 있어요.</p>
 
-<div class="divider"></div><h2>② 눈 수동 정렬·확대 기준점</h2><p class="desc">분홍 가이드 기준으로 눈을 직접 지정 · 외부 모델 로딩 없음</p>
-<div class="two-buttons"><button class="btn" id="anchorLeft">왼쪽 눈 기준 · 즉시 고정</button><button class="btn" id="manualEyeLeft">실제 왼쪽 눈 직접 찍기</button><button class="btn" id="clearPin">기준점 해제</button></div>
-<div class="note" id="anchorMessage">「왼쪽 눈 기준」을 누르면 분홍 가이드 위치를 고정합니다. 가이드와 실제 눈이 다르면 「실제 왼쪽 눈 직접 찍기」로 한 번 클릭하세요.</div></aside>
+</aside>
 <section class="panel"><div class="centerHead"><div><h2>③ 원본 사진 편집 <span class="pill" id="selectedLabel">사진 A</span></h2><div class="desc">정렬 가이드는 표시용입니다. PNG에는 저장되지 않으며 원본은 그대로 보존돼요.</div></div><label class="btn small guide-toggle" style="white-space:nowrap"><input type="checkbox" id="guideCheck" checked> 👁 눈·코·입 가이드 표시</label></div>
 <div class="editArea"><div class="canvasWrap"><canvas id="editCanvas" width="560" height="560"></canvas><div class="empty" id="emptyEdit">왼쪽에서 사진을 등록해주세요. 마우스로 드래그하면 위치를 이동할 수 있어요.</div></div></div>
-<div class="help" style="margin-top:8px">분홍 점선은 참고 가이드입니다. 왼쪽 눈을 직접 지정한 뒤 확대하면 그 점이 고정됩니다.</div><div class="toolbar"><strong>수동 정렬 상태</strong><div class="status" id="editStatus">실제 왼쪽 눈을 찍으면 그 위치를 유지한 채 확대할 수 있어요.</div><div class="actions"><button class="btn small" id="resetTransform">위치·확대 초기화</button><button class="btn small" id="flipPhoto" type="button">⇄ 사진 좌우반전</button><span class="desc" id="flipPhotoStatus">좌우반전 꺼짐</span><label class="btn small"><input type="checkbox" id="lockCheck"> 사진 위치 잠금</label></div></div>
+<div class="help" style="margin-top:8px">분홍 점선은 참고 가이드입니다. 왼쪽 눈을 직접 지정한 뒤 확대하면 그 점이 고정됩니다.</div>
+<div class="eye-anchor-tools" aria-label="눈 고정점 지정과 위치 이동">
+ <div class="eye-anchor-title"><strong>② 왼쪽 눈 고정 · 고정점 이동</strong><span class="desc">사진 바로 아래에서 설정</span></div>
+ <div class="eye-anchor-actions">
+  <button class="btn" type="button" id="anchorLeft">왼쪽 눈 기준 · 즉시 고정</button>
+  <button class="btn primary" type="button" id="manualEyeLeft">고정점 옮기기 · 사진 클릭</button>
+  <button class="btn" type="button" id="clearPin">고정 해제</button>
+ </div>
+ <div class="note" id="anchorMessage">가이드 위치에 고정하거나 「고정점 옮기기」를 누른 후 사진 속 왼쪽 눈을 직접 클릭하세요.</div>
+</div>
+<div class="toolbar"><strong>수동 정렬 상태</strong><div class="status" id="editStatus">실제 왼쪽 눈을 찍으면 그 위치를 유지한 채 확대할 수 있어요.</div><div class="actions"><button class="btn small" id="resetTransform">위치·확대 초기화</button><button class="btn small" id="flipPhoto" type="button">⇄ 사진 좌우반전</button><span class="desc" id="flipPhotoStatus">좌우반전 꺼짐</span><label class="btn small"><input type="checkbox" id="lockCheck"> 사진 위치 잠금</label></div></div>
 <div class="ctrls"><div class="ctrl"><label for="xNum">가로 이동 X <span id="xVal">0px</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="xNum" data-dir="-1" aria-label="가로 위치 0.5픽셀 감소" title="−0.5px">−</button><input id="xNum" type="number" step="0.5" value="0"><button type="button" class="fine-button" data-fine="xNum" data-dir="1" aria-label="가로 위치 0.5픽셀 증가" title="+0.5px">+</button></div></div><div class="ctrl"><label for="yNum">세로 이동 Y <span id="yVal">0px</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="yNum" data-dir="-1" aria-label="세로 위치 0.5픽셀 감소" title="−0.5px">−</button><input id="yNum" type="number" step="0.5" value="0"><button type="button" class="fine-button" data-fine="yNum" data-dir="1" aria-label="세로 위치 0.5픽셀 증가" title="+0.5px">+</button></div></div><div class="ctrl"><label for="zoom">기준점 고정 확대·축소 <span id="zoomVal">100%</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="zoom" data-dir="-1" aria-label="기준점 고정 확대·축소 0.5 감소" title="−0.5">−</button><input id="zoom" type="range" min="25" max="1200" value="100" step="0.5"><button type="button" class="fine-button" data-fine="zoom" data-dir="1" aria-label="기준점 고정 확대·축소 0.5 증가" title="+0.5">+</button></div></div><div class="ctrl"><label for="rotate">회전 <span id="rotateVal">0°</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="rotate" data-dir="-1" aria-label="회전 0.5 감소" title="−0.5">−</button><input id="rotate" type="range" min="-15" max="15" step="0.5" value="0"><button type="button" class="fine-button" data-fine="rotate" data-dir="1" aria-label="회전 0.5 증가" title="+0.5">+</button></div></div><div class="ctrl"><label for="weight">사진 비중 <span id="weightVal">100%</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="weight" data-dir="-1" aria-label="사진 비중 0.5 감소" title="−0.5">−</button><input id="weight" type="range" min="0" max="200" value="100" step="0.5"><button type="button" class="fine-button" data-fine="weight" data-dir="1" aria-label="사진 비중 0.5 증가" title="+0.5">+</button></div></div><div class="ctrl"><label for="opacity">불투명도 <span id="opacityVal">100%</span></label><div class="fine-row"><button type="button" class="fine-button" data-fine="opacity" data-dir="-1" aria-label="불투명도 0.5 감소" title="−0.5">−</button><input id="opacity" type="range" min="0" max="100" value="100" step="0.5"><button type="button" class="fine-button" data-fine="opacity" data-dir="1" aria-label="불투명도 0.5 증가" title="+0.5">+</button></div></div></div>
 <p class="help">각 조절바의 − / + 버튼은 클릭할 때마다 0.5 단위로 조절 · X/Y도 ±0.5px 가능 · 방향키 1px 이동 · Shift+방향키 10px 이동 · 눈 고정 후 확대하면 기준점 유지</p>
 </section>
