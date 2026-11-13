@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.6.4",
-  "notes": "선택된 구글시트 사진을 퀴즈실 사진 보관함에 동기화하고 촬영자·라이선스·원본 링크 기록. 기존 문제와 보관된 사진 유지.",
+  "version": "1.6.5",
+  "notes": "오류 수정: 진행 준비된 문제가 0개일 때 자동 종료 화면 전환 금지. 준비되지 않은 문제는 정답 공개 시작 금지. 콘텐츠 종료는 진행자가 직접 누를 때만.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "f49986a4df9d610291738f51117954d2807d093048833b722080a960cd0e72f1"
+      "sha256": "e0fc79f39362b86543df3b93000aad767807b319a1e4d6ee8b9a608d45c752e9"
     },
     {
       "path": "server.py",
