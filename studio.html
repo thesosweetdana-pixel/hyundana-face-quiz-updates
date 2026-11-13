@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.6.7</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.6.8</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -87,7 +87,17 @@
 .archive-batch-slot small{display:block;color:#746579;font-size:11px;margin-top:2px}
 .photo-person-card.archive-picked{border:2px solid #e5649f;box-shadow:0 1px 12px rgba(223,79,149,.12)}
 .photo-person-card .photo-pick-button[aria-pressed="true"]{background:#b33480;color:white}
-.photo-library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:12px}
+.photo-library-grid{display:flex;flex-direction:column;gap:12px}
+.archive-person-group{background:#fafbff;border:1px solid #e4e7f0;border-radius:13px;padding:12px}
+.archive-person-group.archive-used{background:#f7f7f9;border-color:#dddfe6}
+.archive-person-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;margin-bottom:9px}
+.archive-person-heading strong{font-size:16px;color:#293d60}
+.archive-use-pill{font-size:12px;background:#fff;border:1px solid #d9dce6;padding:5px 10px;border-radius:18px;color:#7b6488;font-weight:800}
+.archive-person-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:11px}
+.archive-photo-flag{font-size:12px;font-weight:800;color:#bb527e;display:block;margin:5px 0}
+.archive-alphabet{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.archive-alphabet button{padding:5px 8px;border:1px solid #d6dbe7;border-radius:7px;background:white;cursor:pointer;color:#42546e}
+.archive-alphabet button.active{background:#e872aa;color:#fff;border-color:#e872aa}
 .photo-person-card{border:1px solid #e1e5ef;border-radius:13px;padding:11px;background:white;min-width:0}
 .photo-person-card>img{width:100%;aspect-ratio:1;object-fit:contain;background:repeating-conic-gradient(#f3f5f8 0 25%,#fff 0 50%) 50% / 16px 16px;border-radius:9px;display:block}
 .photo-person-card strong{display:block;margin:9px 0 3px;font-size:13px;overflow-wrap:anywhere}
@@ -104,7 +114,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.6.6</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.6.8</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -159,7 +169,7 @@
   </section>
   <section class="panel">
     <div class="photo-form">
-      <label>사진 검색 <input id="archiveSearch" type="search" placeholder="연예인 이름, 출처로 검색"></label>
+      <label>사진 검색 <input id="archiveSearch" type="search" placeholder="연예인 이름, 출처로 검색"></label><label>이름 정렬 <select id="archiveSort"><option value="unused">미사용 먼저 · ㄱ→ㅎ</option><option value="nameAsc">이름순 ㄱ→ㅎ</option><option value="nameDesc">이름순 ㅎ→ㄱ</option></select></label>
       <label>사진을 적용할 칸 <select id="archiveTarget"><option value="0">사진 A</option><option value="1">사진 B</option><option value="2">사진 C</option></select></label>
       <span class="desc" id="archiveStatus">사진 보관함을 불러오는 중...</span>
     </div>
@@ -171,6 +181,7 @@
     </div>
     <p class="photo-detail-note">사진 카드의 「3명 선택」을 누른 순서대로 A → B → C에 배치됩니다. 검색을 바꿔도 선택은 유지돼요. 출처·이름도 함께 들어가며 원본과 이전 문제는 그대로 보관됩니다.</p>
   </section>
+  <div id="archiveAlphabet" class="archive-alphabet" aria-label="초성 빠른 찾기"></div>
   <section class="photo-library-grid" id="archiveGrid"></section>
   <div class="note">사진을 보관함에서 지워도 이미 만든 문제는 지워지지 않아요. 반대로 문제를 삭제해도 보관함에 있는 사진은 그대로 남습니다. 문제 및 사진 전체 백업은 문제 관리실의 「전체 문제 백업 JSON」에서 받을 수 있어요. 이 기기에 저장되므로 다른 PC로 옮기거나 브라우저 데이터를 지우기 전에 꼭 백업하세요.</div>
 </main>
@@ -337,7 +348,7 @@ $('importBtn').onclick=()=>$('projectInput').click();$('projectInput').onchange=
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 // Problem manager v1.1: all images and edit data stay in the local browser (IndexedDB).
 const DB_NAME='hyundana-face-quiz-library-v1', DB_STORE='questions', PHOTO_STORE='photos';
-let managerDbPromise=null,managerAvailable=true,managerBusy=false,managerStorageMode='persistent';const memoryStore=new Map(),memoryPhotos=new Map();let archiveItems=[],archiveUseCounts=new Map(),archivePersonUses=new Map(),archiveBusy=false,archiveSelectionIds=[];
+let managerDbPromise=null,managerAvailable=true,managerBusy=false,managerStorageMode='persistent';const memoryStore=new Map(),memoryPhotos=new Map();let archiveItems=[],archiveUseCounts=new Map(),archivePersonUses=new Map(),archiveBusy=false,archiveSelectionIds=[],archiveInitial='전체';
 function newQuestionId(){return (typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():`q-${Date.now()}-${Math.random().toString(36).slice(2)}`}
 function openManagerDB(){if(managerDbPromise)return managerDbPromise;managerDbPromise=new Promise((resolve,reject)=>{try{const request=indexedDB.open(DB_NAME,2);request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains(DB_STORE))request.result.createObjectStore(DB_STORE,{keyPath:'id'});if(!request.result.objectStoreNames.contains(PHOTO_STORE))request.result.createObjectStore(PHOTO_STORE,{keyPath:'id'})};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||new Error('저장소 연결 실패'));request.onblocked=()=>reject(new Error('다른 탭에서 데이터베이스를 사용 중입니다'))}catch(e){reject(e)}});return managerDbPromise}
 async function managerRequest(mode,operation){let db;try{db=await openManagerDB()}catch(e){managerStorageMode='memory';const copy=x=>JSON.parse(JSON.stringify(x));const store={getAll:()=>({result:Array.from(memoryStore.values()).map(copy)}),get:id=>({result:memoryStore.has(id)?copy(memoryStore.get(id)):undefined}),put:entry=>{memoryStore.set(entry.id,copy(entry));return {result:entry.id}},delete:id=>{memoryStore.delete(id);return {result:undefined}}};return operation(store).result}return new Promise((resolve,reject)=>{let finished=false;const tx=db.transaction(DB_STORE,mode);const store=tx.objectStore(DB_STORE);const req=operation(store);let value;req.onsuccess=()=>{value=req.result};req.onerror=()=>{if(!finished){finished=true;reject(req.error||new Error('저장 요청 실패'))}};tx.oncomplete=()=>{if(!finished){finished=true;resolve(value)}};tx.onerror=()=>{if(!finished){finished=true;reject(tx.error||new Error('저장소 오류'))}};tx.onabort=()=>{if(!finished){finished=true;reject(tx.error||new Error('저장 취소'))}}})}
@@ -375,7 +386,7 @@ async function refreshArchive(){
   archiveUseCounts=new Map(archiveItems.map(p=>[p.id,countPhotoUsage(p,questions)]));
   archivePersonUses=new Map(archiveItems.map(p=>[canonicalName(p.name),questions.filter(e=>personSet(e.project).includes(canonicalName(p.name)))]));
   $('photoCount').textContent=archiveItems.length;
-  const persons=new Set(archiveItems.map(p=>p.name.trim().toLowerCase()));
+  const persons=new Set(archiveItems.map(p=>canonicalName(p.name)));
   $('archiveStatus').textContent=`사진 ${archiveItems.length}장 · 연예인 ${persons.size}명 · ${managerStorageMode==='memory'?'임시 보관 모드 (즉시 백업 필수)':'이 브라우저에 보관'}`;
   renderArchive();
  }catch(e){$('archiveStatus').textContent='사진 보관함 로딩 실패: '+e.message;$('archiveGrid').innerHTML='<div class="empty-library">사진 보관함 연결을 확인해주세요.</div>';}
@@ -392,23 +403,53 @@ function updateArchiveBatchUI(){
  $('archiveBatchStart').disabled=num!==3||archiveBusy;
  $('archiveBatchClear').disabled=num===0||archiveBusy;
 }
+
+function archiveInitialLetter(name){
+ const first=String(name||'').trim().normalize('NFKC').charAt(0),code=first.charCodeAt(0);
+ const initial='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+ const c=code>=0xAC00&&code<=0xD7A3?initial[Math.floor((code-0xAC00)/588)]:(first?first.toUpperCase():'#');
+ return ({'ㄲ':'ㄱ','ㄸ':'ㄷ','ㅃ':'ㅂ','ㅆ':'ㅅ','ㅉ':'ㅈ'})[c]||c;
+}
+function archivePersonGroups(photos,usage,sort){
+ const groups=new Map(),collator=new Intl.Collator('ko',{numeric:true,sensitivity:'base'});
+ for(const photo of photos){
+  const key=canonicalName(photo.name);
+  if(!groups.has(key))groups.set(key,{key,name:photo.name,photos:[],uses:usage.get(key)||[]});
+  groups.get(key).photos.push(photo);
+ }
+ return [...groups.values()].sort((a,b)=>{
+  if(sort==='unused'&&Boolean(a.uses.length)!==Boolean(b.uses.length))return a.uses.length?1:-1;
+  const byName=collator.compare(a.name,b.name);
+  return (sort==='nameDesc'?-byName:byName)||a.key.localeCompare(b.key);
+ });
+}
 function renderArchive(){
  updateArchiveBatchUI();
- const q=$('archiveSearch').value.trim().toLowerCase();
- const list=archiveItems.filter(p=>(p.name+' '+(p.source||'')).toLowerCase().includes(q));
- $('archiveGrid').innerHTML=list.length?list.map(p=>{
-   const uses=archiveUseCounts.get(p.id)||[];
-   const order=archiveSelectionIds.indexOf(p.id),picked=order>=0;
-   return '<article class="photo-person-card'+(picked?' archive-picked':'')+'"><img src="'+p.dataUrl+'" alt="'+safeText(p.name)+' 원본 사진" loading="lazy">'+
-   '<strong>'+safeText(p.name)+'</strong><small>출처: '+safeText(p.source||'미입력')+'</small>'+
-   '<small>이 사진 사용 '+uses.length+'문제 · 방송 완료 '+uses.filter(x=>x.status==='done').length+'문제</small>'+
-   '<small>연예인 사용 이력: '+safeText((archivePersonUses.get(canonicalName(p.name))||[]).map(e=>problemReference(e,managerEntries.length?managerEntries:[e])).slice(0,4).join(' · ')||'없음')+'</small>'+
-   '<div class="photo-card-actions"><button class="btn small photo-pick-button" type="button" aria-pressed="'+picked+'" data-photo-act="batch" data-photo-id="'+p.id+'">'+
-     (picked?'✓ '+letters[order]+' 선택됨 (취소)':'＋ 3명 선택')+'</button>'+
-   '<button class="btn small primary" type="button" data-photo-act="use" data-photo-id="'+p.id+'">한 장만 적용</button>'+
-   '<button class="btn small" type="button" data-photo-act="edit" data-photo-id="'+p.id+'">정보 수정</button>'+
-   '<button class="btn small" type="button" data-photo-act="delete" data-photo-id="'+p.id+'">보관함 삭제</button></div></article>';
- }).join(''):'<div class="empty-library">등록된 사진이 없거나 검색 결과가 없어요. 원본을 추가하거나 기존 문제에서 가져와 주세요.</div>';
+ const sort=$('archiveSort').value,query=$('archiveSearch').value.trim().toLowerCase();
+ const groups=archivePersonGroups(archiveItems,archivePersonUses,sort);
+ const initials=['전체',...new Set(groups.map(g=>archiveInitialLetter(g.name)))];
+ if(!initials.includes(archiveInitial))archiveInitial='전체';
+ $('archiveAlphabet').innerHTML=initials.map(t=>'<button type="button" class="'+(t===archiveInitial?'active':'')+'" data-letter="'+safeText(t)+'">'+safeText(t)+'</button>').join('');
+ const visible=groups.filter(g=>(archiveInitial==='전체'||archiveInitialLetter(g.name)===archiveInitial)&&(!query||(g.name+' '+g.photos.map(p=>p.source||'').join(' ')).toLowerCase().includes(query)));
+ $('archiveGrid').innerHTML=visible.length?visible.map(g=>{
+  const used=g.uses.length>0;
+  const refs=[...new Set(g.uses.map(e=>problemReference(e,managerEntries.length?managerEntries:[e])))];
+  const heading='<div class="archive-person-heading"><strong>'+safeText(g.name)+' · 사진 '+g.photos.length+'장</strong><span class="archive-use-pill">'+(used?'✓ 사용됨 · '+g.uses.length+'문제':'미사용')+'</span></div>'+
+   (used?'<small class="photo-detail-note">사용 위치: '+safeText(refs.slice(0,6).join(' · '))+(refs.length>6?' 외 '+(refs.length-6)+'건':'')+'</small>':'');
+  const cards=g.photos.slice().sort((a,b)=>(a.createdAt||'').localeCompare(b.createdAt||'')||String(a.id).localeCompare(String(b.id))).map(p=>{
+   const actual=archiveUseCounts.get(p.id)||[],order=archiveSelectionIds.indexOf(p.id),picked=order>=0;
+   return '<article class="photo-person-card'+(picked?' archive-picked':'')+'"><img src="'+p.dataUrl+'" alt="'+safeText(p.name)+' 원본" loading="lazy">'+
+    '<strong>'+safeText(p.name)+'</strong>'+
+    (actual.length?'<span class="archive-photo-flag">✓ 이 사진 사용됨 · '+actual.length+'문제</span>':used?'<span class="archive-photo-flag">인물 사용됨 · 이 사진은 미사용</span>':'')+
+    '<small>출처: '+safeText(p.source||'미입력')+'</small>'+
+    '<div class="photo-card-actions"><button class="btn small photo-pick-button" type="button" aria-pressed="'+picked+'" data-photo-act="batch" data-photo-id="'+p.id+'">'+(picked?'✓ '+letters[order]+' 선택됨 (취소)':'＋ 3명 선택')+'</button>'+
+    '<button class="btn small primary" type="button" data-photo-act="use" data-photo-id="'+p.id+'">한 장만 적용</button>'+
+    '<button class="btn small" type="button" data-photo-act="edit" data-photo-id="'+p.id+'">정보 수정</button>'+
+    '<button class="btn small" type="button" data-photo-act="delete" data-photo-id="'+p.id+'">보관함 삭제</button></div></article>';
+  }).join('');
+  return '<section class="archive-person-group'+(used?' archive-used':'')+'">'+heading+'<div class="archive-person-photos">'+cards+'</div></section>';
+ }).join(''):'<div class="empty-library">해당 이름의 사진이 없어요. 검색어와 첫 글자 필터를 확인해주세요.</div>';
+ $('archiveStatus').textContent='연예인 '+groups.length+'명 · 사진 '+archiveItems.length+'장 · 미사용 '+groups.filter(g=>!g.uses.length).length+'명 · 사용됨 '+groups.filter(g=>g.uses.length).length+'명';
 }
 function toggleArchivePick(photo){
  const index=archiveSelectionIds.indexOf(photo.id);
@@ -457,6 +498,8 @@ $('photoTab').onclick=()=>switchView('photos');
 $('archiveBatchStart').onclick=createFromArchiveSelection;
 $('archiveBatchClear').onclick=()=>{archiveSelectionIds=[];renderArchive();};
 $('archiveSearch').oninput=renderArchive;
+$('archiveSort').onchange=renderArchive;
+$('archiveAlphabet').onclick=ev=>{const b=ev.target.closest('button[data-letter]');if(!b)return;archiveInitial=b.dataset.letter;renderArchive();};
 $('chooseArchivePhoto').onclick=()=>{$('archiveTarget').value=String(selected);switchView('photos')};
 $('saveArchivePhoto').onclick=async()=>{const l=layers[selected];if(!l.dataUrl||!l.name.trim()){toast('먼저 사진을 등록하고 연예인 이름을 입력해주세요.');return;}try{const r=await registerPhoto(l);l.photoLibraryId=r.record.id;await refreshArchive();toast(r.created?'원본을 보관함에 따로 저장했어요.':'이미 보관함에 저장된 사진이에요.')}catch(e){toast('사진 저장 실패: '+e.message)}};
 $('archiveUpload').onclick=()=>{if(!$('archiveNewName').value.trim()){toast('먼저 연예인 이름을 입력해주세요.');return;}$('archiveImageInput').click()};
