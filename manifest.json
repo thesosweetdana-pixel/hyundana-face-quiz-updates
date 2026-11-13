@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
   "version": "1.7.4",
-  "notes": "선택 사진 CSV 불러오기 URL is not a constructor 오류 수정. 변수 이름 충돌 제거, 기존 보관 사진·문제 유지.",
+  "notes": "완료 문제의 '재진행 준비' 확인 팝업 제거: 버튼 클릭 시 곧바로 진행 준비 상태로 전환. 기존 v1.7.3 원본 사진 CSV 지원 기능과 OBS 화면 및 문제 데이터 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "cfc3417fd8b9bf79777ce3f3452622533850279cbbdf47394e6929d234ef7eb5"
+      "sha256": "45f232456ba12477ff2ecbec561dbcaafea77475b82456db6028b1e13c3af75c"
     },
     {
       "path": "server.py",
