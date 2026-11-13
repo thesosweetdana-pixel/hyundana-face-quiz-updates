@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.7.7</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.7.8</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -119,7 +119,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.7.7</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.7.8</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -953,8 +953,23 @@ async function run(file){
     Object.assign(result.record,metadata);await putPhoto(result.record);if(result.created)added++;else retained++;
    }catch(e){fail.push(r.name+' '+r.candidate+': '+(e.message||e))}
   }
+  // Show all results after import. Previously a stale search/initial filter could hide saved photos.
+  $('archiveSearch').value='';
+  archiveInitial='전체';
   await refreshArchive();
-  message('선택 '+picked.length+'장 · 새 저장 '+added+'장 · 기존 보관 '+retained+'장 · 실패 '+fail.length+'장\n'+(fail.length?'오류: '+fail.slice(0,20).join(' / '):'사진 보관함의 A·B·C 칸에서 사용 가능합니다.')+'\n체크 변경 시 CSV를 다시 다운로드하세요. 기존 문제와 사진은 삭제되지 않습니다.');
+  const verified=await allPhotos();
+  const selectedUrls=new Set(picked.map(p=>p.fileUrl));
+  const saved=verified.filter(p=>selectedUrls.has(p.fileUrl)&&p.dataUrl);
+  const hidden=verified.length-saved.length;
+  message('CSV 선택 '+picked.length+'장 · 이번에 새 저장 '+added+'장 · 기존 보관 '+retained+'장 · 실패 '+fail.length+'장\n'+
+    '보관함 재검증: 전체 '+verified.length+'장 · 이번 CSV와 일치 '+saved.length+'장\n'+
+    (fail.length?'실패 원인:\n'+fail.join('\n'):'사진이 보관함에 표시됩니다.')+
+    '\n※ 검색/초성 필터를 전체로 초기화했습니다. 다른 버전의 브라우저에서는 이 PC 저장 사진이 공유되지 않습니다.');
+  if(fail.length){
+    const report=document.createElement('button');report.className='btn small';report.type='button';report.textContent='실패 목록 TXT 저장';
+    report.onclick=()=>download(new Blob([fail.join('\n')],{type:'text/plain;charset=utf-8'}),'퀴즈실_사진_가져오기_실패목록.txt');
+    INFO.appendChild(document.createElement('div')).appendChild(report);
+  }
  }catch(e){message('가져오기 실패: '+e.message)}
  finally{running=false;BTN.disabled=false}
 }
