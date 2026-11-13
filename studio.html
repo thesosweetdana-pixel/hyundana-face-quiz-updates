@@ -716,7 +716,7 @@ async function showPrepareEntry(entry){if(!entry)return toast('진행할 문제�
  if(isLive()&&showControl.stage!=='summary'&&showControl.active&&showControl.revealCount<showControl.active.assets.count&&!confirm('현재 문제가 진행 중이에요. 다른 문제를 비공개로 준비할까요? 방송 화면은 대기 화면으로 전환됩니다.'))return;
  cancelAutoReveal(false);showControl.stage='waiting';showControl.revealCount=0;showControl.revealStep=0;showControl.armed=false;publishScreen();showControl.preparing=true;showUpdateControls();
  try{const project=entry.project,error=requiredForReady(project);if(error)throw new Error(error);const n=project.count;const images=await Promise.all(project.layers.slice(0,n).map(l=>imageData(l.dataUrl)));if(prepEpoch!==showControl.prepEpoch||showControl.stage==='end')return;const assets=composePreparedData(project,images);const allOrdered=sortEntries(await allStored());const idx=allOrdered.findIndex(x=>x.id===entry.id);showControl.active={entry,assets,round:`라운드 ${String(Math.max(0,idx)+1).padStart(2,'0')}`};showControl.round=showControl.active.round;toast(`${showControl.round} 준비 완료 · 이미지는 사전 생성했어요.`);}catch(e){showControl.active=null;showControl.round='';toast('문제 준비 실패: '+e.message);}finally{showControl.preparing=false;publishScreen();}}
-function showSetStage(stage){if(stage!=='summary')stopPostReveal();showControl.stage=stage;if(['waiting','title','emergency','end'].includes(stage)){cancelAutoReveal(false);showControl.armed=false;}publishScreen();}
+function showSetStage(stage){if(stage!=='summary')stopPostReveal();showControl.prepEpoch++;showControl.stage=stage;if(['waiting','title','emergency','end'].includes(stage)){cancelAutoReveal(false);showControl.armed=false;}publishScreen();}
 $('showRefresh').onclick=refreshShowQueue;
 $('openPublicOutput').onclick=()=>{const w=window.open('/obs','HyundanaOBS','width=1280,height=720,resizable=yes');if(!w)toast('팝업이 차단되었어요. 아래 OBS 화면 열기를 이용해주세요.');};
 $('showPrepare').onclick=async()=>{const e=showControl.queue.find(x=>x.id===$('showQuestionSelect').value);await showPrepareEntry(e);};
@@ -731,23 +731,44 @@ $('showVideoTest').onclick=()=>{
   showControl.stage=previous;publishScreen();
  },3700);
 };
-$('showNextWithVideo').onclick=()=>{
+$('showNextWithVideo').onclick=async()=>{
  if(showControl.preparing||showControl.playing||showControl.stage==='end')return;
- const next=showControl.queue.find(e=>e.id!==showControl.active?.entry?.id);
- if(!next)return toast('다음으로 진행할 준비된 문제가 없어요.');
- if(showControl.active&&showControl.stage==='question'&&!confirm('현재 문제의 정답 공개를 건너뛰고 3초 대기 영상 뒤 다음 문제로 넘어갈까요?'))return;
- stopPostReveal();cancelAutoReveal(false);const token=postRevealToken;
- showControl.armed=false;showControl.stage='summary';publishScreen();
- $('showQuestionSelect').value=next.id;
- toast('3초 대기 영상을 재생한 뒤 다음 문제를 공개합니다.');
- postRevealTimer=setTimeout(async()=>{
-  if(token!==postRevealToken||showControl.stage!=='summary')return;
-  if(!showControl.queue.some(e=>e.id===next.id))return toast('다음 문제가 진행 준비 목록에서 사라졌어요.');
-  await showPrepareEntry(next);
-  if(showControl.stage==='waiting'&&showControl.active?.entry.id===next.id&&showControl.active.assets){
-   showSetStage('question');
-  }
- },3750);
+ const startStage=showControl.stage;
+ try{
+  const response=await fetch('/assets/next.mp4',{headers:{Range:'bytes=0-31'},cache:'no-store'});
+  if(!response.ok)throw new Error('영상 파일을 열지 못했어요 (HTTP '+response.status+')');
+ }catch(err){toast('다음 문제 MP4 확인 실패: '+err.message+' · 방송 이미지 설치 위치를 확인해주세요.');return;}
+ if(showControl.stage!==startStage||showControl.playing||showControl.preparing)return;
+ stopPostReveal();showControl.stage='summary';showControl.armed=false;publishScreen();
+ toast('3초 MP4가 나옵니다. 영상이 끝나도 다음 문제는 자동 공개하지 않아요.');
+};
+$('showAdvanceQuestion').onclick=async()=>{
+ if(showControl.preparing||showControl.playing||showControl.stage==='end')return;
+ const chosen=$('showQuestionSelect').value;
+ const next=showControl.queue.find(e=>e.id===chosen&&e.id!==showControl.active?.entry?.id)
+    ||showControl.queue.find(e=>e.id!==showControl.active?.entry?.id);
+ if(!next){toast('다음으로 공개할 진행 준비 문제가 없어요.');return;}
+ if(showControl.stage==='question'&&showControl.active?.entry?.status==='ready'
+  &&!confirm('현재 문제를 완료하지 않고 새 문제를 공개할까요? 기존 문제는 진행 준비 상태로 남습니다.'))return;
+ const prior=showControl.stage,epoch=++showControl.prepEpoch;
+ stopPostReveal();cancelAutoReveal(false);showControl.preparing=true;showUpdateControls();
+ try{
+  const project=next.project,error=requiredForReady(project);
+  if(error)throw new Error(error);
+  const images=await Promise.all(project.layers.slice(0,project.count).map(l=>imageData(l.dataUrl)));
+  if(epoch!==showControl.prepEpoch||showControl.stage==='end'||showControl.stage!==prior)return;
+  const assets=composePreparedData(project,images);
+  const all=sortEntries(await allStored());
+  if(epoch!==showControl.prepEpoch||showControl.stage==='end'||showControl.stage!==prior)return;
+  const index=all.findIndex(e=>e.id===next.id);
+  showControl.active={entry:next,assets,round:'라운드 '+String(Math.max(0,index)+1).padStart(2,'0')};
+  showControl.round=showControl.active.round;
+  showControl.revealStep=0;showControl.revealCount=0;showControl.armed=false;
+  $('showQuestionSelect').value=next.id;
+  showSetStage('question');
+  toast('다음 문제를 공개했어요. 정답은 아직 비공개입니다.');
+ }catch(err){toast('다음 문제 공개 실패: '+err.message);}
+ finally{showControl.preparing=false;showUpdateControls();}
 };
 $('showWaiting').onclick=()=>showSetStage('waiting');
 $('showEnd').onclick=()=>{
