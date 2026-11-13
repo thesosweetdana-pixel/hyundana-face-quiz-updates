@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.7.7",
-  "notes": "정답 공개 중 다음 문제를 선택·비공개 준비해도 현재 송출 사진과 자동 공개를 변경하지 않도록 active/pending 완전 분리. 진행자 직접 문제 공개 시에만 pending 활성화. 원본 표시 시간 1.6초·2초(기본)·2.3초.",
+  "version": "1.7.8",
+  "notes": "사진 CSV 가져오기 후 보관함 검색/초성 필터 초기화, IndexedDB 저장 결과 재검증, 사진별 실패 내역 전체 출력·TXT 저장. v1.7.7 진행/송출 분리 기능과 데이터 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "e0e4fa9727b07a1539cdb414a9ef3571dfe1078daf8ceaa568d0568a7c9a5013"
+      "sha256": "4e81fc51c319af585d7e21a8481830f1eb0c7476fe49e424f73f42c6979a0d2a"
     },
     {
       "path": "server.py",
