@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import json
 import mimetypes
 import os
@@ -209,7 +210,54 @@ class Handler(BaseHTTPRequestHandler):
         if not path.is_file():
             self._response(404, {'error': 'file not found'})
             return
-        self._response(200, path.read_bytes(), mime)
+        if mime == 'video/mp4':
+            self._video_file(path)
+        else:
+            self._response(200, path.read_bytes(), mime)
+
+    def _video_file(self, path):
+        # Chromium/OBS video playback may request byte ranges for mp4 seeking.
+        content = path.read_bytes()
+        total = len(content)
+        range_value = self.headers.get('Range', '').strip()
+        start, end, status = 0, total - 1, 200
+        if range_value:
+            match = re.fullmatch(r'bytes=(\d*)-(\d*)', range_value)
+            if not match or (not match.group(1) and not match.group(2)):
+                self._response(416, {'error': 'invalid range'})
+                return
+            try:
+                if not match.group(1):
+                    suffix = int(match.group(2))
+                    start = max(0, total - suffix)
+                else:
+                    start = int(match.group(1))
+                end = min(total - 1, int(match.group(2))) if match.group(1) and match.group(2) else total - 1
+            except ValueError:
+                self._response(416, {'error': 'invalid range'})
+                return
+            if start >= total or start < 0 or end < start:
+                self.send_response(416)
+                self.send_header('Content-Range', 'bytes */' + str(total))
+                self.send_header('Content-Length', '0')
+                self.end_headers()
+                return
+            status = 206
+        chunk = content[start:end + 1]
+        self.send_response(status)
+        self.send_header('Content-Type', 'video/mp4')
+        self.send_header('Content-Length', str(len(chunk)))
+        self.send_header('Accept-Ranges', 'bytes')
+        if status == 206:
+            self.send_header('Content-Range', f'bytes {start}-{end}/{total}')
+        self.send_header('Cache-Control', 'no-store, max-age=0')
+        self.send_header('X-Content-Type-Options', 'nosniff')
+        self.send_header('X-Frame-Options', 'SAMEORIGIN')
+        self.end_headers()
+        try:
+            self.wfile.write(chunk)
+        except (ConnectionResetError, BrokenPipeError):
+            pass
 
     def do_GET(self):
         path = self._path()
