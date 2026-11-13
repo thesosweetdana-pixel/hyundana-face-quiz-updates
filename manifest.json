@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.6.7",
-  "notes": "최종 검토 F열 및 사진 교체 검토 H열에서 선택한 사진을 새 구글시트로부터 동기화. 원본 중복 제외, 이름·원본·라이선스 보존.",
+  "version": "1.6.8",
+  "notes": "보관함 개선: 동일 연예인 사진 여러 장을 묶어서 표시, 문제 제작에 사용한 연예인(모든 사진)을 아래로 이동, 사진별 실제 사용 여부/회차 표시, 이름 정렬 ㄱ→ㅎ·ㅎ→ㄱ 및 첫 글자 빠른 찾기. 기존 3장 일괄 선택 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "782d120f72f14242d2d96877066c15b7ad8f1fb4fe1f5f306b3239f9523dd332"
+      "sha256": "244477dcdc6e05f6ca2b0626753ddeb9d76fff9dc56ac9ad2bff8782620ca5ca"
     },
     {
       "path": "server.py",
