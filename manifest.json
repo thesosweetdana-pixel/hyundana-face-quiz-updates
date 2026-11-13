@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.7.6",
-  "notes": "방송 진행실 '선택 문제 준비' 시 OBS 송출 장면을 세팅 대기로 변경하지 않도록 완전 분리. 다음 문제 준비중 화면 유지, 준비 완료 후 '준비한 문제 공개' 가능. 사진 시트·문제 저장 데이터 및 기존 수정 모두 유지.",
+  "version": "1.7.7",
+  "notes": "정답 공개 중 다음 문제를 선택·비공개 준비해도 현재 송출 사진과 자동 공개를 변경하지 않도록 active/pending 완전 분리. 진행자 직접 문제 공개 시에만 pending 활성화. 원본 표시 시간 1.6초·2초(기본)·2.3초.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "e82e41cd610aacf295a2726eb9e6bbd34c010dc5f0fa09ec9c8e1d318fbc72d5"
+      "sha256": "e0e4fa9727b07a1539cdb414a9ef3571dfe1078daf8ceaa568d0568a7c9a5013"
     },
     {
       "path": "server.py",
