@@ -1,22 +1,22 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.6.8",
-  "notes": "보관함 개선: 동일 연예인 사진 여러 장을 묶어서 표시, 문제 제작에 사용한 연예인(모든 사진)을 아래로 이동, 사진별 실제 사용 여부/회차 표시, 이름 정렬 ㄱ→ㅎ·ㅎ→ㄱ 및 첫 글자 빠른 찾기. 기존 3장 일괄 선택 유지.",
+  "version": "1.7.0",
+  "notes": "방송 진행실 수동 전환: 정답 후 마지막 화면 유지, 다음 문제 3초 MP4/다음 문제 공개/감사합니다 종료를 직접 선택. 정답 전환 속도 완화·사진 우측 보정·이름 크기 확대·눈 고정 버튼 중앙 배치·보관함 가로 카드 정렬 복구. MP4 Range 지원 및 재생 실패 안내.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "244477dcdc6e05f6ca2b0626753ddeb9d76fff9dc56ac9ad2bff8782620ca5ca"
+      "sha256": "df923ff3cea6ae0f6a8ad0d481ec70590f1f70495a77347fedf4f39605c390c6"
     },
     {
       "path": "server.py",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
-      "sha256": "06396753956434d660697dea435db85776cd07340f09c257e5eea0b694c02e51"
+      "sha256": "56f0bd5f593c854f73e11771085b663d3014bca4d72f19231258bd2f189a879c"
     },
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "83bc3f97b40071e8d7f3aed3dbb97dbe170863475b3128f9e1ec5ef480b32e4d"
+      "sha256": "c57f4e1cdd4d17ee22252800dfd3ca2868b260f33efc4d114f6737ebd09b4d7e"
     },
     {
       "path": "bridge.js",
