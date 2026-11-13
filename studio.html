@@ -221,9 +221,9 @@
    <div id="showQueueStatus" class="show-alert">문제 관리실에서 「진행 준비」로 표시한 문제만 사용할 수 있어요.</div>
    <label class="showfield">진행 회차 <select id="showEpisodeSelect"><option value="1">1회차</option></select></label>
    <label class="showfield">진행할 문제 <select id="showQuestionSelect"><option value="">준비된 문제 없음</option></select></label>
-   <div class="show-buttons"><button class="btn primary" id="showPrepare">선택 문제 준비(방송 비공개)</button><button class="btn" id="showPrepareNext">다음 문제 준비</button></div>
+   <div class="show-buttons"><button class="btn primary" id="showPrepare">선택 문제 준비(방송 비공개)</button><button class="btn" id="showPrepareNext">다음 문제 준비</button><button class="btn primary" id="showNextWithVideo">▶ 대기 영상 → 다음 문제 공개</button></div>
    <div class="show-alert" id="showPreparedInfo">현재 준비된 문제가 없습니다.</div>
-   <div class="show-buttons"><button class="btn" id="showWaiting">대기 화면</button><button class="btn" id="showTitle">콘텐츠 제목</button><button class="btn primary" id="showStart">문제 공개</button></div>
+   <div class="show-buttons"><button class="btn" id="showWaiting">대기 화면</button><button class="btn" id="showTitle">콘텐츠 제목</button><button class="btn" id="showVideoTest">▶ 3초 대기영상 테스트</button><button class="btn primary" id="showStart">문제 공개</button></div>
    <hr style="border:0;border-top:1px solid #e8eaf2;margin:16px 0">
    <h3>② 정답 자동 공개</h3>
    <div class="show-alert warn">「정답 공개 준비」 이후 「정답 자동 재생」을 한 번 누르면 합성 → A → 합성 → B → 합성 → C → 합성이 연속 재생됩니다. 공개 직전 확인합니다.</div>
@@ -661,9 +661,11 @@ function showUpdateControls(){
  $('showSummary').disabled=!ready||!live||step===0||playing;
  
  $('showStart').disabled=!ready||playing||showControl.stage==='summary';$('showPrepare').disabled=showControl.preparing||playing||!showControl.queue.length;$('showPrepareNext').disabled=showControl.preparing||playing||!showControl.queue.length;
+ $('showNextWithVideo').disabled=showControl.preparing||playing||!showControl.queue.length||showControl.stage==='end';
+ $('showVideoTest').disabled=showControl.preparing||playing||showControl.stage==='end';
  const ended=showControl.stage==='end';
  $('showEnd').disabled=ended;$('showResume').hidden=!ended;
- if(ended){for(const id of ['showPrepare','showPrepareNext','showStart','showArm','showReveal','showPause','showStop','showWaiting','showTitle','showSummary'])$(id).disabled=true;}
+ if(ended){for(const id of ['showPrepare','showPrepareNext','showNextWithVideo','showVideoTest','showStart','showArm','showReveal','showPause','showStop','showWaiting','showTitle','showSummary'])$(id).disabled=true;}
  $('showStageBadge').textContent=showControl.stage==='waiting'?'대기':showControl.stage==='title'?'타이틀':showControl.stage==='question'?'문제':showControl.stage==='reveal'?'정답 공개':showControl.stage==='summary'?'문제 대기 영상':showControl.stage==='emergency'?'긴급 화면':showControl.stage==='end'?'종료 화면':'대기';
  if(!ready){$('showPrivateAnswers').textContent='문제를 준비하면 이곳에만 정답이 표시됩니다.';}
  else{$('showPrivateAnswers').innerHTML=a.assets.persons.map((p,i)=>`<div class="show-priv-item"><img src="${p.image}" alt=""><span>${p.slot} · ${safeText(p.name)} / 출처: ${safeText(p.source)} ${i<Math.ceil(step/2)?'✓ 공개됨':''}</span></div>`).join('');}
@@ -728,7 +730,7 @@ function openOutputWindow(){const w=window.open('','HyundanaPublicOutput','width
 @media(prefers-reduced-motion:reduce){.show-screen .broadcast-img{transition:none}}
 </style></head><body><main><h1 id="outRound"></h1><div id="outSource" hidden></div><div id="outImageStack" hidden><img id="outImagePrev" alt="" hidden><img id="outImage" alt="공개된 문제 이미지" hidden></div><div id="outPersonName" hidden></div></main></body></html>`);w.document.close();publishScreen();w.focus();toast('송출용 임시 출력창을 열었어요. OBS에는 이 창만 캡처하세요.');}
 async function showPrepareEntry(entry){if(!entry)return toast('진행할 문제를 선택해주세요.');if(showControl.preparing)return;const prepEpoch=++showControl.prepEpoch;stopPostReveal();
- if(isLive()&&showControl.active&&showControl.revealCount<showControl.active.assets.count&&!confirm('현재 문제가 진행 중이에요. 다른 문제를 비공개로 준비할까요? 방송 화면은 대기 화면으로 전환됩니다.'))return;
+ if(isLive()&&showControl.stage!=='summary'&&showControl.active&&showControl.revealCount<showControl.active.assets.count&&!confirm('현재 문제가 진행 중이에요. 다른 문제를 비공개로 준비할까요? 방송 화면은 대기 화면으로 전환됩니다.'))return;
  cancelAutoReveal(false);showControl.stage='waiting';showControl.revealCount=0;showControl.revealStep=0;showControl.armed=false;publishScreen();showControl.preparing=true;showUpdateControls();
  try{const project=entry.project,error=requiredForReady(project);if(error)throw new Error(error);const n=project.count;const images=await Promise.all(project.layers.slice(0,n).map(l=>imageData(l.dataUrl)));if(prepEpoch!==showControl.prepEpoch||showControl.stage==='end')return;const assets=composePreparedData(project,images);const allOrdered=sortEntries(await allStored());const idx=allOrdered.findIndex(x=>x.id===entry.id);showControl.active={entry,assets,round:`라운드 ${String(Math.max(0,idx)+1).padStart(2,'0')}`};showControl.round=showControl.active.round;toast(`${showControl.round} 준비 완료 · 이미지는 사전 생성했어요.`);}catch(e){showControl.active=null;showControl.round='';toast('문제 준비 실패: '+e.message);}finally{showControl.preparing=false;publishScreen();}}
 function showSetStage(stage){if(stage!=='summary')stopPostReveal();showControl.stage=stage;if(['waiting','title','emergency','end'].includes(stage)){cancelAutoReveal(false);showControl.armed=false;}publishScreen();}
@@ -736,6 +738,34 @@ $('showRefresh').onclick=refreshShowQueue;
 $('openPublicOutput').onclick=()=>{const w=window.open('/obs','HyundanaOBS','width=1280,height=720,resizable=yes');if(!w)toast('팝업이 차단되었어요. 아래 OBS 화면 열기를 이용해주세요.');};
 $('showPrepare').onclick=async()=>{const e=showControl.queue.find(x=>x.id===$('showQuestionSelect').value);await showPrepareEntry(e);};
 $('showPrepareNext').onclick=async()=>{const idx=showControl.queue.findIndex(e=>e.id===showControl.active?.entry.id),next=showControl.queue[idx+1]||showControl.queue[0];if(!next)return toast('준비된 문제가 없어요.');$('showQuestionSelect').value=next.id;await showPrepareEntry(next);};
+$('showVideoTest').onclick=()=>{
+ if(showControl.preparing||showControl.playing||showControl.stage==='end')return toast('문제 공개 중에는 테스트 영상을 실행할 수 없어요.');
+ stopPostReveal();const token=postRevealToken;
+ const previous=showControl.stage==='summary'?'waiting':showControl.stage;
+ showControl.stage='summary';publishScreen();toast('등록된 3초 문제 대기 MP4를 송출 화면에 재생합니다.');
+ postRevealTimer=setTimeout(()=>{
+  if(token!==postRevealToken||showControl.stage!=='summary')return;
+  showControl.stage=previous;publishScreen();
+ },3700);
+};
+$('showNextWithVideo').onclick=()=>{
+ if(showControl.preparing||showControl.playing||showControl.stage==='end')return;
+ const next=showControl.queue.find(e=>e.id!==showControl.active?.entry?.id);
+ if(!next)return toast('다음으로 진행할 준비된 문제가 없어요.');
+ if(showControl.active&&showControl.stage==='question'&&!confirm('현재 문제의 정답 공개를 건너뛰고 3초 대기 영상 뒤 다음 문제로 넘어갈까요?'))return;
+ stopPostReveal();cancelAutoReveal(false);const token=postRevealToken;
+ showControl.armed=false;showControl.stage='summary';publishScreen();
+ $('showQuestionSelect').value=next.id;
+ toast('3초 대기 영상을 재생한 뒤 다음 문제를 공개합니다.');
+ postRevealTimer=setTimeout(async()=>{
+  if(token!==postRevealToken||showControl.stage!=='summary')return;
+  if(!showControl.queue.some(e=>e.id===next.id))return toast('다음 문제가 진행 준비 목록에서 사라졌어요.');
+  await showPrepareEntry(next);
+  if(showControl.stage==='waiting'&&showControl.active?.entry.id===next.id&&showControl.active.assets){
+   showSetStage('question');
+  }
+ },3750);
+};
 $('showWaiting').onclick=()=>showSetStage('waiting');
 $('showEnd').onclick=()=>{
  const pending=showControl.queue.length,completed=showControl.completed.length;
