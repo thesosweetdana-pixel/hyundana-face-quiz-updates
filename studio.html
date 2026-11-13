@@ -87,7 +87,7 @@
 .archive-batch-slot small{display:block;color:#746579;font-size:11px;margin-top:2px}
 .photo-person-card.archive-picked{border:2px solid #e5649f;box-shadow:0 1px 12px rgba(223,79,149,.12)}
 .photo-person-card .photo-pick-button[aria-pressed="true"]{background:#b33480;color:white}
-.photo-library-grid{display:flex;flex-direction:column;gap:12px}
+.photo-library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:12px;align-items:start}
 .archive-person-group{background:#fafbff;border:1px solid #e4e7f0;border-radius:13px;padding:12px}
 .archive-person-group.archive-used{background:#f7f7f9;border-color:#dddfe6}
 .archive-person-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;margin-bottom:9px}
@@ -423,6 +423,7 @@ function archivePersonGroups(photos,usage,sort){
   return (sort==='nameDesc'?-byName:byName)||a.key.localeCompare(b.key);
  });
 }
+
 function renderArchive(){
  updateArchiveBatchUI();
  const sort=$('archiveSort').value,query=$('archiveSearch').value.trim().toLowerCase();
@@ -430,24 +431,26 @@ function renderArchive(){
  const initials=['전체',...new Set(groups.map(g=>archiveInitialLetter(g.name)))];
  if(!initials.includes(archiveInitial))archiveInitial='전체';
  $('archiveAlphabet').innerHTML=initials.map(t=>'<button type="button" class="'+(t===archiveInitial?'active':'')+'" data-letter="'+safeText(t)+'">'+safeText(t)+'</button>').join('');
- const visible=groups.filter(g=>(archiveInitial==='전체'||archiveInitialLetter(g.name)===archiveInitial)&&(!query||(g.name+' '+g.photos.map(p=>p.source||'').join(' ')).toLowerCase().includes(query)));
- $('archiveGrid').innerHTML=visible.length?visible.map(g=>{
-  const used=g.uses.length>0;
+ const visibleGroups=groups.filter(g=>(archiveInitial==='전체'||archiveInitialLetter(g.name)===archiveInitial)&&(!query||(g.name+' '+g.photos.map(p=>p.source||'').join(' ')).toLowerCase().includes(query)));
+ // A single flat, responsive grid: consecutive photos of the same person appear side-by-side.
+ // Used people sort to the bottom as a single group; never introduce full-width person sections.
+ const photos=visibleGroups.flatMap(g=>g.photos.slice()
+  .sort((a,b)=>(a.createdAt||'').localeCompare(b.createdAt||'')||String(a.id).localeCompare(String(b.id)))
+  .map(p=>({photo:p,group:g})));
+ $('archiveGrid').innerHTML=photos.length?photos.map(({photo:p,group:g})=>{
+  const used=g.uses.length>0,actual=archiveUseCounts.get(p.id)||[];
+  const order=archiveSelectionIds.indexOf(p.id),picked=order>=0;
   const refs=[...new Set(g.uses.map(e=>problemReference(e,managerEntries.length?managerEntries:[e])))];
-  const heading='<div class="archive-person-heading"><strong>'+safeText(g.name)+' · 사진 '+g.photos.length+'장</strong><span class="archive-use-pill">'+(used?'✓ 사용됨 · '+g.uses.length+'문제':'미사용')+'</span></div>'+
-   (used?'<small class="photo-detail-note">사용 위치: '+safeText(refs.slice(0,6).join(' · '))+(refs.length>6?' 외 '+(refs.length-6)+'건':'')+'</small>':'');
-  const cards=g.photos.slice().sort((a,b)=>(a.createdAt||'').localeCompare(b.createdAt||'')||String(a.id).localeCompare(String(b.id))).map(p=>{
-   const actual=archiveUseCounts.get(p.id)||[],order=archiveSelectionIds.indexOf(p.id),picked=order>=0;
-   return '<article class="photo-person-card'+(picked?' archive-picked':'')+'"><img src="'+p.dataUrl+'" alt="'+safeText(p.name)+' 원본" loading="lazy">'+
+  return '<article class="photo-person-card'+(picked?' archive-picked':'')+'" data-person="'+safeText(g.name)+'">'+
+    '<img src="'+p.dataUrl+'" alt="'+safeText(p.name)+' 원본" loading="lazy">'+
     '<strong>'+safeText(p.name)+'</strong>'+
-    (actual.length?'<span class="archive-photo-flag">✓ 이 사진 사용됨 · '+actual.length+'문제</span>':used?'<span class="archive-photo-flag">인물 사용됨 · 이 사진은 미사용</span>':'')+
+    (used?'<span class="archive-photo-flag">'+(actual.length?'✓ 이 사진 사용됨 · '+actual.length+'문제':'✓ 같은 연예인 사용됨')+'</span>':'')+
+    (used?'<small>사용 위치: '+safeText(refs.slice(0,3).join(' · '))+(refs.length>3?' 외 '+(refs.length-3)+'문제':'')+'</small>':'')+
     '<small>출처: '+safeText(p.source||'미입력')+'</small>'+
     '<div class="photo-card-actions"><button class="btn small photo-pick-button" type="button" aria-pressed="'+picked+'" data-photo-act="batch" data-photo-id="'+p.id+'">'+(picked?'✓ '+letters[order]+' 선택됨 (취소)':'＋ 3명 선택')+'</button>'+
     '<button class="btn small primary" type="button" data-photo-act="use" data-photo-id="'+p.id+'">한 장만 적용</button>'+
     '<button class="btn small" type="button" data-photo-act="edit" data-photo-id="'+p.id+'">정보 수정</button>'+
     '<button class="btn small" type="button" data-photo-act="delete" data-photo-id="'+p.id+'">보관함 삭제</button></div></article>';
-  }).join('');
-  return '<section class="archive-person-group'+(used?' archive-used':'')+'">'+heading+'<div class="archive-person-photos">'+cards+'</div></section>';
  }).join(''):'<div class="empty-library">해당 이름의 사진이 없어요. 검색어와 첫 글자 필터를 확인해주세요.</div>';
  $('archiveStatus').textContent='연예인 '+groups.length+'명 · 사진 '+archiveItems.length+'장 · 미사용 '+groups.filter(g=>!g.uses.length).length+'명 · 사용됨 '+groups.filter(g=>g.uses.length).length+'명';
 }
