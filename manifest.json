@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.7.0",
-  "notes": "방송 진행실 수동 전환: 정답 후 마지막 화면 유지, 다음 문제 3초 MP4/다음 문제 공개/감사합니다 종료를 직접 선택. 정답 전환 속도 완화·사진 우측 보정·이름 크기 확대·눈 고정 버튼 중앙 배치·보관함 가로 카드 정렬 복구. MP4 Range 지원 및 재생 실패 안내.",
+  "version": "1.7.1",
+  "notes": "정답 공개 배경 1672×941 원본 실측 정렬: 합성 사진·원본 3장 프레임 내부 정확 배치, 흰색/핑크 테두리 가림 방지, 출처·이름 중앙 정렬 및 긴 이름 자동 글꼴 맞춤. OBS 미리보기 새로고침과 렌더러 버전 확인 추가. 문제 데이터 및 방송 이미지는 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "df923ff3cea6ae0f6a8ad0d481ec70590f1f70495a77347fedf4f39605c390c6"
+      "sha256": "ec94a8419a8bae66ceb9ac589f37754bb2bf59daae330a79f18fdf4de902a5fd"
     },
     {
       "path": "server.py",
@@ -16,7 +16,7 @@
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "c57f4e1cdd4d17ee22252800dfd3ca2868b260f33efc4d114f6737ebd09b4d7e"
+      "sha256": "341c10eaa119e3d283af5b88309ed0de89a52a2f2a91762ad56cdff8332002e7"
     },
     {
       "path": "bridge.js",
