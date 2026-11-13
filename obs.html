@@ -13,20 +13,20 @@
 #mainStack{position:absolute;display:none;overflow:hidden;align-items:center;justify-content:center}
 #scene[data-stage='question'] #mainStack,#scene[data-stage='reveal'] #mainStack{display:flex}
 #scene[data-stage='question'] #mainStack{left:80px;top:228px;width:1092px;height:595px}
-#scene[data-stage='reveal'] #mainStack{left:91px;top:262px;width:368px;height:551px}
+#scene[data-stage='reveal'] #mainStack{left:82px;top:263px;width:375px;height:562px;border-radius:13px}
 #mainStack img{position:absolute;max-width:100%;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .75s ease-in-out;}
 #scene[data-stage='reveal'] #mainStack img{object-fit:cover}
 #answerCards{display:none;position:absolute;inset:0;pointer-events:none}
 #scene[data-stage='reveal'] #answerCards{display:block}
-.answerCard{position:absolute;top:325px;width:193px;height:261px;overflow:hidden;display:none;align-items:center;justify-content:center;background:transparent}
+.answerCard{position:absolute;top:332px;width:199px;height:261px;border-radius:13px;overflow:hidden;display:none;align-items:center;justify-content:center;background:transparent}
 .answerCard img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;}
-.answerCard[data-col='0']{left:525px}.answerCard[data-col='1']{left:770px}.answerCard[data-col='2']{left:1015px}
+.answerCard[data-col='0']{left:523px}.answerCard[data-col='1']{left:772px}.answerCard[data-col='2']{left:1015px}
 .sourceText,.nameText{position:absolute;display:none;text-align:center;align-items:center;justify-content:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#3c0b6a;font-weight:900;padding:0 6px;line-height:1.15;text-shadow:0 1px 0px #fff8ff}
-.sourceText{top:264px;width:207px;height:39px;font-size:24px}
-.nameText{top:612px;width:212px;height:51px;font-size:33px;letter-spacing:-.5px}
-.sourceText[data-col='0'],.nameText[data-col='0']{left:516px}
-.sourceText[data-col='1'],.nameText[data-col='1']{left:761px}
-.sourceText[data-col='2'],.nameText[data-col='2']{left:1006px}
+.sourceText{top:263px;width:208px;height:38px;font-size:24px}
+.nameText{top:620px;width:208px;height:52px;font-size:32px;letter-spacing:-.5px}
+.sourceText[data-col='0'],.nameText[data-col='0']{left:518px}
+.sourceText[data-col='1'],.nameText[data-col='1']{left:767px}
+.sourceText[data-col='2'],.nameText[data-col='2']{left:1010px}
 #videoPanel{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:none;background:#171024}
 #scene[data-stage='summary'] #videoPanel{display:block}
 #safety{display:none;position:absolute;inset:0;background:#24152f;color:white;font-size:46px;font-weight:800;align-items:center;justify-content:center}
@@ -76,7 +76,20 @@
  }
  function resize(){const scale=Math.min(innerWidth/ROOT.w,innerHeight/ROOT.h);scene.style.transform=`translate(${(innerWidth-ROOT.w*scale)/2}px,${(innerHeight-ROOT.h*scale)/2}px) scale(${scale})`;}
  addEventListener('resize',resize);resize();
- function fitText(el,max,min){let len=(el.textContent||'').length,size=max;if(len>9)size=Math.min(size,Math.floor(max*9/len));size=Math.max(min,size);el.style.fontSize=size+'px';}
+ function fitText(el,max,min){
+  // Measure rendered Hangul/Latin widths inside the actual pink caption bar.
+  // Character-count heuristics clipped long names even when the field was centered.
+  const style=getComputedStyle(el),font=style.fontFamily,weight=style.fontWeight;
+  const canvas=fitText.measureCanvas||(fitText.measureCanvas=document.createElement('canvas'));
+  const ctx=canvas.getContext('2d'),available=Math.max(20,el.clientWidth-18);
+  let size=max;
+  while(size>min){
+    ctx.font=weight+' '+size+'px '+font;
+    if(ctx.measureText(el.textContent||'').width<=available)break;
+    size--;
+  }
+  el.style.fontSize=Math.max(min,size)+'px';
+}
  function setPhoto(next){if(!next || typeof next!=='string' || !next.startsWith('data:image/png;base64,')){photoUrl='';$('frontPhoto').style.opacity=0;$('backPhoto').style.opacity=0;return;}
    if(next===photoUrl)return;
    const front=$('frontPhoto'),back=$('backPhoto');const token=++moveToken;photoUrl=next;
@@ -102,7 +115,7 @@
    for(let i=0;i<3;i++){
      const p=stage==='reveal' && Array.isArray(st?.revealed)?st.revealed.find(x=>x?.slot===slots[i] && typeof x?.image==='string' && x.image.startsWith('data:image/png;base64,')):null;
      const c=cards[i];c.box.style.display=p?'flex':'none';c.source.style.display=p?'flex':'none';c.name.style.display=p?'flex':'none';
-     if(p){if(c.image.src!==p.image)c.image.src=p.image;c.source.textContent=p.source?'출처 : '+p.source:'';c.name.textContent=p.name||'';fitText(c.source,24,12);fitText(c.name,33,20);}
+     if(p){if(c.image.src!==p.image)c.image.src=p.image;c.source.textContent=p.source?'출처 : '+p.source:'';c.name.textContent=p.name||'';fitText(c.source,24,12);fitText(c.name,32,18);}
      else {c.image.removeAttribute('src');c.source.textContent='';c.name.textContent='';}
    }
  }
@@ -114,6 +127,6 @@
    if(!d.unchanged)render(d.state,d.connected);
   }catch(e){revision=null;render(null,false)}setTimeout(poll,350)}
  render(null,false);void poll();
- window.HyundanaOBS={getProtocol:()=> 'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage};
+ window.HyundanaOBS={version:'1.7.1',getProtocol:()=> 'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage};
 })();
 </script></body></html>
