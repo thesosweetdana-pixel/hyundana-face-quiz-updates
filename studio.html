@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.6.5</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.6.6</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -80,6 +80,13 @@
 .photo-form label{font-size:12px;font-weight:800;display:grid;gap:5px;color:#42546e}
 .photo-form input,.photo-form select{padding:10px 11px;border:1px solid #dce1ec;background:white;border-radius:9px;color:#24334f;min-width:130px}
 .photo-form input[type=search]{min-width:min(320px,65vw)}
+.archive-batch-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px;padding:13px;border:1px solid #f6bad2;background:#fff8fc;border-radius:12px}
+.archive-batch-slots{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.archive-batch-slot{background:#fff;border:1px solid #ead0df;border-radius:10px;padding:8px 11px;min-width:125px;font-size:13px;font-weight:700}
+.archive-batch-slot.filled{background:#ffedf5;border-color:#ec79ad}
+.archive-batch-slot small{display:block;color:#746579;font-size:11px;margin-top:2px}
+.photo-person-card.archive-picked{border:2px solid #e5649f;box-shadow:0 1px 12px rgba(223,79,149,.12)}
+.photo-person-card .photo-pick-button[aria-pressed="true"]{background:#b33480;color:white}
 .photo-library-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:12px}
 .photo-person-card{border:1px solid #e1e5ef;border-radius:13px;padding:11px;background:white;min-width:0}
 .photo-person-card>img{width:100%;aspect-ratio:1;object-fit:contain;background:repeating-conic-gradient(#f3f5f8 0 25%,#fff 0 50%) 50% / 16px 16px;border-radius:9px;display:block}
@@ -97,7 +104,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.6.5</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.6.6</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -156,6 +163,13 @@
       <label>사진을 적용할 칸 <select id="archiveTarget"><option value="0">사진 A</option><option value="1">사진 B</option><option value="2">사진 C</option></select></label>
       <span class="desc" id="archiveStatus">사진 보관함을 불러오는 중...</span>
     </div>
+    <div class="archive-batch-bar" aria-label="사진 3장 일괄 선택">
+      <strong id="archiveBatchStatus">0 / 3장 선택</strong>
+      <div id="archiveBatchSlots" class="archive-batch-slots" aria-live="polite"></div>
+      <button class="btn" type="button" id="archiveBatchClear" disabled>선택 초기화</button>
+      <button class="btn primary" type="button" id="archiveBatchStart" disabled>선택한 3장으로 새 문제 제작 →</button>
+    </div>
+    <p class="photo-detail-note">사진 카드의 「3명 선택」을 누른 순서대로 A → B → C에 배치됩니다. 검색을 바꿔도 선택은 유지돼요. 출처·이름도 함께 들어가며 원본과 이전 문제는 그대로 보관됩니다.</p>
   </section>
   <section class="photo-library-grid" id="archiveGrid"></section>
   <div class="note">사진을 보관함에서 지워도 이미 만든 문제는 지워지지 않아요. 반대로 문제를 삭제해도 보관함에 있는 사진은 그대로 남습니다. 문제 및 사진 전체 백업은 문제 관리실의 「전체 문제 백업 JSON」에서 받을 수 있어요. 이 기기에 저장되므로 다른 PC로 옮기거나 브라우저 데이터를 지우기 전에 꼭 백업하세요.</div>
@@ -323,7 +337,7 @@ $('importBtn').onclick=()=>$('projectInput').click();$('projectInput').onchange=
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 // Problem manager v1.1: all images and edit data stay in the local browser (IndexedDB).
 const DB_NAME='hyundana-face-quiz-library-v1', DB_STORE='questions', PHOTO_STORE='photos';
-let managerDbPromise=null,managerAvailable=true,managerBusy=false,managerStorageMode='persistent';const memoryStore=new Map(),memoryPhotos=new Map();let archiveItems=[],archiveUseCounts=new Map(),archivePersonUses=new Map(),archiveBusy=false;
+let managerDbPromise=null,managerAvailable=true,managerBusy=false,managerStorageMode='persistent';const memoryStore=new Map(),memoryPhotos=new Map();let archiveItems=[],archiveUseCounts=new Map(),archivePersonUses=new Map(),archiveBusy=false,archiveSelectionIds=[];
 function newQuestionId(){return (typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():`q-${Date.now()}-${Math.random().toString(36).slice(2)}`}
 function openManagerDB(){if(managerDbPromise)return managerDbPromise;managerDbPromise=new Promise((resolve,reject)=>{try{const request=indexedDB.open(DB_NAME,2);request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains(DB_STORE))request.result.createObjectStore(DB_STORE,{keyPath:'id'});if(!request.result.objectStoreNames.contains(PHOTO_STORE))request.result.createObjectStore(PHOTO_STORE,{keyPath:'id'})};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||new Error('저장소 연결 실패'));request.onblocked=()=>reject(new Error('다른 탭에서 데이터베이스를 사용 중입니다'))}catch(e){reject(e)}});return managerDbPromise}
 async function managerRequest(mode,operation){let db;try{db=await openManagerDB()}catch(e){managerStorageMode='memory';const copy=x=>JSON.parse(JSON.stringify(x));const store={getAll:()=>({result:Array.from(memoryStore.values()).map(copy)}),get:id=>({result:memoryStore.has(id)?copy(memoryStore.get(id)):undefined}),put:entry=>{memoryStore.set(entry.id,copy(entry));return {result:entry.id}},delete:id=>{memoryStore.delete(id);return {result:undefined}}};return operation(store).result}return new Promise((resolve,reject)=>{let finished=false;const tx=db.transaction(DB_STORE,mode);const store=tx.objectStore(DB_STORE);const req=operation(store);let value;req.onsuccess=()=>{value=req.result};req.onerror=()=>{if(!finished){finished=true;reject(req.error||new Error('저장 요청 실패'))}};tx.oncomplete=()=>{if(!finished){finished=true;resolve(value)}};tx.onerror=()=>{if(!finished){finished=true;reject(tx.error||new Error('저장소 오류'))}};tx.onabort=()=>{if(!finished){finished=true;reject(tx.error||new Error('저장 취소'))}}})}
@@ -357,6 +371,7 @@ async function refreshArchive(){
  try{
   const [photos,questions]=await Promise.all([allPhotos(),allStored()]);
   archiveItems=photos.sort((a,b)=>a.name.localeCompare(b.name,'ko')||(a.createdAt||'').localeCompare(b.createdAt||''));
+  archiveSelectionIds=archiveSelectionIds.filter(id=>archiveItems.some(p=>p.id===id));
   archiveUseCounts=new Map(archiveItems.map(p=>[p.id,countPhotoUsage(p,questions)]));
   archivePersonUses=new Map(archiveItems.map(p=>[canonicalName(p.name),questions.filter(e=>personSet(e.project).includes(canonicalName(p.name)))]));
   $('photoCount').textContent=archiveItems.length;
@@ -365,9 +380,65 @@ async function refreshArchive(){
   renderArchive();
  }catch(e){$('archiveStatus').textContent='사진 보관함 로딩 실패: '+e.message;$('archiveGrid').innerHTML='<div class="empty-library">사진 보관함 연결을 확인해주세요.</div>';}
 }
+
+function updateArchiveBatchUI(){
+ const num=archiveSelectionIds.length;
+ $('archiveBatchStatus').textContent=num+' / 3장 선택';
+ $('archiveBatchSlots').innerHTML=letters.slice(0,3).map((letter,i)=>{
+   const photo=archiveItems.find(p=>p.id===archiveSelectionIds[i]);
+   return '<div class="archive-batch-slot'+(photo?' filled':'')+'">'+letter+' · '+(photo?safeText(photo.name):'미선택')+
+     '<small>'+(photo?safeText(photo.source||'출처 미입력'):'사진을 선택해주세요')+'</small></div>';
+ }).join('');
+ $('archiveBatchStart').disabled=num!==3||archiveBusy;
+ $('archiveBatchClear').disabled=num===0||archiveBusy;
+}
 function renderArchive(){
- const q=$('archiveSearch').value.trim().toLowerCase();const list=archiveItems.filter(p=>(p.name+' '+(p.source||'')).toLowerCase().includes(q));
- $('archiveGrid').innerHTML=list.length?list.map(p=>{const uses=archiveUseCounts.get(p.id)||[];return `<article class="photo-person-card"><img src="${p.dataUrl}" alt="${safeText(p.name)} 원본 사진" loading="lazy"><strong>${safeText(p.name)}</strong><small>출처: ${safeText(p.source||'미입력')}</small><small>이 사진 사용 ${uses.length}문제 · 방송 완료 ${uses.filter(x=>x.status==='done').length}문제</small><small>연예인 사용 이력: ${safeText((archivePersonUses.get(canonicalName(p.name))||[]).map(e=>problemReference(e,managerEntries.length?managerEntries:[e])).slice(0,4).join(' · ')||'없음')}</small><div class="photo-card-actions"><button class="btn small primary" data-photo-act="use" data-photo-id="${p.id}">선택한 칸에 적용</button><button class="btn small" data-photo-act="edit" data-photo-id="${p.id}">정보 수정</button><button class="btn small" data-photo-act="delete" data-photo-id="${p.id}">보관함 삭제</button></div></article>`}).join(''):'<div class="empty-library">등록된 사진이 없거나 검색 결과가 없어요. 원본을 추가하거나 기존 문제에서 가져와 주세요.</div>';
+ updateArchiveBatchUI();
+ const q=$('archiveSearch').value.trim().toLowerCase();
+ const list=archiveItems.filter(p=>(p.name+' '+(p.source||'')).toLowerCase().includes(q));
+ $('archiveGrid').innerHTML=list.length?list.map(p=>{
+   const uses=archiveUseCounts.get(p.id)||[];
+   const order=archiveSelectionIds.indexOf(p.id),picked=order>=0;
+   return '<article class="photo-person-card'+(picked?' archive-picked':'')+'"><img src="'+p.dataUrl+'" alt="'+safeText(p.name)+' 원본 사진" loading="lazy">'+
+   '<strong>'+safeText(p.name)+'</strong><small>출처: '+safeText(p.source||'미입력')+'</small>'+
+   '<small>이 사진 사용 '+uses.length+'문제 · 방송 완료 '+uses.filter(x=>x.status==='done').length+'문제</small>'+
+   '<small>연예인 사용 이력: '+safeText((archivePersonUses.get(canonicalName(p.name))||[]).map(e=>problemReference(e,managerEntries.length?managerEntries:[e])).slice(0,4).join(' · ')||'없음')+'</small>'+
+   '<div class="photo-card-actions"><button class="btn small photo-pick-button" type="button" aria-pressed="'+picked+'" data-photo-act="batch" data-photo-id="'+p.id+'">'+
+     (picked?'✓ '+letters[order]+' 선택됨 (취소)':'＋ 3명 선택')+'</button>'+
+   '<button class="btn small primary" type="button" data-photo-act="use" data-photo-id="'+p.id+'">한 장만 적용</button>'+
+   '<button class="btn small" type="button" data-photo-act="edit" data-photo-id="'+p.id+'">정보 수정</button>'+
+   '<button class="btn small" type="button" data-photo-act="delete" data-photo-id="'+p.id+'">보관함 삭제</button></div></article>';
+ }).join(''):'<div class="empty-library">등록된 사진이 없거나 검색 결과가 없어요. 원본을 추가하거나 기존 문제에서 가져와 주세요.</div>';
+}
+function toggleArchivePick(photo){
+ const index=archiveSelectionIds.indexOf(photo.id);
+ if(index>=0)archiveSelectionIds.splice(index,1);
+ else if(archiveSelectionIds.length===3){toast('사진은 3장까지만 선택할 수 있어요. 먼저 선택된 사진 하나를 해제해주세요.');return;}
+ else archiveSelectionIds.push(photo.id);
+ renderArchive();
+}
+async function createFromArchiveSelection(){
+ if(archiveBusy)return;
+ if(archiveSelectionIds.length!==3){toast('연예인 사진을 정확히 3장 선택해주세요.');return;}
+ const photos=archiveSelectionIds.map(id=>archiveItems.find(p=>p.id===id));
+ if(photos.some(p=>!p)){toast('선택한 사진을 찾을 수 없어요. 보관함을 다시 확인해주세요.');return;}
+ if(dirty&&!confirm('현재 제작 중인 문제의 저장하지 않은 변경 사항이 있어요. 이 상태에서 새 문제를 시작할까요?'))return;
+ archiveBusy=true;updateArchiveBatchUI();
+ try{
+   // Decode all three originals before changing the editor.
+   const images=await Promise.all(photos.map(p=>imageData(p.dataUrl)));
+   const nextLayers=photos.map((photo,i)=>({...blankLayer(letters[i]),image:images[i],dataUrl:photo.dataUrl,
+     fileName:photo.fileName||'',name:photo.name,source:photo.source||'',photoLibraryId:photo.id}));
+   // Independent new draft; earlier problems and the photo library remain untouched.
+   activeProjectId=null;currentStatus='draft';layers=nextLayers;count=3;selected=0;
+   manualPicking=null;drag=null;
+   $('questionName').value='문제 01';$('noteText').value='';$('guideCheck').checked=true;dirty=false;
+   updateCountButtons();makeSlots();updateControls();refreshAutoTitle();touch();updateDuplicateNotice();
+   archiveSelectionIds=[];switchView('editor');
+   status('보관함에서 사진 3장을 불러왔어요. A·B·C 정렬 후 문제를 저장해주세요.');
+   toast('사진 3장과 각 이름·출처를 A/B/C에 가져왔어요. 기존 문제는 그대로예요.');
+ }catch(e){toast('3장 가져오기 실패: '+e.message);}
+ finally{archiveBusy=false;updateArchiveBatchUI();}
 }
 async function useArchivePhoto(photo,slot){
  if(slot<0||slot>2)return;
@@ -383,6 +454,8 @@ async function importExistingPhotos(){
 async function exportPhotoBackup(){const photos=await allPhotos();if(!photos.length){toast('백업할 사진이 없어요.');return;}download(new Blob([JSON.stringify({format:'hyundana-face-photo-library',version:1,exportedAt:new Date().toISOString(),photos})],{type:'application/json;charset=utf-8'}),'현단아_연예인사진_보관함_백업.json');toast(`사진 ${photos.length}장을 백업했어요.`)}
 async function restorePhotoList(photos){const existing=await allPhotos();let added=0;for(const raw of photos){if(typeof raw?.name!=='string'||typeof raw?.dataUrl!=='string'||!raw.dataUrl.startsWith('data:image/'))continue;const r=await registerPhoto(raw,existing);if(r.created)added++;}await refreshArchive();return added;}
 $('photoTab').onclick=()=>switchView('photos');
+$('archiveBatchStart').onclick=createFromArchiveSelection;
+$('archiveBatchClear').onclick=()=>{archiveSelectionIds=[];renderArchive();};
 $('archiveSearch').oninput=renderArchive;
 $('chooseArchivePhoto').onclick=()=>{$('archiveTarget').value=String(selected);switchView('photos')};
 $('saveArchivePhoto').onclick=async()=>{const l=layers[selected];if(!l.dataUrl||!l.name.trim()){toast('먼저 사진을 등록하고 연예인 이름을 입력해주세요.');return;}try{const r=await registerPhoto(l);l.photoLibraryId=r.record.id;await refreshArchive();toast(r.created?'원본을 보관함에 따로 저장했어요.':'이미 보관함에 저장된 사진이에요.')}catch(e){toast('사진 저장 실패: '+e.message)}};
@@ -392,7 +465,7 @@ $('importExistingPhotos').onclick=async()=>{if(archiveBusy)return;archiveBusy=tr
 $('backupPhotos').onclick=()=>exportPhotoBackup().catch(e=>toast('사진 백업 실패: '+e.message));
 $('restorePhotos').onclick=()=>$('archiveBackupInput').click();
 $('archiveBackupInput').onchange=async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;try{const data=JSON.parse(await file.text());const photos=data.format==='hyundana-face-photo-library'?data.photos:data.format==='hyundana-face-quiz-library'?data.photos:null;if(!Array.isArray(photos))throw new Error('사진 보관함 백업 파일이 아니에요.');if(!confirm(`사진 ${photos.length}장을 보관함에 추가할까요? 기존 사진은 유지됩니다.`))return;const n=await restorePhotoList(photos);toast(`사진 ${n}장을 복원했어요. 중복 사진은 제외됩니다.`)}catch(e){toast('사진 백업 복원 실패: '+e.message)}};
-$('archiveGrid').onclick=async ev=>{const b=ev.target.closest('button[data-photo-act]');if(!b||archiveBusy)return;const photo=archiveItems.find(p=>p.id===b.dataset.photoId);if(!photo)return;archiveBusy=true;try{if(b.dataset.photoAct==='use'){await useArchivePhoto(photo,Number($('archiveTarget').value))}else if(b.dataset.photoAct==='edit'){const name=prompt('보관함에서 수정할 연예인 이름',photo.name);if(name===null)return;const source=prompt('보관함에서 수정할 출처',photo.source||'');if(source===null)return;if(!name.trim())return toast('이름은 비워둘 수 없어요.');photo.name=name.trim();photo.source=source.trim();photo.updatedAt=new Date().toISOString();await putPhoto(photo);await refreshArchive();toast('보관함 정보만 수정했어요. 기존 문제의 정보는 유지됩니다.')}else if(b.dataset.photoAct==='delete'){if(!confirm(`${photo.name} 원본 사진을 사진 보관함에서만 삭제할까요? 기존 문제의 사진과 정답에는 영향이 없습니다.`))return;await deletePhoto(photo.id);await refreshArchive();toast('보관함에서만 삭제했어요.')}}catch(e){toast('사진 작업 실패: '+e.message)}finally{archiveBusy=false}};
+$('archiveGrid').onclick=async ev=>{const b=ev.target.closest('button[data-photo-act]');if(!b||archiveBusy)return;const photo=archiveItems.find(p=>p.id===b.dataset.photoId);if(!photo)return;if(b.dataset.photoAct==='batch'){toggleArchivePick(photo);return;}archiveBusy=true;try{if(b.dataset.photoAct==='use'){await useArchivePhoto(photo,Number($('archiveTarget').value))}else if(b.dataset.photoAct==='edit'){const name=prompt('보관함에서 수정할 연예인 이름',photo.name);if(name===null)return;const source=prompt('보관함에서 수정할 출처',photo.source||'');if(source===null)return;if(!name.trim())return toast('이름은 비워둘 수 없어요.');photo.name=name.trim();photo.source=source.trim();photo.updatedAt=new Date().toISOString();await putPhoto(photo);await refreshArchive();toast('보관함 정보만 수정했어요. 기존 문제의 정보는 유지됩니다.')}else if(b.dataset.photoAct==='delete'){if(!confirm(`${photo.name} 원본 사진을 사진 보관함에서만 삭제할까요? 기존 문제의 사진과 정답에는 영향이 없습니다.`))return;await deletePhoto(photo.id);await refreshArchive();toast('보관함에서만 삭제했어요.')}}catch(e){toast('사진 작업 실패: '+e.message)}finally{archiveBusy=false}};
 
 // A legacy problem without an episode belongs to the first broadcast by default.
 function episodeNumber(n){const v=Number(n);return Number.isInteger(v)&&v>=1&&v<=999?v:1}
