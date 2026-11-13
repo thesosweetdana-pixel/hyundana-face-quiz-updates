@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
   "version": "1.7.2",
-  "notes": "방송 진행실: '다음 문제 준비중 MP4' 화면에서 선택 문제 준비 시 세팅 대기로 되돌아가던 오류 수정. 문제 라이브러리·기존 이미지·OBS 디자인 유지.",
+  "notes": "비공개 구글시트 선택 사진 CSV 가져오기. GViz 공개 접근 실패를 제거하고 기존 원본 사진 보관함·문제·OBS 상태를 유지합니다.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "f8796ed167048b7f56cc31e4a5fc7e3dad4cd6c6ed94235cae8be422975587fe"
+      "sha256": "f260aca79f95fa3fa1b5b2b7c776fafb39e05a02bb4468ccfca157f3dccdfa87"
     },
     {
       "path": "server.py",
