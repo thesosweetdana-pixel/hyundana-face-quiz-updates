@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.6.4</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.6.5</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -97,7 +97,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.6.4</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.6.5</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -482,7 +482,15 @@ function schedulePostReveal(){
    postRevealTimer=setTimeout(async()=>{
      if(token!==postRevealToken||showControl.stage!=='summary')return;
      const next=showControl.queue[0];
-     if(!next){showControl.stage='end';publishScreen();toast('준비된 문제를 모두 진행했어요. 감사합니다 종료 화면으로 전환합니다.');return;}
+     if(!next){
+       // No next question is NOT authorization to end the broadcast.
+       // Only explicit host '컨텐츠 종료' may set the end stage.
+       showControl.active=null;showControl.round='';
+       showControl.revealStep=0;showControl.revealCount=0;showControl.armed=false;
+       showControl.stage='waiting';publishScreen();
+       toast('남은 진행 준비 문제가 없어 대기 화면으로 돌아왔어요. 콘텐츠 종료는 직접 선택해주세요.');
+       return;
+     }
      await showPrepareEntry(next);
      if(showControl.active?.assets&&showControl.active.entry.id===next.id){
        showControl.revealStep=0;showControl.revealCount=0;showControl.armed=false;
@@ -508,7 +516,7 @@ function composePreparedData(project,images){const size=720;
 }
 async function refreshShowQueue(){try{const all=sortEntries(await allStored());showControl.queue=all.filter(e=>episodeOf(e)===showEpisode&&e.status==='ready'&&!requiredForReady(e.project));showControl.completed=all.filter(e=>episodeOf(e)===showEpisode&&e.status==='done');renderCompletedList();const current=$('showQuestionSelect').value;const sel=$('showQuestionSelect');sel.innerHTML=showControl.queue.length?showControl.queue.map((e,i)=>`<option value="${safeText(e.id)}">${String(i+1).padStart(2,'0')} · ${safeText(projectPeopleLabel(e.project))}</option>`).join(''):'<option value="">진행 준비된 문제가 없어요</option>';if(showControl.queue.some(e=>e.id===current))sel.value=current;$('showQueueStatus').textContent=`${showEpisode}회차 · 진행 대기 ${showControl.queue.length}개 · 완료 ${showControl.completed.length}개 · 전체 ${all.length}개 문제 · ${managerStorageMode==='memory'?'임시 저장소(백업 필수)':'로컬 저장소'}`;showUpdateControls()}catch(e){$('showQueueStatus').textContent='문제 목록을 불러오지 못했어요: '+e.message;}}
 function showUpdateControls(){
- const a=showControl.active,ready=!!a?.assets,live=isLive(),n=ready?a.assets.count:0;
+ const a=showControl.active,ready=!!a?.assets && a.entry?.status==='ready' && showControl.queue.some(e=>e.id===a.entry.id),live=isLive(),n=ready?a.assets.count:0;
  const step=showControl.revealStep||0,total=n*2,done=ready&&step>=total,playing=showControl.playing,paused=showControl.paused;
  const current=step>0&&step%2===1?letters[Math.floor((step-1)/2)]:null;
  const next=done?'공개 완료':step%2===0?`${letters[Math.floor(step/2)]} 원본`:'전체 합성';
@@ -520,7 +528,7 @@ function showUpdateControls(){
  $('showReveal').disabled=!ready||!showControl.armed||!live||done||playing;$('showPause').disabled=!playing;$('showPause').textContent=paused?'▶ 재개':'⏸ 일시정지';$('showStop').disabled=!playing;
  $('showSummary').disabled=!ready||!live||step===0||playing;
  
- $('showStart').disabled=!ready||playing||showControl.stage==='summary';$('showPrepare').disabled=showControl.preparing||playing;$('showPrepareNext').disabled=showControl.preparing||playing||!showControl.queue.length;
+ $('showStart').disabled=!ready||playing||showControl.stage==='summary';$('showPrepare').disabled=showControl.preparing||playing||!showControl.queue.length;$('showPrepareNext').disabled=showControl.preparing||playing||!showControl.queue.length;
  const ended=showControl.stage==='end';
  $('showEnd').disabled=ended;$('showResume').hidden=!ended;
  if(ended){for(const id of ['showPrepare','showPrepareNext','showStart','showArm','showReveal','showPause','showStop','showWaiting','showTitle','showSummary'])$(id).disabled=true;}
@@ -605,8 +613,8 @@ $('showEnd').onclick=()=>{
 $('showResume').onclick=()=>{if(!confirm('종료 화면을 닫고 방송 진행실을 다시 사용할까요? 남은 문제는 그대로 유지됩니다.'))return;showControl.stage='waiting';showControl.armed=false;publishScreen();toast('진행을 재개할 수 있어요. 남은 문제를 다시 선택해주세요.');};
 $('showTitle').onclick=()=>showSetStage('title');
 $('showEmergency').onclick=()=>{showSetStage('emergency');toast('비상 안전 화면으로 전환했어요. 공개 정보는 모두 숨겼습니다.');};
-$('showStart').onclick=()=>{if(!showControl.active)return toast('먼저 문제를 준비해주세요.');stopPostReveal();cancelAutoReveal(false);showControl.revealCount=0;showControl.revealStep=0;showControl.armed=false;showSetStage('question');};
-$('showArm').onclick=()=>{if(!showControl.active||!isLive())return;showControl.armed=!showControl.armed;showUpdateControls();};
+$('showStart').onclick=()=>{if(!showControl.active?.assets||showControl.active.entry?.status!=='ready'||!showControl.queue.some(e=>e.id===showControl.active.entry.id))return toast('진행 준비된 문제를 먼저 선택해주세요.');stopPostReveal();cancelAutoReveal(false);showControl.revealCount=0;showControl.revealStep=0;showControl.armed=false;showSetStage('question');};
+$('showArm').onclick=()=>{if(!showControl.active?.assets||showControl.active.entry?.status!=='ready'||!showControl.queue.some(e=>e.id===showControl.active.entry.id)||!isLive())return;showControl.armed=!showControl.armed;showUpdateControls();};
 // One-click reveal: use pre-rendered pixels only. 0.6s fades are implemented in output renderers.
 function cancelAutoReveal(reset){
  showControl.playEpoch++;
@@ -616,10 +624,10 @@ function cancelAutoReveal(reset){
  if(reset&&wasPlaying&&showControl.active){showControl.revealStep=0;showControl.revealCount=0;showControl.stage='question';showControl.armed=false;publishScreen()}
 }
 function scheduleAutoReveal(epoch,wait){
- if(!showControl.playing||showControl.paused||epoch!==showControl.playEpoch)return;
+ if(!showControl.playing||showControl.paused||epoch!==showControl.playEpoch||!showControl.active?.assets)return;
  showControl.playTimer=setTimeout(async()=>{
    showControl.playTimer=null;
-   if(epoch!==showControl.playEpoch||!showControl.playing||showControl.paused)return;
+   if(epoch!==showControl.playEpoch||!showControl.playing||showControl.paused||!showControl.active?.assets)return;
    const max=showControl.active.assets.count*2;
    if(showControl.revealStep>=max){await finishAutoReveal(epoch);return}
    showControl.revealStep++;
@@ -631,7 +639,7 @@ function scheduleAutoReveal(epoch,wait){
  },wait);
 }
 async function finishAutoReveal(epoch){
- if(epoch!==showControl.playEpoch||!showControl.active)return;
+ if(epoch!==showControl.playEpoch||!showControl.active?.assets||showControl.active.entry?.status!=='ready')return;
  const entry=showControl.active.entry;
  showControl.playing=false;showControl.paused=false;showControl.armed=false;
  if(showControl.revealStep%2!==0)showControl.revealStep++;
@@ -643,7 +651,9 @@ async function finishAutoReveal(epoch){
 }
 function renderCompletedList(){const el=$('showCompletedList');if(!el)return;el.innerHTML=showControl.completed?.length?showControl.completed.map(e=>`<div class="completed-item">✓ ${safeText(projectPeopleLabel(e.project))}<div class="completed-date">${safeText((e.completedAt||'').slice(0,16).replace('T',' '))}</div></div>`).join(''):'<div class="show-alert">아직 완료된 문제가 없어요.</div>'}
 $('showReveal').onclick=()=>{
- if(showControl.playing||!showControl.armed||!showControl.active||!isLive())return;
+ if(showControl.playing||!showControl.armed||!showControl.active?.assets||showControl.active.entry?.status!=='ready'||!showControl.queue.some(e=>e.id===showControl.active.entry.id)||!['question','reveal'].includes(showControl.stage)){
+   toast('진행 준비된 문제가 없어서 정답 공개를 시작하지 않았어요.');return;
+ }
  const n=showControl.active.assets.count;
  if(!confirm(`${n}명의 원본 이름과 출처를 A부터 자동 공개합니다. 방송에 정답이 노출됩니다. 재생할까요?`))return;
  cancelAutoReveal(false);
