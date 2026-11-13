@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.7.1",
-  "notes": "정답 공개 배경 1672×941 원본 실측 정렬: 합성 사진·원본 3장 프레임 내부 정확 배치, 흰색/핑크 테두리 가림 방지, 출처·이름 중앙 정렬 및 긴 이름 자동 글꼴 맞춤. OBS 미리보기 새로고침과 렌더러 버전 확인 추가. 문제 데이터 및 방송 이미지는 유지.",
+  "version": "1.7.2",
+  "notes": "방송 진행실: '다음 문제 준비중 MP4' 화면에서 선택 문제 준비 시 세팅 대기로 되돌아가던 오류 수정. 문제 라이브러리·기존 이미지·OBS 디자인 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "ec94a8419a8bae66ceb9ac589f37754bb2bf59daae330a79f18fdf4de902a5fd"
+      "sha256": "f8796ed167048b7f56cc31e4a5fc7e3dad4cd6c6ed94235cae8be422975587fe"
     },
     {
       "path": "server.py",
