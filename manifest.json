@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.6.6",
-  "notes": "사진 보관함에서 3장 동시 선택→A/B/C 자동 배치→문제 제작실 이동. 각 사진 이름·출처 보존, 기존 프로젝트 원본 보존 및 중복 경고 유지.",
+  "version": "1.6.7",
+  "notes": "최종 검토 F열 및 사진 교체 검토 H열에서 선택한 사진을 새 구글시트로부터 동기화. 원본 중복 제외, 이름·원본·라이선스 보존.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "631efd89f18c776a3caa483501305acb4461a32fc516ef4eb6790a7e905937e5"
+      "sha256": "782d120f72f14242d2d96877066c15b7ad8f1fb4fe1f5f306b3239f9523dd332"
     },
     {
       "path": "server.py",
