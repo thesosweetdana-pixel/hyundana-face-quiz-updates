@@ -12,6 +12,8 @@ import threading
 import time
 import uuid
 import urllib.parse
+import urllib.request
+import urllib.error
 import webbrowser
 import sys
 from updater import Updater, UpdateError
@@ -259,6 +261,38 @@ class Handler(BaseHTTPRequestHandler):
         except (ConnectionResetError, BrokenPipeError):
             pass
 
+
+    def _photo_proxy(self):
+        """Fetch a single explicitly allowed Commons image for the local-only studio."""
+        target = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get('url', [''])[0]
+        parsed = urllib.parse.urlsplit(target)
+        if parsed.scheme != 'https' or parsed.hostname != 'upload.wikimedia.org' or parsed.port not in (None, 443) or not parsed.path.startswith('/wikipedia/commons/'):
+            self._response(400, {'error': 'Wikimedia Commons 원본 이미지만 가져올 수 있습니다.'})
+            return
+        class CommonsRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, headers, newurl):
+                p = urllib.parse.urlsplit(newurl)
+                if p.scheme != 'https' or p.hostname != 'upload.wikimedia.org' or not p.path.startswith('/wikipedia/commons/'):
+                    raise urllib.error.HTTPError(newurl, 403, '허용되지 않은 이미지 리다이렉트', headers, fp)
+                return super().redirect_request(req, fp, code, msg, headers, newurl)
+        try:
+            request = urllib.request.Request(target, headers={'User-Agent': 'HyundanaQuizPhotoImporter/1.7.3 (Commons licensed image fetch)', 'Accept': 'image/*'})
+            opener = urllib.request.build_opener(CommonsRedirect())
+            with opener.open(request, timeout=22) as response:
+                mime = response.headers.get_content_type()
+                if not mime.startswith('image/'):
+                    self._response(422, {'error': '사진이 아닌 형식이 반환되었습니다.'})
+                    return
+                raw = response.read(18 * 1024 * 1024 + 1)
+                if len(raw) > 18 * 1024 * 1024:
+                    self._response(413, {'error': '원본 사진 용량이 18MB를 초과합니다.'})
+                    return
+            self._response(200, raw, mime)
+        except urllib.error.HTTPError as exc:
+            self._response(502, {'error': 'Wikimedia 사진 HTTP ' + str(exc.code)})
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            self._response(502, {'error': '원본 사진 다운로드 실패: ' + str(exc)[:160]})
+
     def do_GET(self):
         path = self._path()
         if path == '/':
@@ -266,6 +300,8 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header('Location', '/studio')
             self.send_header('Content-Length', '0')
             self.end_headers()
+        elif path == '/api/photo':
+            self._photo_proxy()
         elif path == '/studio':
             self._file('studio.html', 'text/html; charset=utf-8')
         elif path == '/obs':
