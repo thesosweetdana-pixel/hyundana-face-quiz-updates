@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.7.1</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.7.2</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -119,7 +119,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.7.1</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.7.2</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -876,109 +876,60 @@ ${d.notes||''}
  setTimeout(()=>{if(panel.hidden)check()},1800);
 })();
 
-/* Sheet selection transfer v1.6.4 — user-initiated, additive and idempotent. */
+/* Private Google Sheets selected-photo CSV import v1.7.2. */
 (()=>{
 'use strict';
 const BTN=document.getElementById('sheetPhotoSync'),INFO=document.getElementById('sheetPhotoStatus'),CREDITS=document.getElementById('sheetCreditsExport');
 if(!BTN||!INFO)return;
-const SHEET='1aPFnhpt-C0gfzCj7v7Kf5hlwNdmCk1fAK_7Wyzbam_A',GID='2101202612',REPLACEMENT_GID='2101202622';
-let running=false;
-function message(s){INFO.textContent=String(s)}
-function value(row,i){const c=row&&row.c&&row.c[i];return c?(c.v!==null&&c.v!==undefined?c.v:(c.f||'')):''}
-function getSheet(gid=GID){
- return new Promise((resolve,reject)=>{
-  const google=window.google||(window.google={}),vis=google.visualization||(google.visualization={}),Query=vis.Query||(vis.Query={}),old=Query.setResponse;
-  const script=document.createElement('script');let complete=false;
-  const timer=setTimeout(()=>done(new Error('구글시트 응답 시간 초과')),22000);
-  function done(err,data){
-   if(complete)return;complete=true;clearTimeout(timer);script.remove();
-   if(typeof old==='function')Query.setResponse=old;else delete Query.setResponse;
-   if(err)reject(err);else resolve(data);
-  }
-  Query.setResponse=data=>{
-   if(data&&data.status==='ok'&&data.table&&Array.isArray(data.table.rows))done(null,data.table);
-   else done(new Error('시트의 선택 사진 목록을 읽지 못했습니다'));
-  };
-  script.onerror=()=>done(new Error('구글시트 네트워크 오류'));
-  script.src='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?tqx=out%3Ajson&headers=1&gid='+gid+'&_='+Date.now();
-  document.head.appendChild(script);
- });
+const URL='https://docs.google.com/spreadsheets/d/1aPFnhpt-C0gfzCj7v7Kf5hlwNdmCk1fAK_7Wyzbam_A/edit?gid=2111132710';
+const OPEN=document.createElement('button');OPEN.type='button';OPEN.className='btn';OPEN.textContent='① 선택 사진 시트 열기';OPEN.onclick=()=>window.open(URL,'_blank','noopener');BTN.parentElement.insertBefore(OPEN,BTN);
+const INPUT=document.createElement('input');INPUT.type='file';INPUT.accept='.csv,text/csv';INPUT.hidden=true;BTN.after(INPUT);BTN.textContent='② 선택 사진 CSV 불러오기';
+INFO.textContent='비공개 시트 연결: ① 시트를 열고 「퀴즈실 가져오기」 탭 선택 → 파일 > 다운로드 > 쉼표로 구분된 값(.csv) → ② 내려받은 CSV 선택. 시트 공유 설정을 바꿀 필요는 없습니다.';
+let running=false;const message=s=>INFO.textContent=String(s);
+function parse(text){
+ text=text.replace(/^\uFEFF/,'');const rows=[];let row=[],field='',q=false;
+ for(let i=0;i<text.length;i++){let ch=text[i];if(q){if(ch==='"'){if(text[i+1]==='"'){field+='"';i++}else q=false}else field+=ch}else if(ch==='"')q=true;else if(ch===','){row.push(field);field=''}else if(ch==='\r'||ch==='\n'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(field);if(row.some(x=>x))rows.push(row);row=[];field=''}else field+=ch}
+ if(q)throw Error('CSV 인용부호 오류');row.push(field);if(row.some(x=>x))rows.push(row);return rows;
 }
-function selected(table){
- const picked=[];
- for(const raw of table.rows){
-  const check=value(raw,12);
-  if(!(check===true||String(check).toLowerCase()==='true'))continue;
-  const review=String(value(raw,18));
-  if(review==='사용 제외'||review==='교체 필요')continue;
-  const name=String(value(raw,1)||'').trim(),imageUrl=String(value(raw,4)||'').trim(),fileUrl=String(value(raw,5)||'').trim();
-  if(!name||!imageUrl||!fileUrl)continue;
-  picked.push({name,imageUrl,fileUrl,personId:String(value(raw,0)),candidate:String(value(raw,2)),
-   author:String(value(raw,6)||'촬영자 확인 필요'),site:String(value(raw,7)||'Wikimedia Commons'),license:String(value(raw,8)||'라이선스 확인 필요'),
-   licenseReview:String(value(raw,9)||''),attribution:String(value(raw,14)||''),review});
- }
- return picked;
+function extract(text){
+ const rows=parse(text);const header=(rows.shift()||[]).map(x=>x.trim());
+ const fields=['인물 ID','연예인 이름','후보','이미지 직접 URL','원본 페이지 URL','촬영자','출처 사이트','라이선스','이용 검토','출처 표기문'];
+ const idx=fields.map(k=>header.indexOf(k));if(idx.some(x=>x<0))throw Error('「퀴즈실 가져오기」 탭에서 다운로드한 CSV 파일을 선택해주세요.');
+ return rows.map(r=>{const v=k=>String(r[idx[fields.indexOf(k)]]||'').trim();const author=v('촬영자')||'촬영자 확인 필요',license=v('라이선스')||'라이선스 확인 필요',fileUrl=v('원본 페이지 URL');
+ return {personId:v('인물 ID'),name:v('연예인 이름'),candidate:v('후보'),imageUrl:v('이미지 직접 URL'),fileUrl,author,site:v('출처 사이트')||'Wikimedia Commons',license,licenseReview:v('이용 검토'),attribution:v('출처 표기문')||author+' · Wikimedia Commons · '+license+' · '+fileUrl,review:'사용자 체크 완료'};}).filter(x=>x.name&&x.fileUrl);
 }
-function selectedReplacement(table){
- const picked=[];
- for(let i=0;i<table.rows.length;i++){
-  const raw=table.rows[i],check=value(raw,7);
-  if(!(check===true||String(check).toLowerCase()==='true'))continue;
-  const name=String(value(raw,1)||'').trim(),imageUrl=String(value(raw,11)||'').trim(),fileUrl=String(value(raw,12)||'').trim();
-  if(!name||!imageUrl||!fileUrl)continue;
-  let author=String(value(raw,9)||'').trim();
-  if(!author||author.toLowerCase().includes('wikimedia commons'))author='촬영자 확인 필요';
-  const license=String(value(raw,10)||'라이선스 확인 필요');
-  picked.push({name,imageUrl,fileUrl,personId:String(value(raw,0)),candidate:'교체-'+(i+2),
-   author,site:'Wikimedia Commons',license,licenseReview:'방송·합성 이용권리 별도 검토',
-   attribution:author+' · Wikimedia Commons · '+license+' · '+fileUrl,review:'교체 사진 선택'});
- }
- return picked;
-}
-function dataUrl(blob){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error('이미지 파일 읽기 실패'));r.readAsDataURL(blob)})}
-async function run(){
- if(running)return;running=true;BTN.disabled=true;let added=0,retained=0,fail=[],picked=[],replacementWarning='';
+function dataUrl(blob){return new Promise((yes,no)=>{const r=new FileReader();r.onload=()=>yes(r.result);r.onerror=()=>no(Error('파일 읽기 오류'));r.readAsDataURL(blob)})}
+async function run(file){
+ if(running)return;running=true;BTN.disabled=true;let added=0,retained=0,fail=[];
  try{
-  message('시트에서 선택된 사진을 확인하는 중...');
-  picked=selected(await getSheet());
-  try{picked.push(...selectedReplacement(await getSheet(REPLACEMENT_GID)))}catch(e){replacementWarning=e.message}
-  const seen=new Set();
-  picked=picked.filter(p=>{const key=p.fileUrl.trim().replace(/_/g,' ').toLowerCase();if(seen.has(key))return false;seen.add(key);return true});
-  if(!picked.length){message('선택된 사진이 없습니다. 사진 최종 검토 F열 또는 사진 교체 검토 H열을 확인해주세요.');return}
+  let picked=extract(await file.text());const seen=new Set();picked=picked.filter(r=>{let k=r.fileUrl.trim().replace(/_/g,' ').toLowerCase();if(seen.has(k))return false;seen.add(k);return true});
+  if(!picked.length)throw Error('선택된 사진이 없습니다');
   const photos=await allPhotos();
   for(let i=0;i<picked.length;i++){
-   const r=picked[i];
-   message('선택 '+picked.length+'장 · '+(i+1)+'/'+picked.length+' 처리: '+r.name+'\n새로 저장 '+added+' · 이미 저장 '+retained+' · 오류 '+fail.length);
+   const r=picked[i];message('사진 '+(i+1)+'/'+picked.length+' · '+r.name+' · 새 '+added+' · 기존 '+retained+' · 실패 '+fail.length);
    try{
-    const metadata={personId:r.personId,candidate:r.candidate,fileUrl:r.fileUrl,imageUrl:r.imageUrl,author:r.author,license:r.license,
-      attribution:r.attribution,site:r.site,licenseReview:r.licenseReview,sheetReview:r.review,source:'Wikimedia Commons',lastSheetSync:new Date().toISOString()};
+    const metadata={personId:r.personId,candidate:r.candidate,fileUrl:r.fileUrl,imageUrl:r.imageUrl,author:r.author,license:r.license,attribution:r.attribution,site:r.site,licenseReview:r.licenseReview,sheetReview:r.review,source:'Wikimedia Commons',lastSheetSync:new Date().toISOString()};
     const found=photos.find(p=>p.fileUrl===r.fileUrl&&p.dataUrl);
     if(found){Object.assign(found,metadata);await putPhoto(found);retained++;continue}
+    if(!r.imageUrl)throw Error('이미지 직접 URL 누락');
     const u=new URL(r.imageUrl);
-    if(u.protocol!=='https:'||u.hostname!=='upload.wikimedia.org')throw new Error('원본 이미지 주소 확인 필요');
+    if(u.protocol!=='https:'||u.hostname!=='upload.wikimedia.org')throw Error('원본 이미지 URL 확인 필요');
     const response=await fetch(u.href,{mode:'cors',credentials:'omit',cache:'force-cache'});
-    if(!response.ok)throw new Error('사진 서버 HTTP '+response.status);
-    const blob=await response.blob();
-    if(!blob.type.startsWith('image/'))throw new Error('이미지 형식이 아닙니다');
-    if(blob.size>18*1024*1024)throw new Error('원본 파일 18MB 초과');
+    if(!response.ok)throw Error('이미지 HTTP '+response.status);
+    const blob=await response.blob();if(!blob.type.startsWith('image/'))throw Error('이미지 형식 아님');
+    if(blob.size>18*1024*1024)throw Error('18MB 초과');
     const data=await dataUrl(blob);await imageData(data);
     const name=decodeURIComponent(u.pathname.split('/').pop()||'original.jpg');
     const result=await registerPhoto({name:r.name,source:'Wikimedia Commons',fileName:name,dataUrl:data},photos);
-    const record=Object.assign(result.record,metadata);
-    await putPhoto(record);
-    if(result.created)added++;else retained++;
-   }catch(e){fail.push(r.name+' 후보'+r.candidate+': '+e.message)}
+    Object.assign(result.record,metadata);await putPhoto(result.record);if(result.created)added++;else retained++;
+   }catch(e){fail.push(r.name+' '+r.candidate+': '+(e.message||e))}
   }
   await refreshArchive();
-  message('선택 '+picked.length+'장 · 새 보관 '+added+'장 · 기존 보관 '+retained+'장 · 실패 '+fail.length+'장\n'+
-    (fail.length?'실패: '+fail.slice(0,16).join(' / ')+(fail.length>16?' 외 '+(fail.length-16)+'건':''):
-    '사진 보관함의 사진을 A·B·C 칸에 불러와 합성할 수 있습니다.')+
-    (replacementWarning?'\n교체 검토 탭 읽기 실패: '+replacementWarning:'')+
-    '\n※ 방송 사용·초상권과 원본 라이선스 준수는 사진별 검토해야 합니다.');
- }catch(e){message('사진 동기화 실패: '+e.message)}
+  message('선택 '+picked.length+'장 · 새 저장 '+added+'장 · 기존 보관 '+retained+'장 · 실패 '+fail.length+'장\n'+(fail.length?'오류: '+fail.slice(0,20).join(' / '):'사진 보관함의 A·B·C 칸에서 사용 가능합니다.')+'\n체크 변경 시 CSV를 다시 다운로드하세요. 기존 문제와 사진은 삭제되지 않습니다.');
+ }catch(e){message('가져오기 실패: '+e.message)}
  finally{running=false;BTN.disabled=false}
 }
-BTN.addEventListener('click',run);
+BTN.onclick=()=>INPUT.click();INPUT.onchange=()=>{const file=INPUT.files&&INPUT.files[0];INPUT.value='';if(file)void run(file)};
 if(CREDITS)CREDITS.addEventListener('click',async()=>{
  try{
   const photos=(await allPhotos()).filter(p=>p.fileUrl&&p.dataUrl);
