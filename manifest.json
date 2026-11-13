@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.7.4",
-  "notes": "완료 문제의 '재진행 준비' 확인 팝업 제거: 버튼 클릭 시 곧바로 진행 준비 상태로 전환. 기존 v1.7.3 원본 사진 CSV 지원 기능과 OBS 화면 및 문제 데이터 유지.",
+  "version": "1.7.5",
+  "notes": "v1.7.4 사진 시트 선택 사진 가져오기 수정 유지 + 완료 문제 '재진행 준비' 확인창 제거. 동일 버전 번호 충돌을 해소하고 화면 버전 표기를 통일.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "45f232456ba12477ff2ecbec561dbcaafea77475b82456db6028b1e13c3af75c"
+      "sha256": "2f39b91708cd32563ee7ca1a038e28ffc1a1ba08b85a8a444cd627be26604c4a"
     },
     {
       "path": "server.py",
