@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.7.3",
-  "notes": "CSV로 선택한 원본 사진을 로컬 서버에서 안전하게 받아 CORS 제한을 피함. 원본 출처·선택 정보 유지, 문제 데이터 및 OBS 화면 변경 없음.",
+  "version": "1.7.4",
+  "notes": "선택 사진 CSV 불러오기 URL is not a constructor 오류 수정. 변수 이름 충돌 제거, 기존 보관 사진·문제 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "440b8da4d4bc4c889429f55089f54148a27a1798b9be1dcd9489f599f4a529b1"
+      "sha256": "cfc3417fd8b9bf79777ce3f3452622533850279cbbdf47394e6929d234ef7eb5"
     },
     {
       "path": "server.py",
