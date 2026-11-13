@@ -13,20 +13,20 @@
 #mainStack{position:absolute;display:none;overflow:hidden;align-items:center;justify-content:center}
 #scene[data-stage='question'] #mainStack,#scene[data-stage='reveal'] #mainStack{display:flex}
 #scene[data-stage='question'] #mainStack{left:80px;top:228px;width:1092px;height:595px}
-#scene[data-stage='reveal'] #mainStack{left:81px;top:262px;width:368px;height:551px}
-#mainStack img{position:absolute;max-width:100%;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .60s ease-in-out;}
+#scene[data-stage='reveal'] #mainStack{left:91px;top:262px;width:368px;height:551px}
+#mainStack img{position:absolute;max-width:100%;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .75s ease-in-out;}
 #scene[data-stage='reveal'] #mainStack img{object-fit:cover}
 #answerCards{display:none;position:absolute;inset:0;pointer-events:none}
 #scene[data-stage='reveal'] #answerCards{display:block}
 .answerCard{position:absolute;top:325px;width:193px;height:261px;overflow:hidden;display:none;align-items:center;justify-content:center;background:transparent}
 .answerCard img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;}
-.answerCard[data-col='0']{left:514px}.answerCard[data-col='1']{left:759px}.answerCard[data-col='2']{left:1004px}
+.answerCard[data-col='0']{left:525px}.answerCard[data-col='1']{left:770px}.answerCard[data-col='2']{left:1015px}
 .sourceText,.nameText{position:absolute;display:none;text-align:center;align-items:center;justify-content:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#3c0b6a;font-weight:900;padding:0 6px;line-height:1.15;text-shadow:0 1px 0px #fff8ff}
 .sourceText{top:264px;width:207px;height:39px;font-size:24px}
-.nameText{top:616px;width:209px;height:43px;font-size:26px}
-.sourceText[data-col='0'],.nameText[data-col='0']{left:505px}
-.sourceText[data-col='1'],.nameText[data-col='1']{left:750px}
-.sourceText[data-col='2'],.nameText[data-col='2']{left:995px}
+.nameText{top:612px;width:212px;height:51px;font-size:33px;letter-spacing:-.5px}
+.sourceText[data-col='0'],.nameText[data-col='0']{left:516px}
+.sourceText[data-col='1'],.nameText[data-col='1']{left:761px}
+.sourceText[data-col='2'],.nameText[data-col='2']{left:1006px}
 #videoPanel{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:none;background:#171024}
 #scene[data-stage='summary'] #videoPanel{display:block}
 #safety{display:none;position:absolute;inset:0;background:#24152f;color:white;font-size:46px;font-weight:800;align-items:center;justify-content:center}
@@ -39,13 +39,15 @@
 #scene[data-stage='end'][data-end-image='missing'] #endPanel{display:none}
 #scene[data-stage='end'][data-end-image='missing'] #endFallback{display:flex}
 #cardWarning{position:absolute;left:501px;top:320px;max-width:720px;padding:15px;color:#ffd4e9;font-size:23px;display:none}
+#videoWarn{position:absolute;top:46%;left:20%;width:60%;padding:18px;border-radius:10px;background:rgba(32,14,55,.93);color:white;text-align:center;font-size:29px;font-weight:800;display:none}
+#scene[data-stage='summary'] #videoWarn:not([hidden]){display:block}
 @media(prefers-reduced-motion:reduce){#mainStack img{transition:none}}
 </style></head>
 <body><div id="scene" data-stage="emergency">
 <img id="questionBg" alt="문제 공개 디자인"/><img id="answerBg" alt="정답 공개 디자인"/>
 <div id="roundNum" aria-label="현재 라운드"></div>
 <div id="mainStack"><img id="backPhoto" alt=""/><img id="frontPhoto" alt="합성 사진 또는 공개된 원본"/></div>
-<div id="answerCards"></div><img id="standbyPanel" alt="참가자 세팅 대기 · 준비중"><img id="introPanel" alt="현단아의 뉴뀨? 콘텐츠 오프닝"><img id="endPanel" alt="현단아의 뉴뀨? · 감사합니다"><div id="endFallback">♡ 감사합니다 ♡</div><video id="videoPanel" muted autoplay playsinline preload="auto"></video><div id="safety">방송 화면 준비 중</div><div id="cardWarning"></div>
+<div id="answerCards"></div><img id="standbyPanel" alt="참가자 세팅 대기 · 준비중"><img id="introPanel" alt="현단아의 뉴뀨? 콘텐츠 오프닝"><img id="endPanel" alt="현단아의 뉴뀨? · 감사합니다"><div id="endFallback">♡ 감사합니다 ♡</div><video id="videoPanel" muted autoplay playsinline preload="auto"></video><div id="videoWarn" hidden></div><div id="safety">방송 화면 준비 중</div><div id="cardWarning"></div>
 </div>
 <script>
 (()=>{'use strict';
@@ -54,7 +56,12 @@
  const questionBg='/assets/question.webp';
  const answerBg='/assets/answer.webp';
  const waitVideo='/assets/next.mp4';
- const scene=$('scene'),vid=$('videoPanel');
+ const scene=$('scene'),vid=$('videoPanel'),vidWarn=$('videoWarn');
+ const videoError=message=>{vidWarn.textContent=message;vidWarn.hidden=false;};
+ vid.onerror=()=>videoError('다음 문제 대기 MP4를 열 수 없어요. 설치 파일을 확인해주세요.');
+ vid.onloadeddata=()=>{vidWarn.hidden=true;};
+ vid.onended=()=>{vid.pause();}; // Keep final frame until host chooses the next scene.
+
  $('questionBg').src=questionBg;$('answerBg').src=answerBg;vid.src=waitVideo;
  $('standbyPanel').src='/assets/standby.webp';$('introPanel').src='/assets/intro.webp';
  const endPanel=$('endPanel');scene.dataset.endImage='missing';endPanel.onload=()=>{scene.dataset.endImage='ready'};endPanel.onerror=()=>{scene.dataset.endImage='missing'};endPanel.src='/assets/end.webp';
@@ -76,7 +83,7 @@
    // Swap buffers; the currently visible original remains behind the new original during a fade.
    back.src=front.src||next;back.style.transition='none';back.style.opacity=front.src?'1':'0';
    front.style.transition='none';front.style.opacity='0';front.src=next;
-   requestAnimationFrame(()=>requestAnimationFrame(()=>{if(token!==moveToken)return;front.style.transition='opacity .60s ease-in-out';back.style.transition='opacity .60s ease-in-out';front.style.opacity='1';back.style.opacity='0';}));
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{if(token!==moveToken)return;front.style.transition='opacity .75s ease-in-out';back.style.transition='opacity .75s ease-in-out';front.style.opacity='1';back.style.opacity='0';}));
  }
  function resetPhotos(){photoUrl='';++moveToken;$('frontPhoto').removeAttribute('src');$('backPhoto').removeAttribute('src');$('frontPhoto').style.opacity='0';$('backPhoto').style.opacity='0';}
  function roundLabel(str){const m=String(str||'').match(/(\d+)/);return 'ROUND '+(m?String(Number(m[1])).padStart(2,'0'):'01');}
@@ -84,13 +91,18 @@
    const changed=stage!==sceneStage;sceneStage=stage;scene.dataset.stage=stage;
    $('roundNum').textContent=roundLabel(st?.round);
    if(stage==='summary'){
-      if(changed){try{vid.currentTime=0;}catch(e){}vid.loop=false;vid.play().catch(()=>{});}
-   }else{vid.pause();}
+      if(changed){
+        vidWarn.hidden=true;
+        try{vid.currentTime=0;}catch(e){}
+        vid.loop=false;
+        vid.play().catch(err=>videoError('MP4 재생 실패: '+(err?.message||'미디어 오류')+' · 설치 파일을 확인해주세요.'));
+      }
+   }else{vid.pause();vidWarn.hidden=true;}
    if(stage==='question'||stage==='reveal'){setPhoto(st?.image)}else if(changed){resetPhotos();}
    for(let i=0;i<3;i++){
      const p=stage==='reveal' && Array.isArray(st?.revealed)?st.revealed.find(x=>x?.slot===slots[i] && typeof x?.image==='string' && x.image.startsWith('data:image/png;base64,')):null;
      const c=cards[i];c.box.style.display=p?'flex':'none';c.source.style.display=p?'flex':'none';c.name.style.display=p?'flex':'none';
-     if(p){if(c.image.src!==p.image)c.image.src=p.image;c.source.textContent=p.source?'출처 : '+p.source:'';c.name.textContent=p.name||'';fitText(c.source,24,12);fitText(c.name,26,15);}
+     if(p){if(c.image.src!==p.image)c.image.src=p.image;c.source.textContent=p.source?'출처 : '+p.source:'';c.name.textContent=p.name||'';fitText(c.source,24,12);fitText(c.name,33,20);}
      else {c.image.removeAttribute('src');c.source.textContent='';c.name.textContent='';}
    }
  }
