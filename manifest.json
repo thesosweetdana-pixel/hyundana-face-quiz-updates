@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.7.5",
-  "notes": "v1.7.4 사진 시트 선택 사진 가져오기 수정 유지 + 완료 문제 '재진행 준비' 확인창 제거. 동일 버전 번호 충돌을 해소하고 화면 버전 표기를 통일.",
+  "version": "1.7.6",
+  "notes": "방송 진행실 '선택 문제 준비' 시 OBS 송출 장면을 세팅 대기로 변경하지 않도록 완전 분리. 다음 문제 준비중 화면 유지, 준비 완료 후 '준비한 문제 공개' 가능. 사진 시트·문제 저장 데이터 및 기존 수정 모두 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "2f39b91708cd32563ee7ca1a038e28ffc1a1ba08b85a8a444cd627be26604c4a"
+      "sha256": "e82e41cd610aacf295a2726eb9e6bbd34c010dc5f0fa09ec9c8e1d318fbc72d5"
     },
     {
       "path": "server.py",
