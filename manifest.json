@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.1",
-  "notes": "참가자 15명 보기 전용 Cloudflare 중계 연결 설정: 진행실 공개 상태만 인증 전송, 방송 자료 웹 동기화, 참가자 링크 복사. Cloudflare Worker 배포 후 활성화. 기존 문제 데이터와 OBS 로컬 연결 유지.",
+  "version": "1.8.2",
+  "notes": "Cloudflare 참가자 전용 배포 HTTPS 주소를 진행실 실시간 중계 설정에 자동 입력. 별도 비밀키 등록 필요. 문제/OBS 기존 기능 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "cdf511e67fe85111b864fa68e944a3632540fe4b90cc84cf7a43e074810f3739"
+      "sha256": "28987722ad39c1e00a0ac421b123af9d65c95c3ae8881983fb0e0083c9f88d24"
     },
     {
       "path": "server.py",
