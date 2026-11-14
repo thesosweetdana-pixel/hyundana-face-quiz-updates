@@ -131,7 +131,7 @@ if(['question','reveal'].includes(stageName)&&s.image){if(photo.src!==s.image)ph
 answers.replaceChildren();if(stageName==='reveal'){for(const letter of ['A','B','C']){const p=(s.revealed||[]).find(x=>x.slot===letter);const card=document.createElement('div');card.className='card';const img=document.createElement('img');if(p?.image)img.src=p.image;const name=document.createElement('div');name.className='name';name.textContent=p?.name||'';const source=document.createElement('div');source.className='source';source.textContent=p?.source||'';card.append(img,name,source);answers.append(card)}}
 if(stageName==='summary'&&change&&mediaReady){vid.currentTime=0;vid.play().catch(()=>{});}else if(stageName!=='summary')vid.pause();
 }
-async function poll(){try{const r=await fetch('/state',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(data.updated!==last){last=data.updated;render(data.state||{});}status.textContent='실시간 연결됨';}catch(e){status.textContent='재연결 중…';}setTimeout(poll,850);}
+// Public viewers use WebSocket only. Legacy HTTP polling intentionally removed.
 fetch('/assets/next.mp4',{method:'HEAD'}).then(r=>{if(r.ok){vid.src='/assets/next.mp4';mediaReady=true}}).catch(()=>{});
 (function connect(){
  const ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/stream');
@@ -193,15 +193,10 @@ export default {
     return new Response(result.body,{status:result.status,headers:{...cors(origin),"Content-Type":"application/json;charset=utf-8"}});
    }catch(e){return json({online:null,error:"중계 서버 용량 또는 일일 한도를 확인하세요"},503,cors(origin))}
   }
-  if(u.pathname==="/state")return room.fetch("https://room/state");
-  if(u.pathname==="/api/public"){
-   try{
-    const data=await readSharedState(room),rev=String(data.updated||0);
-    return json(u.searchParams.get("rev")===rev?
-      {revision:rev,unchanged:true,connected:true}:
-      {revision:rev,unchanged:false,connected:true,state:data.state||empty});
-   }catch(e){return json({error:"relay temporarily unavailable",connected:false},503);}
-  }
+  // Disable deprecated unbounded public polling. Prevent cached older viewer pages
+  // from burning the entire free Durable Object daily request allowance.
+  if(u.pathname==="/state"||u.pathname==="/api/public")
+    return json({error:"legacy HTTP polling disabled; reload /obs for WebSocket"},410);
   if(u.pathname==="/obs"){
    try{
     const upstream=await fetch("https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",{cf:{cacheTtl:0,cacheEverything:true}});
