@@ -1,0 +1,64 @@
+// Cloudflare Worker / Durable Object: public read-only quiz output.
+// Set PUBLISH_TOKEN with: npx wrangler secret put PUBLISH_TOKEN
+// Only the host browser can publish; viewers can read the current disclosed state.
+const headers={"Cache-Control":"no-store","X-Content-Type-Options":"nosniff","Referrer-Policy":"no-referrer"};
+const originAllowed=o=>o==="http://127.0.0.1:8765";
+const cors=o=>({...headers,...(originAllowed(o)?{"Access-Control-Allow-Origin":o,"Vary":"Origin","Access-Control-Allow-Headers":"authorization,content-type","Access-Control-Allow-Methods":"POST,OPTIONS"}:{})});
+const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{...headers,"Content-Type":"application/json;charset=utf-8",...extra}});
+const empty={stage:"waiting",round:"",image:null,revealed:[],focus:null,revealStep:0,revealTotal:0};
+function cleanState(raw){
+ if(!raw||!["waiting","title","question","reveal","summary","emergency","end"].includes(raw.stage))return empty;
+ const image=x=>typeof x==="string"&&x.startsWith("data:image/png;base64,")&&x.length<12000000?x:null;
+ const p=raw.stage==="reveal"&&Array.isArray(raw.revealed)?raw.revealed.slice(0,3).filter(x=>["A","B","C"].includes(x?.slot)).map(x=>({slot:x.slot,name:String(x.name||"").slice(0,90),source:String(x.source||"").slice(0,300),image:image(x.image)})):[];
+ return {stage:raw.stage,round:String(raw.round||"").slice(0,80),image:["question","reveal"].includes(raw.stage)?image(raw.image):null,revealed:p,
+ focus:raw.stage==="reveal"&&raw.focus?{slot:String(raw.focus.slot||""),name:String(raw.focus.name||"").slice(0,90),source:String(raw.focus.source||"").slice(0,300)}:null,revealStep:Number(raw.revealStep)||0,revealTotal:Number(raw.revealTotal)||0};
+}
+export class QuizRoom{
+ constructor(ctx,env){this.ctx=ctx;this.env=env;}
+ async fetch(request){
+  const u=new URL(request.url);
+  if(request.method==="POST"&&u.pathname==="/publish"){
+   let raw;try{raw=await request.json();}catch{return json({error:"invalid json"},400);}
+   if(JSON.stringify(raw).length>14000000)return json({error:"state too large"},413);
+   const state=cleanState(raw);
+   await this.ctx.storage.put("screen",state);
+   await this.ctx.storage.put("updated",Date.now());
+   return json({ok:true});
+  }
+  const state=await this.ctx.storage.get("screen")||empty;
+  const updated=await this.ctx.storage.get("updated")||0;
+  return json({state,updated});
+ }
+}
+const VIEWER=String.raw`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아의 뉴뀨? 참가자 화면</title><style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:#1e102e;font-family:system-ui,'Malgun Gothic',sans-serif;color:#fff}#shell{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5vw}.stage{width:min(100%,1672px);aspect-ratio:1672/941;position:relative;border-radius:2vw;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#64349b,#220b3b 70%);border:4px solid #d87bfc;box-shadow:0 0 45px #b95dff88,inset 0 0 30px #ff91e6}.stars{position:absolute;inset:0;opacity:.38;background-image:radial-gradient(circle at 12% 16%,#fff 1px,transparent 3px),radial-gradient(circle at 72% 23%,#fff 1px,transparent 3px),radial-gradient(circle at 42% 73%,#fff 2px,transparent 4px);background-size:240px 180px}.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2vw}.major{font-weight:1000;font-size:clamp(32px,7vw,116px);color:#fff1fa;text-shadow:0 4px #dc64b6,0 7px #7424a4,0 0 24px #f091e7}.sub{font-size:clamp(14px,2vw,34px);color:#f6cafa}.photo{display:none;position:absolute;object-fit:contain;border:3px solid #f5a5fb;border-radius:1.3vw;box-shadow:0 0 22px #f291f7;background:#13091b}.stage[data-stage=question] .photo{display:block;inset:19% 17% 8%;width:66%;height:73%}.stage[data-stage=reveal] .photo{display:block;left:5%;top:23%;width:34%;height:65%;object-fit:cover}.top{position:absolute;top:4%;left:6%;right:6%;display:flex;justify-content:space-between;align-items:center;color:#fce2ff;font-weight:1000;font-size:clamp(13px,3vw,45px)}.answers{position:absolute;left:43%;right:3%;top:23%;height:67%;display:none;grid-template-columns:repeat(3,1fr);gap:1.5%}.stage[data-stage=reveal] .answers{display:grid}.card{min-width:0;display:flex;flex-direction:column;align-items:center;gap:1%;}.card img{height:75%;width:100%;object-fit:cover;background:#4b2a67;border:2px solid #eaa0ef;border-radius:1vw}.card .name,.card .source{width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;font-size:clamp(10px,1.55vw,25px);font-weight:850}.card .source{font-size:clamp(8px,1vw,18px)}.waiting{display:none}.stage[data-stage=waiting] .waiting,.stage[data-stage=summary] .waiting,.stage[data-stage=title] .waiting,.stage[data-stage=end] .waiting,.stage[data-stage=emergency] .waiting{display:flex}.status{position:fixed;bottom:8px;right:12px;font-size:11px;color:#ceb6dc}video{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:none}.stage[data-stage=summary] video{display:block}
+</style></head><body><div id="shell"><div id="stage" class="stage" data-stage="waiting"><div class="stars"></div><div class="top" id="top" hidden><span id="round">ROUND 01</span><span>현단아의 뉴뀨? ♡</span></div><div class="center waiting"><div class="major" id="message">준비중...♡</div><div class="sub" id="subtitle">진행자의 화면을 기다리고 있어요</div></div><img id="photo" class="photo" alt="공개된 퀴즈 사진"><div class="answers" id="answers"></div><video id="nextVideo" muted autoplay playsinline preload="auto"></video></div></div><div class="status" id="status">연결 중…</div><script>
+(()=>{'use strict';const stage=document.getElementById('stage'),photo=document.getElementById('photo'),top=document.getElementById('top'),answers=document.getElementById('answers'),msg=document.getElementById('message'),sub=document.getElementById('subtitle'),status=document.getElementById('status'),vid=document.getElementById('nextVideo');let prev='',last=0,mediaReady=false;
+const scenes={waiting:['준비중...♡','잠시 후 시작합니다'],title:['현단아의 뉴뀨?','연예인 얼굴 합성 퀴즈'],summary:['다음 문제 준비중...♡','잠시 후 다음 문제가 공개됩니다'],end:['감사합니다 ♡','함께해 주셔서 감사해요'],emergency:['화면 준비 중','진행자의 연결을 기다립니다']};
+function render(s){const stageName=s.stage||'waiting',change=prev!==stageName;prev=stageName;stage.dataset.stage=stageName;top.hidden=!['question','reveal'].includes(stageName);document.getElementById('round').textContent=(s.round||'ROUND 01').replace('라운드','ROUND');
+if(scenes[stageName]){msg.textContent=scenes[stageName][0];sub.textContent=scenes[stageName][1]}else{msg.textContent='';sub.textContent=''}
+if(['question','reveal'].includes(stageName)&&s.image){if(photo.src!==s.image)photo.src=s.image;photo.style.display='block'}else{photo.removeAttribute('src');photo.style.display='none'}
+answers.replaceChildren();if(stageName==='reveal'){for(const letter of ['A','B','C']){const p=(s.revealed||[]).find(x=>x.slot===letter);const card=document.createElement('div');card.className='card';const img=document.createElement('img');if(p?.image)img.src=p.image;const name=document.createElement('div');name.className='name';name.textContent=p?.name||'';const source=document.createElement('div');source.className='source';source.textContent=p?.source||'';card.append(img,name,source);answers.append(card)}}
+if(stageName==='summary'&&change&&mediaReady){vid.currentTime=0;vid.play().catch(()=>{});}else if(stageName!=='summary')vid.pause();
+}
+async function poll(){try{const r=await fetch('/state',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(data.updated!==last){last=data.updated;render(data.state||{});}status.textContent='실시간 연결됨';}catch(e){status.textContent='재연결 중…';}setTimeout(poll,850);}
+fetch('/assets/next.mp4',{method:'HEAD'}).then(r=>{if(r.ok){vid.src='/assets/next.mp4';mediaReady=true}}).catch(()=>{});poll();
+})();</script></body></html>`;
+export default {
+ async fetch(request,env){
+  const u=new URL(request.url),origin=request.headers.get("Origin")||"";
+  if(request.method==="OPTIONS"&&u.pathname==="/publish")return new Response(null,{status:204,headers:cors(origin)});
+  const room=env.ROOM.get(env.ROOM.idFromName("live"));
+  if(u.pathname==="/publish"){
+   if(request.method!=="POST")return json({error:"not allowed"},405);
+   if(!originAllowed(origin))return json({error:"invalid origin"},403);
+   if(!env.PUBLISH_TOKEN||request.headers.get("Authorization")!=="Bearer "+env.PUBLISH_TOKEN)return json({error:"unauthorized"},401, cors(origin));
+   const response=await room.fetch(new Request("https://room/publish",{method:"POST",body:request.body,headers:{"Content-Type":"application/json"}}));
+   return new Response(response.body,{status:response.status,headers:{...cors(origin),"Content-Type":"application/json"}});
+  }
+  if(u.pathname==="/state")return room.fetch("https://room/state");
+  if(u.pathname==="/"||u.pathname==="/watch")return new Response(VIEWER,{headers:{...headers,"Content-Type":"text/html;charset=utf-8"}});
+  if(u.pathname.startsWith("/assets/"))return env.ASSETS?env.ASSETS.fetch(request):new Response("asset not installed",{status:404});
+  return new Response("Not found",{status:404});
+ }
+};
