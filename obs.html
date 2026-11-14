@@ -66,8 +66,8 @@
 
  $('questionBg').src=questionBg;$('answerBg').src=answerBg;vid.src=waitVideo;
  $('standbyPanel').src='/assets/standby.webp';$('introPanel').src='/assets/intro.webp';
- const posterBase=location.hostname==='127.0.0.1'||location.hostname==='localhost'?'https://hyundana-quiz-live.thesosweetdana.workers.dev':'';
- $('noticePanel').src=posterBase+'/assets/notice.png';$('rulesPanel').src=posterBase+'/assets/rules.png';
+ // Local OBS reads locally persisted posters; remote spectators read Worker assets.
+ $('noticePanel').src='/assets/notice.png';$('rulesPanel').src='/assets/rules.png';
  const endPanel=$('endPanel');scene.dataset.endImage='missing';endPanel.onload=()=>{scene.dataset.endImage='ready'};endPanel.onerror=()=>{scene.dataset.endImage='missing'};endPanel.src='/assets/end.webp';
  const slots=['A','B','C'];
  const cards=[];
@@ -129,8 +129,8 @@
    if(!response.ok)throw new Error('HTTP '+response.status);
    const d=await response.json();revision=d.revision;
    if(!d.unchanged)render(d.state,d.connected);
-  }catch(e){revision=null;render(null,false)}setTimeout(poll,350)}
+  }catch(e){/* Preserve last valid scene during temporary local network/renderer errors. */}setTimeout(poll,350)}
  render(null,false);void poll();
- window.HyundanaOBS={version:'1.8.4',getProtocol:()=> 'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage};
+ window.HyundanaOBS={version:'1.8.8',getProtocol:()=> 'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage};
 })();
 </script></body></html>
