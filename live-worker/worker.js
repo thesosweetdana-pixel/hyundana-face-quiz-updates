@@ -21,7 +21,7 @@ export class QuizRoom{
    let raw;try{raw=await request.json();}catch{return json({error:"invalid json"},400);}
    if(JSON.stringify(raw).length>14000000)return json({error:"state too large"},413);
    const state=cleanState(raw);
-   const packed=JSON.stringify(state);const parts=packed.match(/[\\s\\S]{1,800000}/g)||[];
+   const packed=JSON.stringify(state);const parts=packed.match(/[\s\S]{1,800000}/g)||[];
    for(let i=0;i<parts.length;i++)await this.ctx.storage.put("part:"+i,parts[i]);
    await this.ctx.storage.put("count",parts.length);
    await this.ctx.storage.put("updated",Date.now());
