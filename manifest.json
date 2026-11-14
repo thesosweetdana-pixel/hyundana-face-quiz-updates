@@ -1,17 +1,17 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.5",
-  "notes": "안내사항·게임 규칙 및 예시 문제 기능(v1.8.4 포함) + OBS 미리보기 바로 아래에 진행자 전용 정답 배치. 문제 데이터는 그대로 보존.",
+  "version": "1.8.6",
+  "notes": "긴급 수정: 참가자 화면을 이전 오프닝·세팅 대기 화면으로 덮어쓰는 중복 송출 차단. 로컬 OBS에서 승인된 진행실 화면만 Cloudflare 전송, 구버전 중계 차단, 예시문제·포스터·진행자 전용 정답 위치 유지. 업데이트 후 진행실을 모두 닫았다가 1개만 다시 열 것.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "87f5624653ffae3c20ef553ce5669504736e2b4b01541170e20e537d2652cfd2"
+      "sha256": "548535acbb0af268a148b8b48e79314624c10c89e6e2aa9d51f935b768d62790"
     },
     {
       "path": "server.py",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
-      "sha256": "e2e9d33ac0ae844e28a1dc2bf41935a7cac7ec0918609696d4fc961780b29e0c"
+      "sha256": "27d88b03adb3967349cfd4b189df6d6acb2398a67914027ad8ba353e985b7b2c"
     },
     {
       "path": "obs.html",
@@ -21,7 +21,7 @@
     {
       "path": "bridge.js",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/bridge.js",
-      "sha256": "ee597962e768dbaa5fdf61473e2112e2b31b98c0aa6e237023b75a34c4bed726"
+      "sha256": "e296000234f73bdbc79835e46d083e09f0aa7a7827b37c90e9ea4e76e27d5a91"
     }
   ]
 }
