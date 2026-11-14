@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.8.2</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.8.3</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -49,7 +49,7 @@
 .show-revealed img{width:51px;height:51px;object-fit:contain;border-radius:5px;background:#fff}
 .show-image-stack{height:70%;width:58%;position:relative;min-height:0}
 .show-image-stack[hidden],.show-image-stack img[hidden]{display:none}
-.show-image-stack img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:6px;transition:opacity .6s ease-in-out}
+.show-image-stack img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:6px;transition:opacity 1s ease-in-out}
 @media(prefers-reduced-motion:reduce){.show-image-stack img{transition:none}}
 #showMainImage[hidden]{display:none}
 .show-output-status{display:flex;gap:8px;align-items:center;margin:8px 0 2px}
@@ -119,7 +119,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.8.2</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.8.3</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -236,7 +236,7 @@
    <h3>② 정답 자동 공개</h3>
    <div class="show-alert warn">「정답 공개 준비」 → 「정답 자동 재생」을 누르면 합성 → A → 합성 → B → 합성 → C → 합성을 진행해요. <b>마지막 합성 화면은 계속 유지</b>되며, 다음 문제로 자동 이동하지 않아요.</div>
    <div class="show-buttons"><button class="btn" id="showArm">🔒 정답 공개 준비</button><button class="btn primary" id="showReveal">▶ 정답 자동 재생</button><button class="btn" id="showPause" disabled>⏸ 일시정지</button><button class="btn" id="showStop" disabled>■ 공개 중단</button></div>
-   <p class="show-small" id="showRevealText">아직 정답을 공개하지 않았습니다.</p><div class="show-duration"><label for="showHoldDuration">원본 표시 시간</label><select id="showHoldDuration"><option value="1600">1.6초</option><option value="2000" selected>2초</option><option value="2300">2.3초</option></select><span class="show-small">합성 화면도 약 1.3초 유지 · 페이드 약 0.75초</span></div>
+   <p class="show-small" id="showRevealText">아직 정답을 공개하지 않았습니다.</p><div class="show-duration"><label for="showHoldDuration">원본 표시 시간</label><select id="showHoldDuration"><option value="1600" selected>1.6초</option><option value="2000">2초</option><option value="2300">2.3초</option></select><span class="show-small">합성 화면도 약 1.3초 유지 · 페이드 약 1초</span></div>
    <details class="show-extras"><summary>기타 방송 제어</summary><div class="show-buttons"><button class="btn" id="showSummary">합성 얼굴로 복귀</button><button class="btn" id="showEmergency" style="border-color:#d89898;color:#9f4040">긴급 안전 화면</button></div></details>
   </section>
   <section class="show-card">
@@ -673,7 +673,7 @@ async function initializeManager(){await refreshManager();await refreshArchive()
 let postRevealTimer=null,postRevealToken=0;
 function stopPostReveal(){postRevealToken++;if(postRevealTimer){clearTimeout(postRevealTimer);postRevealTimer=null;}}
 // No automatic transition after reveal. The host chooses the next scene.
-const showControl={queue:[],active:null,pending:null,assets:null,preparing:false,prepEpoch:0,stage:'waiting',round:'',revealCount:0,revealStep:0,armed:false,playing:false,paused:false,playEpoch:0,playTimer:null,completed:[]};
+const showControl={queue:[],active:null,pending:null,assets:null,presentedCount:0,lastPublishedId:null,preparing:false,prepEpoch:0,stage:'waiting',round:'',revealCount:0,revealStep:0,armed:false,playing:false,paused:false,playEpoch:0,playTimer:null,completed:[]};
 let publicOutputWin=null;
 const isLive=()=>['question','reveal','summary'].includes(showControl.stage);
 function neutralState(){return {version:2,stage:'waiting',round:'',image:null,revealed:[],focus:null,revealStep:0,revealTotal:0};}
@@ -743,7 +743,7 @@ function publicRender(node,st){if(!node)return;const stage=st.stage,lab=node.get
    im.src=nextImage;im.hidden=false;im.style.transition='none';im.style.opacity=oldImage?'0':'1';
    // 2-frame crossfade, only original source pixels; no synthetic in-between face generation.
    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-     im.style.transition='opacity .6s ease-in-out';im.style.opacity='1';
+     im.style.transition='opacity 1s ease-in-out';im.style.opacity='1';
      if(prev){prev.style.opacity='0';}
    }));
  } else {im.hidden=false;}
@@ -757,7 +757,7 @@ function publishScreen(){publicScreen=showComputePublic();publicRenderLocal(publ
  // Integration contract for the separate OBS design project. No hidden answer fields are included.
  window.dispatchEvent(new CustomEvent('hyundana:public-screen',{detail:structuredClone(publicScreen)}));showUpdateControls();}
 function openOutputWindow(){const w=window.open('','HyundanaPublicOutput','width=1280,height=720,resizable=yes,scrollbars=no');if(!w){toast('팝업이 차단됐어요. 이 사이트의 팝업 허용을 확인해주세요.');return;}publicOutputWin=w;
- w.document.open();w.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>현단아 · 송출용 임시 출력</title><style>*{box-sizing:border-box}body{margin:0;background:#eff2f7;font:700 19px 'Malgun Gothic',sans-serif;color:#26364d;display:flex;align-items:center;justify-content:center;height:100vh}main{width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2%;padding:3%}h1{font-size:2.2vw;margin:0;text-align:center}#outImageStack{position:relative;height:65%;width:78%;min-height:0}#outImageStack[hidden],#outImageStack img[hidden]{display:none}#outImageStack img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:6px;transition:opacity .6s ease-in-out}#outHint{font-size:1.45vw;background:white;border:1px solid #d8e0ec;padding:1% 2%;border-radius:10px;max-width:90%;text-align:center}#outCards{display:flex;gap:1.6%;align-items:center;justify-content:center;width:100%;max-height:28%;flex-wrap:wrap}.person{display:flex;flex-direction:column;gap:6px;align-items:center;font-size:1.25vw}.person img{width:7.5vw;height:7.5vw;object-fit:contain}body[data-summary=yes] #outCards .person img{width:13vw;height:13vw}body[data-summary=yes] #outCards{max-height:75%}
+ w.document.open();w.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>현단아 · 송출용 임시 출력</title><style>*{box-sizing:border-box}body{margin:0;background:#eff2f7;font:700 19px 'Malgun Gothic',sans-serif;color:#26364d;display:flex;align-items:center;justify-content:center;height:100vh}main{width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2%;padding:3%}h1{font-size:2.2vw;margin:0;text-align:center}#outImageStack{position:relative;height:65%;width:78%;min-height:0}#outImageStack[hidden],#outImageStack img[hidden]{display:none}#outImageStack img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:6px;transition:opacity 1s ease-in-out}#outHint{font-size:1.45vw;background:white;border:1px solid #d8e0ec;padding:1% 2%;border-radius:10px;max-width:90%;text-align:center}#outCards{display:flex;gap:1.6%;align-items:center;justify-content:center;width:100%;max-height:28%;flex-wrap:wrap}.person{display:flex;flex-direction:column;gap:6px;align-items:center;font-size:1.25vw}.person img{width:7.5vw;height:7.5vw;object-fit:contain}body[data-summary=yes] #outCards .person img{width:13vw;height:13vw}body[data-summary=yes] #outCards{max-height:75%}
 .photo-metadata{background:#fff7fb;border:1px solid #ffd5e8;border-radius:11px;padding:10px 11px;margin-top:10px}
 .photo-metadata .subhead{margin:0 0 5px;color:#bb4c7b}
 .photo-metadata .fieldlabel{margin:7px 0 3px}
@@ -788,11 +788,19 @@ async function showPrepareEntry(entry){
   const assets=composePreparedData(project,images);
   const allOrdered=sortEntries(await allStored());
   if(prepEpoch!==showControl.prepEpoch||showControl.stage==='end')return;
-  const idx=allOrdered.findIndex(x=>x.id===entry.id);
-  showControl.pending={entry,assets,round:`라운드 ${String(Math.max(0,idx)+1).padStart(2,'0')}`};
+  showControl.pending={entry,assets,round:`라운드 ${String(showControl.presentedCount+1).padStart(2,'0')}`};
   toast('다음 문제 비공개 준비 완료 · 다음 문제 준비중 MP4와 문제 공개는 직접 누를 때만 전환됩니다.');
  }catch(e){toast('문제 준비 실패: '+e.message);}
  finally{showControl.preparing=false;showUpdateControls();}
+}
+function assignBroadcastRound(entry){
+ if(!entry?.id)return;
+ if(showControl.lastPublishedId!==entry.id){
+  showControl.presentedCount++;
+  showControl.lastPublishedId=entry.id;
+ }
+ showControl.round='라운드 '+String(showControl.presentedCount).padStart(2,'0');
+ if(showControl.active)showControl.active.round=showControl.round;
 }
 function showSetStage(stage){if(stage!=='summary')stopPostReveal();showControl.prepEpoch++;showControl.stage=stage;if(['waiting','title','emergency','end'].includes(stage)){cancelAutoReveal(false);showControl.armed=false;}publishScreen();}
 $('showRefresh').onclick=refreshShowQueue;
@@ -874,9 +882,8 @@ $('showAdvanceQuestion').onclick=async()=>{
   const assets=composePreparedData(project,images);
   const all=sortEntries(await allStored());
   if(epoch!==showControl.prepEpoch||showControl.stage==='end'||showControl.stage!==prior)return;
-  const index=all.findIndex(e=>e.id===next.id);
-  showControl.active={entry:next,assets,round:'라운드 '+String(Math.max(0,index)+1).padStart(2,'0')};showControl.pending=null;
-  showControl.round=showControl.active.round;
+  showControl.active={entry:next,assets,round:''};showControl.pending=null;
+  assignBroadcastRound(next);
   showControl.revealStep=0;showControl.revealCount=0;showControl.armed=false;
   $('showQuestionSelect').value=next.id;
   showSetStage('question');
@@ -899,7 +906,7 @@ $('showStart').onclick=()=>{
  if(!selected?.assets||selected.entry?.status!=='ready'||!showControl.queue.some(e=>e.id===selected.entry.id))return toast('진행 준비된 문제를 먼저 선택해주세요.');
  stopPostReveal();cancelAutoReveal(false);
  if(showControl.pending){showControl.active=showControl.pending;showControl.pending=null;}
- showControl.round=showControl.active.round;
+ assignBroadcastRound(showControl.active.entry);
  showControl.revealCount=0;showControl.revealStep=0;showControl.armed=false;
  showSetStage('question');
 };
@@ -943,8 +950,7 @@ $('showReveal').onclick=()=>{
  if(showControl.playing||!showControl.armed||!showControl.active?.assets||showControl.active.entry?.status!=='ready'||!showControl.queue.some(e=>e.id===showControl.active.entry.id)||!['question','reveal'].includes(showControl.stage)){
    toast('진행 준비된 문제가 없어서 정답 공개를 시작하지 않았어요.');return;
  }
- const n=showControl.active.assets.count;
- if(!confirm(`${n}명의 원본 이름과 출처를 A부터 자동 공개합니다. 방송에 정답이 노출됩니다. 재생할까요?`))return;
+ // The host explicitly armed reveal; no extra confirmation popup.
  cancelAutoReveal(false);
  showControl.playEpoch++;
  const epoch=showControl.playEpoch;
