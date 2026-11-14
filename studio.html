@@ -231,6 +231,7 @@
 <button class="btn" id="showMainGame">▶ 본게임 시작 · 라운드 초기화</button>
 <button class="btn" id="showEnd" style="border-color:#d77a95;color:#ac335e;font-weight:900">감사합니다 · 종료 화면</button>
 <button class="btn" id="showResume" hidden>↩ 종료 취소 · 진행 재개</button>
+<button class="btn primary" id="showRestartFromTitle" hidden>↻ 오프닝부터 다시 테스트</button>
 </div><p class="show-small">정답 공개 후에도 화면을 유지해요. 다음 문제 대기 영상·다음 문제 공개·감사합니다 화면은 진행자가 선택합니다.</p></section>
  <div class="show-main">
   <section class="show-card">
@@ -727,7 +728,7 @@ function showUpdateControls(){
  $('showAdvanceQuestion').disabled=showControl.preparing||playing||!showControl.queue.length||showControl.stage==='end';
  $('showVideoTest').disabled=showControl.preparing||playing||showControl.stage==='end';
  const ended=showControl.stage==='end';
- $('showEnd').disabled=ended;$('showResume').hidden=!ended;
+ $('showEnd').disabled=ended;$('showResume').hidden=!ended;$('showRestartFromTitle').hidden=!ended;
  // Broadcast scene selectors have no other gating conditions. Reset them on resume;
  // the remaining controls retain their state-derived availability above.
  for(const id of ['showNotice','showRules','showMainGame','showWaiting','showTitle'])$(id).disabled=ended;
@@ -935,7 +936,24 @@ $('showEnd').onclick=()=>{
  if(!confirm(`지금 컨텐츠를 종료할까요?\n\n진행 완료 ${completed}개 · 아직 남은 문제 ${pending}개\n남은 문제는 삭제되거나 완료 처리되지 않고 계속 보관됩니다.\n정답 공개 및 다음 문제 자동 전환은 즉시 중단됩니다.`))return;
  stopPostReveal();showControl.prepEpoch++;cancelAutoReveal(false);showControl.armed=false;showControl.stage='end';publishScreen();toast(`종료 화면으로 전환했어요. 남은 문제 ${pending}개는 보관됩니다.`);
 };
-$('showResume').onclick=()=>{if(!confirm('종료 화면을 닫고 방송 진행실을 다시 사용할까요? 남은 문제는 그대로 유지됩니다.'))return;showControl.stage='waiting';showControl.armed=false;publishScreen();toast('진행을 재개할 수 있어요. 남은 문제를 다시 선택해주세요.');};
+$('showResume').onclick=()=>{
+ if(!confirm('종료 화면을 닫고 방송 진행실을 다시 사용할까요? 남은 문제는 그대로 유지됩니다.'))return;
+ stopPostReveal();showControl.prepEpoch++;cancelAutoReveal(false);
+ showControl.stage='waiting';showControl.armed=false;
+ publishScreen();
+ toast('세팅 대기로 돌아왔어요. 오프닝·안내사항·규칙 버튼을 다시 사용할 수 있어요.');
+};
+$('showRestartFromTitle').onclick=()=>{
+ if(showControl.stage!=='end')return;
+ if(!confirm('종료 화면에서 오프닝부터 다시 테스트할까요?\n\n진행 중이던 화면과 라운드 카운터만 초기화합니다. 완료된 문제와 저장된 사진은 그대로 보존됩니다.'))return;
+ stopPostReveal();showControl.prepEpoch++;cancelAutoReveal(false);
+ showControl.pending=null;showControl.active=null;showControl.assets=null;
+ showControl.presentedCount=0;showControl.lastPublishedId=null;showControl.round='';
+ showControl.revealStep=0;showControl.revealCount=0;showControl.armed=false;
+ $('showExampleMode').checked=false;
+ showSetStage('title');
+ toast('오프닝부터 다시 테스트할 수 있어요. 완료된 문제는 그대로 보관되며, 진행 대기 문제만 다시 선택할 수 있습니다.');
+};
 $('showTitle').onclick=()=>showSetStage('title');
 $('showEmergency').onclick=()=>{showSetStage('emergency');toast('비상 안전 화면으로 전환했어요. 공개 정보는 모두 숨겼습니다.');};
 $('showStart').onclick=()=>{
@@ -1212,6 +1230,7 @@ if(CREDITS)CREDITS.addEventListener('click',async()=>{
   finally{button.disabled=false}
  };
  $('liveViewerDisconnect').onclick=async()=>{
+  if(!confirm('참가자 중계를 완전히 중단할까요?\n\n참가자 연결이 모두 종료되며, 다시 중계 연결을 누른 뒤 참가자는 새로고침해야 합니다.\n\n단순 종료 화면 전환이나 테스트 재시작에는 중계를 중단할 필요가 없습니다.'))return;
   enabled=false;queued=null;set('enabled','no');
   const u=normalise(urlEl.value),key=keyEl.value.trim(),button=$('liveViewerDisconnect');
   button.disabled=true;label('중계 중단 요청 중 · 새 화면 전송은 중단했어요…');
