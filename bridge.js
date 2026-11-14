@@ -105,9 +105,15 @@
   window.addEventListener('hyundana:request-public-commit', () => {
     if (!conflict) enqueue(window.HyundanaShowAdapter?.getPublicState());
   });
+  // Do NOT republish unchanged scenes on a timer. Local ownership remains
+  // alive through the existing EventSource /api/lease -> /api/ping handshake.
+  // A slow fallback heartbeat only touches localhost; it never triggers a
+  // Cloudflare /publish or a Durable Object write.
   setInterval(() => {
-    if (!conflict) enqueue(window.HyundanaShowAdapter?.getPublicState());
-  }, 2500);
+    if (conflict || !lastGood) return;
+    fetch('/api/ping', {method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({session}),cache:'no-store'}).catch(() => {});
+  }, 10000);
   // The old studio script emits its initial public screen event before bridge.js loads.
   enqueue(window.HyundanaShowAdapter?.getPublicState());
 })();
