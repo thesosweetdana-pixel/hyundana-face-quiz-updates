@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.8.10</title>
 <style>
+/* Distinct broadcast action colors, with the expected MP4 → next question order. */
+.btn.show-first-question{background:#f8c2d8;border-color:#f2afcb;color:#8d2856}
+.btn.show-first-question:hover:enabled{background:#f5aac9}
+.btn.show-next-video{background:#8670cb;border-color:#745abb;color:white}
+.btn.show-next-video:hover:enabled{background:#7259bd}
+.btn.show-next-question{background:#ea5b9c;border-color:#d6478e;color:white}
+.btn.show-next-question:hover:enabled{background:#dc448c}
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
 .ctrl .fine-row input[type="range"]{width:100%;min-width:0;flex:1}
@@ -234,7 +241,7 @@
 <label class="showfield" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showExampleMode" style="width:18px;height:18px"> 이 문제를 예시 문제로 공개 (ROUND 제외 · 정답 공개 후 진행 완료)</label>
    <div class="show-buttons"><button class="btn" id="showPrepare">선택 문제 준비</button><button class="btn" id="showPrepareNext" hidden>기존 다음 준비</button></div>
    <div class="show-alert" id="showPreparedInfo">현재 준비된 문제가 없습니다.</div>
-   <div class="show-buttons"><button class="btn primary" id="showStart">▶ 준비한 문제 공개</button><button class="btn primary" id="showAdvanceQuestion">▶ 다음 문제 공개</button><button class="btn primary" id="showNextWithVideo">▶ 다음 문제 준비중 MP4</button><button class="btn" id="showVideoTest" hidden>영상 테스트</button></div>
+   <div class="show-buttons"><button class="btn show-first-question" id="showStart">▶ 준비한 문제 공개</button><button class="btn show-next-video" id="showNextWithVideo">▶ 다음 문제 준비중 MP4</button><button class="btn show-next-question" id="showAdvanceQuestion">▶ 다음 문제 공개</button><button class="btn" id="showVideoTest" hidden>영상 테스트</button></div>
    <hr style="border:0;border-top:1px solid #e8eaf2;margin:16px 0">
    <h3>② 정답 자동 공개</h3>
    <div class="show-buttons"><button class="btn" id="showArm">🔒 정답 공개 준비</button><button class="btn primary" id="showReveal">▶ 정답 자동 재생</button><button class="btn" id="showPause" disabled>⏸ 일시정지</button><button class="btn" id="showStop" disabled>■ 공개 중단</button></div>
