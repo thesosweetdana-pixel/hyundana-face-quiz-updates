@@ -181,6 +181,11 @@
          const res=await fetch('/access/status',{credentials:'same-origin',cache:'no-store'});
          if(res.ok){
            const access=await res.json();
+           if(access.stopped){
+             remoteStatus='relay-stopped';
+             signal('진행자가 중계를 중단했어요. 재개 안내를 받은 뒤 새로고침해 주세요.');
+             return;
+           }
            if(access.required&&!access.ok){
              remoteStatus='reauth-required';
              signal('입장코드가 변경되었거나 인증이 만료되었어요. 새로고침 후 다시 입장해 주세요.');
