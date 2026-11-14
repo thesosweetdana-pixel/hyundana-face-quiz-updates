@@ -1,7 +1,7 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.10",
-  "notes": "30명 이상 무료 동시 시청 최적화: WebSocket 푸시 유지, 방송 전용 사진은 고화질 WebP로 압축 전송(저장 사진 보존), 끊김 시 마지막 정상 화면 유지·자동 재연결, 참가자 접속 수·필수 PNG/MP4 등록 사전 점검 버튼 추가. Cloudflare 무료 한도 초기화 후 실제 동시 테스트 필요.",
+  "version": "1.8.11",
+  "notes": "무료 요청량 보완: 진행실에서 변경되지 않은 화면을 2.5초마다 중복 발행하던 동작 삭제. 로컬 연결 유지 전용 가벼운 ping은 10초 간격. 참가자 기존 HTTP 폴링은 Cloudflare에서 410 차단, WebSocket만 사용. 기존 사진/문제 데이터는 변경 없음. 외부 30명 동시 테스트는 별도 필요.",
   "files": [
     {
       "path": "studio.html",
@@ -21,7 +21,7 @@
     {
       "path": "bridge.js",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/bridge.js",
-      "sha256": "e296000234f73bdbc79835e46d083e09f0aa7a7827b37c90e9ea4e76e27d5a91"
+      "sha256": "c17c1bc97ce7cba8156e58e63a1766e082d8b84aac29668b5240b3c26a453b14"
     }
   ]
 }
