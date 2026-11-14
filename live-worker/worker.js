@@ -1,4 +1,5 @@
 // Cloudflare Worker / Durable Object: public read-only quiz output.
+// Deployment refresh: low-latency spectator polling and cached state, 2026-11-14.
 // Set PUBLISH_TOKEN with: npx wrangler secret put PUBLISH_TOKEN
 // Only the host browser can publish; viewers can read the current disclosed state.
 const headers={"Cache-Control":"no-store","X-Content-Type-Options":"nosniff","Referrer-Policy":"no-referrer"};
@@ -21,6 +22,8 @@ async function readSharedState(room){
 }
 const cors=o=>({...headers,...(originAllowed(o)?{"Access-Control-Allow-Origin":o,"Vary":"Origin","Access-Control-Allow-Headers":"authorization,content-type,x-show-session,x-local-revision","Access-Control-Allow-Methods":"POST,OPTIONS"}:{})});
 const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{...headers,"Content-Type":"application/json;charset=utf-8",...extra}});
+const sessionCookie=request=>{const m=(request.headers.get("Cookie")||"").match(/(?:^|;\\s*)quiz_session=([a-f0-9]{64})(?:;|$)/);return m?m[1]:"";};
+const accessPage=`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아의 뉴뀨? · 참가자 입장</title><style>*{box-sizing:border-box}body{margin:0;background:#f8f5ff;min-height:100vh;display:grid;place-items:center;font-family:system-ui,"Malgun Gothic",sans-serif;color:#40325d}.card{width:min(94vw,410px);background:white;border:2px solid #f1d8ec;border-radius:23px;padding:30px;box-shadow:0 18px 52px #39235718}h1{font-size:24px;margin:0 0 10px;color:#c84d91}p{font-size:14px;color:#746987}input,button{width:100%;font-size:18px;border-radius:12px;padding:14px;margin-top:12px}input{border:2px solid #e8d9ec}button{border:0;background:#ee9ac4;color:#501d42;font-weight:bold;cursor:pointer}#msg{min-height:32px;color:#b33259;font-size:14px}</style></head><body><div class="card"><h1>🐣 현단아의 뉴뀨?</h1><p>참가자 전용 입장코드를 입력해 주세요.</p><form id="form"><input id="code" type="password" autocomplete="off" maxlength="32" placeholder="입장코드" required autofocus><button id="enter" type="submit">참가자 화면 입장</button><p id="msg" role="alert"></p></form></div><script>document.getElementById("form").addEventListener("submit",async e=>{e.preventDefault();const b=document.getElementById("enter"),msg=document.getElementById("msg");b.disabled=true;msg.textContent="확인 중…";try{const r=await fetch("/access/login",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"same-origin",body:JSON.stringify({code:document.getElementById("code").value})});const d=await r.json();if(r.ok&&d.ok){location.replace("/obs");return}msg.textContent=d.error||"입장할 수 없어요."}catch(e){msg.textContent="연결에 실패했어요. 다시 시도해 주세요."}finally{b.disabled=false}});</script></body></html>`;
 const empty={stage:"waiting",round:"",image:null,revealed:[],focus:null,revealStep:0,revealTotal:0};
 function cleanState(raw){
  if(!raw||!["waiting","title","notice","rules","question","reveal","summary","emergency","end"].includes(raw.stage))return empty;
@@ -30,9 +33,56 @@ function cleanState(raw){
  focus:raw.stage==="reveal"&&raw.focus?{slot:String(raw.focus.slot||""),name:String(raw.focus.name||"").slice(0,90),source:String(raw.focus.source||"").slice(0,300)}:null,revealStep:Number(raw.revealStep)||0,revealTotal:Number(raw.revealTotal)||0};
 }
 export class QuizRoom{
- constructor(ctx,env){this.ctx=ctx;this.env=env;this.cachedState=null;this.cachedUpdated=null;}
+ constructor(ctx,env){this.ctx=ctx;this.env=env;this.cachedState=null;this.cachedUpdated=null;this.viewerConfig=undefined;this.loginFailures=new Map();}
+ async getViewerConfig(){if(this.viewerConfig===undefined)this.viewerConfig=await this.ctx.storage.get("viewer:config")||null;return this.viewerConfig;}
+ async viewerAllowed(token){
+  const cfg=await this.getViewerConfig();if(!cfg)return true;
+  if(!/^[a-f0-9]{64}$/.test(token||""))return false;
+  const session=await this.ctx.storage.get("viewer:session:"+token);
+  return !!session&&session.epoch===cfg.epoch&&session.expires>Date.now();
+ }
+ async codeHash(code,salt){
+  const bytes=new TextEncoder().encode(salt+":"+code);
+  const digest=new Uint8Array(await crypto.subtle.digest("SHA-256",bytes));
+  return Array.from(digest,b=>b.toString(16).padStart(2,"0")).join("");
+ }
  async fetch(request){
   const u=new URL(request.url);
+  if(request.method==="POST"&&u.pathname==="/access/config"){
+   let p;try{p=await request.json()}catch{return json({error:"invalid json"},400)}
+   const code=String(p?.code||"").trim();
+   if(code.length<4||code.length>32)return json({error:"입장코드는 4~32자로 입력해 주세요."},400);
+   const salt=crypto.randomUUID(),epoch=crypto.randomUUID();
+   const hash=await this.codeHash(code,salt);
+   const cfg={salt,hash,epoch};await this.ctx.storage.put("viewer:config",cfg);this.viewerConfig=cfg;
+   for(const socket of this.ctx.getWebSockets())try{socket.close(1008,"Access code updated")}catch(_){}
+   return json({ok:true,protected:true});
+  }
+  if(request.method==="GET"&&u.pathname==="/access/check"){
+   const cfg=await this.getViewerConfig();
+   const ok=await this.viewerAllowed(request.headers.get("X-Viewer-Session")||"");
+   return json({required:!!cfg,ok});
+  }
+  if(request.method==="POST"&&u.pathname==="/access/login"){
+   const cfg=await this.getViewerConfig();
+   if(!cfg)return json({ok:true,unlocked:true});
+   const ip=String(request.headers.get("X-Viewer-IP")||"unknown").slice(0,90);
+   const f=this.loginFailures.get(ip),now=Date.now();
+   if(f&&f.until>now)return json({error:"입력 횟수 제한 중입니다. 30초 후 다시 시도해 주세요.",retryAfter:Math.ceil((f.until-now)/1000)},429);
+   let body;try{body=await request.json()}catch{return json({error:"invalid json"},400)}
+   const code=String(body?.code||"").trim();
+   const hash=await this.codeHash(code,cfg.salt);
+   if(hash!==cfg.hash){
+    const count=((f&&now-f.since<300000)?f.count:0)+1;
+    this.loginFailures.set(ip,{count,since:count===1?now:f.since,until:count>=5?now+30000:0});
+    if(count>=5)return json({error:"5회 틀렸어요. 30초 뒤에 다시 입력할 수 있어요.",retryAfter:30},429);
+    return json({error:"입장코드가 올바르지 않아요. 다시 입력해 주세요.",attempts:count},401);
+   }
+   this.loginFailures.delete(ip);
+   const token=Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,"0")).join("");
+   await this.ctx.storage.put("viewer:session:"+token,{expires:now+86400000,epoch:cfg.epoch});
+   return json({ok:true,token});
+  }
   if(request.method==="GET"&&u.pathname==="/preflight"){
    const names=["standby.webp","intro.webp","notice.png","rules.png","question.webp","answer.webp","next.mp4","end.webp"];
    const assetMetas=await Promise.all(names.map(n=>this.ctx.storage.get("asset:"+n+":meta")));
@@ -44,6 +94,7 @@ export class QuizRoom{
    return json({online:this.ctx.getWebSockets().length,transport:"websocket",release:"1.8.10"});
   }
   if(request.method==="GET"&&u.pathname==="/socket"&&request.headers.get("Upgrade")?.toLowerCase()==="websocket"){
+   if(!await this.viewerAllowed(request.headers.get("X-Viewer-Session")||""))return json({error:"입장코드 인증이 필요합니다."},401);
    const pair=new WebSocketPair();
    const [client,server]=Object.values(pair);
    this.ctx.acceptWebSocket(server);
@@ -94,6 +145,7 @@ export class QuizRoom{
    return json({ok:true,name,size:bytes.length});
   }
   if(request.method==="GET"&&u.pathname.startsWith("/asset/")){
+   if(!await this.viewerAllowed(request.headers.get("X-Viewer-Session")||""))return json({error:"입장코드 인증이 필요합니다."},401);
    const name=u.pathname.split("/").pop(),meta=await this.ctx.storage.get("asset:"+name+":meta");
    if(!meta)return new Response("missing asset",{status:404});
    const bytes=new Uint8Array(meta.size);
@@ -156,6 +208,20 @@ export default {
    }
   }
   const room=env.ROOM.get(env.ROOM.idFromName("live"));
+  const viewerSession=sessionCookie(request);
+  if(u.pathname==="/access/config"){
+   if(request.method!=="POST"||!originAllowed(origin)||!env.PUBLISH_TOKEN||request.headers.get("Authorization")!=="Bearer "+env.PUBLISH_TOKEN)return json({error:"진행자 인증이 필요합니다."},401,cors(origin));
+   const r=await room.fetch(new Request("https://room/access/config",{method:"POST",body:request.body,headers:{"Content-Type":"application/json"}}));
+   return new Response(r.body,{status:r.status,headers:{...cors(origin),"Content-Type":"application/json;charset=utf-8"}});
+  }
+  if(u.pathname==="/access/login"){
+   if(request.method!=="POST")return json({error:"not allowed"},405);
+   const r=await room.fetch(new Request("https://room/access/login",{method:"POST",body:request.body,headers:{"Content-Type":"application/json","X-Viewer-IP":request.headers.get("CF-Connecting-IP")||"unknown"}}));
+   const d=await r.json();
+   if(!r.ok)return json(d,r.status);
+   const extra=d.token?{"Set-Cookie":"quiz_session="+d.token+"; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400"}:{};
+   return json({ok:true},200,extra);
+  }
   if(u.pathname==="/publish"){
    if(request.method!=="POST")return json({error:"not allowed"},405);
    if(!originAllowed(origin))return json({error:"invalid origin"},403);
@@ -177,7 +243,7 @@ export default {
   }
   if(u.pathname==="/stream"){
    if(request.headers.get("Upgrade")?.toLowerCase()!=="websocket")return json({error:"WebSocket upgrade required"},426);
-   try{return await room.fetch(new Request("https://room/socket",{headers:{"Upgrade":"websocket"}}))}
+   try{return await room.fetch(new Request("https://room/socket",{headers:{"Upgrade":"websocket","X-Viewer-Session":viewerSession}}))}
    catch(e){return json({error:"WebSocket room unavailable"},503)}
   }
   if(u.pathname==="/preflight"){
@@ -197,6 +263,9 @@ export default {
   if(u.pathname==="/state"||u.pathname==="/api/public")
     return json({error:"legacy HTTP polling disabled; reload /obs for WebSocket"},410);
   if(u.pathname==="/obs"){
+   const access=await room.fetch(new Request("https://room/access/check",{headers:{"X-Viewer-Session":viewerSession}}));
+   const a=await access.json();
+   if(!a.ok)return new Response(accessPage,{headers:{...headers,"Content-Type":"text/html;charset=utf-8"}});
    try{
     const upstream=await fetch("https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",{cf:{cacheTtl:0,cacheEverything:true}});
     if(upstream.ok){
@@ -217,8 +286,10 @@ export default {
   }
   if(u.pathname==="/"||u.pathname==="/watch")return Response.redirect(new URL("/obs",u.origin).toString(),302);
   if(u.pathname.startsWith("/assets/")){
-   let remote;try{remote=await room.fetch(new Request("https://room/asset/"+u.pathname.split("/").pop(),{headers:{"Range":request.headers.get("Range")||""}}));}catch(e){return new Response("Cloudflare room temporarily unavailable",{status:503,headers});}
+   let remote;try{remote=await room.fetch(new Request("https://room/asset/"+u.pathname.split("/").pop(),{headers:{"Range":request.headers.get("Range")||"","X-Viewer-Session":viewerSession}}));}catch(e){return new Response("Cloudflare room temporarily unavailable",{status:503,headers});}
    if(remote.status!==404)return remote;
+   const chk=await room.fetch(new Request("https://room/access/check",{headers:{"X-Viewer-Session":viewerSession}}));
+   if(!(await chk.json()).ok)return json({error:"입장코드 인증이 필요합니다."},401);
    return env.ASSETS?env.ASSETS.fetch(request):new Response("asset not installed",{status:404});
   }
   return new Response("Not found",{status:404});
