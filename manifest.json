@@ -1,22 +1,22 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.9",
-  "notes": "무료 실시간 중계 개선: 참가자 화면에 WebSocket 실시간 푸시 적용(빈번한 폴링 제거), 안내사항·게임 규칙 PNG를 자료 동기화에 포함. 기존 문제·사진 유지. Cloudflare Worker도 최신 코드 자동 배포되어야 하며 초과한 일일 무료 한도는 한국시간 오전 9시 초기화.",
+  "version": "1.8.10",
+  "notes": "30명 이상 무료 동시 시청 최적화: WebSocket 푸시 유지, 방송 전용 사진은 고화질 WebP로 압축 전송(저장 사진 보존), 끊김 시 마지막 정상 화면 유지·자동 재연결, 참가자 접속 수·필수 PNG/MP4 등록 사전 점검 버튼 추가. Cloudflare 무료 한도 초기화 후 실제 동시 테스트 필요.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "285cf84ec65ad88fb99067e30ff470947a6562e2c7de0864336e092989f9f17a"
+      "sha256": "4a3c94f84b907d0977c468f6d1e91417fa20b1789354747393a71d0196d1aa3b"
     },
     {
       "path": "server.py",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
-      "sha256": "84ed445b3feb95df5f6dc332a6ecc114da5df5b96939b9de948ceaa820f4f3fc"
+      "sha256": "aaf342c3860dca61ffd5220fb719f0493d53a5016993c547a7abb405568d8863"
     },
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "4255e5d009b6d08b5443d2f2faea1343e43a9df4b62ea1397d723bb3df0ccd0b"
+      "sha256": "b4235f02898e928e0867c716efec67fd7ef96c1990258ba0b4b74f1e34dfbfa5"
     },
     {
       "path": "bridge.js",
