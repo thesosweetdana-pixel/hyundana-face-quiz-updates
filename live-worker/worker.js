@@ -27,6 +27,27 @@ export class QuizRoom{
    await this.ctx.storage.put("updated",Date.now());
    return json({ok:true});
   }
+  if(request.method==="POST"&&u.pathname==="/asset"){
+   const name=u.searchParams.get("name")||"";
+   if(!["question.webp","answer.webp","next.mp4","standby.webp","intro.webp","end.webp"].includes(name))return json({error:"unsupported asset"},400);
+   const bytes=new Uint8Array(await request.arrayBuffer());
+   if(bytes.length<8||bytes.length>20000000)return json({error:"asset size limit"},413);
+   const parts=Math.ceil(bytes.length/700000);
+   for(let i=0;i<parts;i++)await this.ctx.storage.put("asset:"+name+":"+i,bytes.slice(i*700000,(i+1)*700000));
+   await this.ctx.storage.put("asset:"+name+":meta",{size:bytes.length,count:parts});
+   return json({ok:true,name,size:bytes.length});
+  }
+  if(request.method==="GET"&&u.pathname.startsWith("/asset/")){
+   const name=u.pathname.split("/").pop(),meta=await this.ctx.storage.get("asset:"+name+":meta");
+   if(!meta)return new Response("missing asset",{status:404});
+   const bytes=new Uint8Array(meta.size);
+   for(let i=0;i<meta.count;i++){const part=await this.ctx.storage.get("asset:"+name+":"+i);if(!part)return new Response("asset unavailable",{status:503});bytes.set(part,i*700000);}
+   const match=(request.headers.get("Range")||"").match(/^bytes=(\\d+)-(\\d*)$/);
+   const start=match?Number(match[1]):0,end=match?(match[2]?Math.min(bytes.length-1,Number(match[2])):bytes.length-1):bytes.length-1;
+   if(start>=bytes.length||end<start)return new Response(null,{status:416,headers:{"Content-Range":"bytes */"+bytes.length}});
+   const type=name.endsWith(".mp4")?"video/mp4":"image/webp";
+   return new Response(bytes.slice(start,end+1),{status:match?206:200,headers:{"Content-Type":type,"Accept-Ranges":"bytes","Content-Range":match?"bytes "+start+"-"+end+"/"+bytes.length:undefined,"Content-Length":String(end-start+1),"Cache-Control":"public, max-age=3600"}});
+  }
   const count=await this.ctx.storage.get("count")||0;let state=empty;
   if(count){const parts=[];for(let i=0;i<count;i++)parts.push(await this.ctx.storage.get("part:"+i)||"");try{state=JSON.parse(parts.join(""))}catch{state=empty}}
   const updated=await this.ctx.storage.get("updated")||0;
@@ -50,7 +71,7 @@ fetch('/assets/next.mp4',{method:'HEAD'}).then(r=>{if(r.ok){vid.src='/assets/nex
 export default {
  async fetch(request,env){
   const u=new URL(request.url),origin=request.headers.get("Origin")||"";
-  if(request.method==="OPTIONS"&&u.pathname==="/publish")return new Response(null,{status:204,headers:cors(origin)});
+  if(request.method==="OPTIONS"&&(u.pathname==="/publish"||u.pathname==="/upload"))return new Response(null,{status:204,headers:cors(origin)});
   const room=env.ROOM.get(env.ROOM.idFromName("live"));
   if(u.pathname==="/publish"){
    if(request.method!=="POST")return json({error:"not allowed"},405);
@@ -59,9 +80,34 @@ export default {
    const response=await room.fetch(new Request("https://room/publish",{method:"POST",body:request.body,headers:{"Content-Type":"application/json"}}));
    return new Response(response.body,{status:response.status,headers:{...cors(origin),"Content-Type":"application/json"}});
   }
+  if(u.pathname==="/upload"){
+   if(request.method!=="POST"||!originAllowed(origin)||!env.PUBLISH_TOKEN||request.headers.get("Authorization")!=="Bearer "+env.PUBLISH_TOKEN)return json({error:"unauthorized"},401,cors(origin));
+   const name=u.searchParams.get("name")||"";
+   const response=await room.fetch(new Request("https://room/asset?name="+encodeURIComponent(name),{method:"POST",body:request.body}));
+   return new Response(response.body,{status:response.status,headers:{...cors(origin),"Content-Type":"application/json"}});
+  }
   if(u.pathname==="/state")return room.fetch("https://room/state");
-  if(u.pathname==="/"||u.pathname==="/watch")return new Response(VIEWER,{headers:{...headers,"Content-Type":"text/html;charset=utf-8"}});
-  if(u.pathname.startsWith("/assets/"))return env.ASSETS?env.ASSETS.fetch(request):new Response("asset not installed",{status:404});
+  if(u.pathname==="/api/public"){
+   const r=await room.fetch("https://room/state"),data=await r.json();
+   const rev=String(data.updated||0),same=u.searchParams.get("rev")===rev;
+   return json(same?{revision:rev,unchanged:true,connected:true}:{revision:rev,unchanged:false,connected:true,state:data.state||empty});
+  }
+  if(u.pathname==="/obs"){
+   try{
+    const upstream=await fetch("https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",{cf:{cacheTtl:300,cacheEverything:true}});
+    if(upstream.ok){
+     const html=(await upstream.text()).replace("setTimeout(poll,350)","setTimeout(poll,1200)");
+     return new Response(html,{headers:{...headers,"Content-Type":"text/html;charset=utf-8"}});
+    }
+   }catch(_){}
+   return new Response(VIEWER,{headers:{...headers,"Content-Type":"text/html;charset=utf-8"}});
+  }
+  if(u.pathname==="/"||u.pathname==="/watch")return Response.redirect(new URL("/obs",u.origin).toString(),302);
+  if(u.pathname.startsWith("/assets/")){
+   const remote=await room.fetch(new Request("https://room/asset/"+u.pathname.split("/").pop(),{headers:{"Range":request.headers.get("Range")||""}}));
+   if(remote.status!==404)return remote;
+   return env.ASSETS?env.ASSETS.fetch(request):new Response("asset not installed",{status:404});
+  }
   return new Response("Not found",{status:404});
  }
 };
