@@ -89,6 +89,17 @@ export default {
   const u=new URL(request.url),origin=request.headers.get("Origin")||"";
   if(request.method==="OPTIONS"&&(u.pathname==="/publish"||u.pathname==="/upload"))return new Response(null,{status:204,headers:cors(origin)});
   if(u.pathname==="/health")return json({ok:true,release:"1.8.6",requiresLocalAck:true});
+  if(u.pathname==="/diagnostics"){
+   try{
+    if(!env.ROOM)return json({ok:false,release:"1.8.8-diagnostics",component:"ROOM",issue:"binding-missing"},503);
+    const room=env.ROOM.get(env.ROOM.idFromName("live"));
+    const r=await room.fetch("https://room/state");
+    return json({ok:r.ok,release:"1.8.8-diagnostics",component:"ROOM",status:r.status},r.ok?200:503);
+   }catch(err){
+    const detail=String(err?.message||err).slice(0,220);
+    return json({ok:false,release:"1.8.8-diagnostics",component:"ROOM",error:detail},503);
+   }
+  }
   const room=env.ROOM.get(env.ROOM.idFromName("live"));
   if(u.pathname==="/publish"){
    if(request.method!=="POST")return json({error:"not allowed"},405);
