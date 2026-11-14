@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.8.4</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.8.5</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -119,7 +119,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.8.4</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.8.5</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -251,6 +251,10 @@
     <div id="showFocusedSource" class="show-small" hidden></div><div id="showImageStack" class="show-image-stack" hidden><img id="showMainImagePrev" class="broadcast-img" alt="" hidden><img id="showMainImage" class="broadcast-img" alt="합성 문제 화면" hidden></div><div id="showFocusedName" style="font-weight:800;color:#4b276e" hidden></div>
 
    </div>
+   <div class="show-private-summary" style="margin:14px 0 18px">
+   <h3>④ 진행자 전용 정답</h3>
+   <div class="show-private" id="showPrivateAnswers">문제를 준비하면 이곳에만 정답이 표시됩니다.</div>
+   </div>
    <div class="show-output-status"><span class="show-output-dot" id="showOutputDot"></span><span class="show-small" id="showOutputStatus">OBS 최종 디자인으로 미리보기 표시 중</span></div><div class="show-output-status" style="gap:8px;flex-wrap:wrap;align-items:center"><span class="show-small" id="obsRelayIndicator">OBS 로컬 연결 확인 중…</span><button class="btn" id="obsOpen" style="height:32px">OBS 화면 열기</button><button class="btn" id="obsRefresh" style="height:32px">↻ 미리보기 새로고침</button><button class="btn" id="obsCopy" style="height:32px">OBS 주소 복사</button><button class="btn" id="obsDiagnose" style="height:32px">OBS 연결 진단</button><button class="btn" id="obsTakeover" style="height:32px" hidden>송출 제어권 가져오기</button></div>
 <details class="show-extras" style="margin:12px 0"><summary>🌐 참가자 실시간 화면 공유 설정 (15명 보기 전용)</summary>
 <div class="show-alert" style="margin:10px 0">Cloudflare에 참가자용 중계 서버를 배포한 다음 연결해 주세요. 127.0.0.1은 참가자에게 공유하지 않습니다.</div>
@@ -261,9 +265,6 @@
 <div id="liveViewerStatus" class="show-alert" aria-live="polite">참가자용 중계 서버가 아직 연결되지 않았어요.</div>
 </details>
    <div class="show-alert" id="obsDiagnosticResult" hidden aria-live="polite"></div><div class="show-alert">OBS 브라우저 소스 주소는 http://127.0.0.1:8765/obs 입니다. 위 미리보기는 같은 OBS 화면을 축소해서 보여줍니다. 사진·글씨가 프레임과 어긋나면 새 버전을 적용한 뒤 「미리보기 새로고침」을 누르세요. 실제 OBS 브라우저 소스는 OBS 안에서도 새로고침해야 합니다. 이미지가 안 나오면 assets 폴더의 설치 파일을 확인하세요.</div>
-   <hr style="border:0;border-top:1px solid #e8eaf2;margin:16px 0">
-   <h3>④ 진행자 전용 정답</h3>
-   <div class="show-private" id="showPrivateAnswers">문제를 준비하면 이곳에만 정답이 표시됩니다.</div>
   </section>
   <aside class="show-card show-side"><h3>진행 완료된 문제</h3><div id="showCompletedList" class="completed-list">아직 완료된 문제가 없어요.</div><hr style="border:0;border-top:1px solid #e8eaf2;margin:16px 0"><h3>진행 체크</h3>
    <div class="show-alert" id="showRuntimeState">대기 · 아직 선택된 문제가 없습니다.</div>
