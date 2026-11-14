@@ -86,7 +86,12 @@
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         conflict = false;
         keepControllerAlive();
+        const acknowledged = await response.json();
         lastGood = Date.now();
+        // External viewers receive only the exact scene accepted by the local OBS owner.
+        // Inactive/stale studio tabs cannot overwrite the remote scene.
+        window.dispatchEvent(new CustomEvent('hyundana:local-public-committed',
+          {detail:{state:payload,revision:acknowledged.revision,session}}));
         label('OBS 로컬 연결 정상 · 진행실 공개 정보만 전달 중', '#207b63');
       } catch (err) {
         label('OBS 연결 끊김 · 서버 실행 여부를 확인하세요.', '#be4b4b');
@@ -96,6 +101,10 @@
     sending = false;
   }
   window.addEventListener('hyundana:public-screen', (ev) => enqueue(ev.detail));
+  // A manual spectator Connect can request an immediate local commit; never bypass ownership.
+  window.addEventListener('hyundana:request-public-commit', () => {
+    if (!conflict) enqueue(window.HyundanaShowAdapter?.getPublicState());
+  });
   setInterval(() => {
     if (!conflict) enqueue(window.HyundanaShowAdapter?.getPublicState());
   }, 2500);
