@@ -261,7 +261,7 @@
 <div class="show-alert" style="margin:10px 0">외부 참가자는 Cloudflare HTTPS 주소로 시청합니다. 재부팅 후 중계 오류가 표시되면 연결 상태를 확인해 주세요.</div>
 <label class="showfield">참가자용 HTTPS 주소 <input id="liveViewerUrl" type="url" placeholder="https://hyundana-quiz-live.계정.workers.dev" autocomplete="url"></label>
 <label class="showfield">진행자 전용 중계 비밀키 <input id="liveViewerToken" type="password" placeholder="Cloudflare에 등록한 PUBLISH_TOKEN" autocomplete="off"></label>
-<div class="show-buttons"><button class="btn primary" type="button" id="liveViewerConnect">중계 연결</button><button class="btn" type="button" id="liveViewerUpload">방송 화면 이미지·MP4 동기화</button><button class="btn" type="button" id="liveViewerDisconnect">중계 중단</button><button class="btn" type="button" id="liveViewerCopy">참가자 주소 복사</button></div>
+<div class="show-buttons"><button class="btn primary" type="button" id="liveViewerConnect">중계 연결</button><button class="btn" type="button" id="liveViewerUpload">방송 화면 이미지·MP4 동기화</button><button class="btn" type="button" id="liveViewerDisconnect">중계 중단</button><button class="btn" type="button" id="liveViewerCopy">참가자 주소 복사</button><button class="btn" type="button" id="liveViewerPreflight">30명 방송 전 점검</button></div>
 <div class="show-buttons"><label class="btn" style="cursor:pointer">안내사항 PNG 올리기 <input id="noticePosterFile" type="file" accept="image/png" hidden></label><label class="btn" style="cursor:pointer">게임 규칙 PNG 올리기 <input id="rulesPosterFile" type="file" accept="image/png" hidden></label></div>
 <div id="liveViewerStatus" class="show-alert" aria-live="polite">참가자용 중계 서버가 아직 연결되지 않았어요.</div>
 </details>
@@ -1192,6 +1192,27 @@ if(CREDITS)CREDITS.addEventListener('click',async()=>{
   label('로컬 OBS 승인 확인 중…');window.dispatchEvent(new Event('hyundana:request-public-commit'));
  };
  $('liveViewerDisconnect').onclick=()=>{enabled=false;queued=null;set('enabled','no');label('참가자 화면으로 보내는 연결을 중단했어요. (마지막 화면이 남을 수 있습니다.)')};
+ $('liveViewerPreflight').onclick=async()=>{
+  const u=normalise(urlEl.value);if(!u){label('참가자 HTTPS 주소부터 확인해 주세요.');return;}
+  const btn=$('liveViewerPreflight');btn.disabled=true;label('참가자 서버·화면 이미지·현재 접속자 확인 중…');
+  try{
+   const [healthRes,testRes]=await Promise.all([
+    fetch(u+'/health',{cache:'no-store'}),
+    fetch(u+'/preflight',{cache:'no-store'})
+   ]);
+   if(!healthRes.ok)throw Error('공개 서버 HTTP '+healthRes.status);
+   const h=await healthRes.json();
+   if(!testRes.ok)throw Error('중계 서버 HTTP '+testRes.status+' · Durable Objects 무료 한도 또는 설정 확인');
+   const test=await testRes.json();
+   const missing=(test.assets||[]).filter(x=>!x.installed).map(x=>x.name);
+   const critical=['standby.webp','intro.webp','notice.png','rules.png','next.mp4'].filter(n=>missing.includes(n));
+   label('참가자 중계 사전 점검: '+(h.transport==='websocket'?'WebSocket 정상':'중계 버전 확인 필요')
+    +' · 현재 접속 '+(test.online??'?')+'명 · 필수 화면 '+(critical.length?'누락: '+critical.join(', '):'등록 완료')
+    +(missing.length?' · 기타 확인: '+missing.filter(n=>!critical.includes(n)).join(', '):'')
+    +' · 실제 화면 전환과 30명 동시 테스트는 별도로 확인 필요');
+  }catch(e){label('참가자 중계 점검 실패: '+e.message+' · 현재 연결은 정상이라고 판단할 수 없어요.')}
+  finally{btn.disabled=false}
+ };
  $('liveViewerCopy').onclick=async()=>{
   const u=normalise(urlEl.value);if(!u){label('먼저 HTTPS 중계 주소를 입력해주세요.');return;}
   try{await navigator.clipboard.writeText(u+'/obs');label('참가자 링크 복사 완료: '+u+'/obs')}catch{prompt('참가자 링크 복사',u+'/obs')}
