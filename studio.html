@@ -231,7 +231,7 @@
 <button class="btn" id="showMainGame">▶ 본게임 시작 · 라운드 초기화</button>
 <button class="btn" id="showEnd" style="border-color:#d77a95;color:#ac335e;font-weight:900">감사합니다 · 종료 화면</button>
 <button class="btn" id="showResume" hidden>↩ 종료 취소 · 진행 재개</button>
-<button class="btn primary" id="showRestartFromTitle" hidden>↻ 오프닝부터 다시 테스트</button>
+<button class="btn primary" id="showRestartFromTitle" hidden>↻ 전체 진행 초기화 · 세팅 대기부터 다시 시작</button>
 </div><p class="show-small">정답 공개 후에도 화면을 유지해요. 다음 문제 대기 영상·다음 문제 공개·감사합니다 화면은 진행자가 선택합니다.</p></section>
  <div class="show-main">
   <section class="show-card">
@@ -943,16 +943,37 @@ $('showResume').onclick=()=>{
  publishScreen();
  toast('세팅 대기로 돌아왔어요. 오프닝·안내사항·규칙 버튼을 다시 사용할 수 있어요.');
 };
-$('showRestartFromTitle').onclick=()=>{
- if(showControl.stage!=='end')return;
- if(!confirm('종료 화면에서 오프닝부터 다시 테스트할까요?\n\n진행 중이던 화면과 라운드 카운터만 초기화합니다. 완료된 문제와 저장된 사진은 그대로 보존됩니다.'))return;
- stopPostReveal();showControl.prepEpoch++;cancelAutoReveal(false);
- showControl.pending=null;showControl.active=null;showControl.assets=null;
- showControl.presentedCount=0;showControl.lastPublishedId=null;showControl.round='';
- showControl.revealStep=0;showControl.revealCount=0;showControl.armed=false;
- $('showExampleMode').checked=false;
- showSetStage('title');
- toast('오프닝부터 다시 테스트할 수 있어요. 완료된 문제는 그대로 보관되며, 진행 대기 문제만 다시 선택할 수 있습니다.');
+$('showRestartFromTitle').onclick=async()=>{
+ if(showControl.stage!=='end'||showControl.preparing)return;
+ const episode=showEpisode;
+ const all=await allStored().catch(e=>{toast('진행 문제 확인 실패: '+e.message);return null});
+ if(!all)return;
+ const completed=all.filter(e=>episodeOf(e)===episode&&e.status==='done');
+ if(!confirm(episode+'회차 방송 진행 상태를 완전히 초기화할까요?\n\n• 화면은 ① 세팅 대기로 돌아갑니다.\n• 완료된 '+completed.length+'개 문제는 모두 진행 대기로 되돌립니다.\n• 예시 문제 표시, 라운드 번호, 현재 문제와 정답 공개 진행 상태를 초기화합니다.\n• 제작한 문제, 사진 원본, 다른 회차는 삭제하거나 변경하지 않습니다.'))return;
+ const button=$('showRestartFromTitle');button.disabled=true;
+ showControl.preparing=true;showUpdateControls();
+ try{
+  const now=new Date().toISOString();
+  for(const entry of completed){
+   entry.status=requiredForReady(entry.project)?'draft':'ready';
+   delete entry.completedAt;delete entry.wasExample;entry.updatedAt=now;
+   await putStored(entry);
+   if(activeProjectId===entry.id)currentStatus=entry.status;
+  }
+  stopPostReveal();showControl.prepEpoch++;cancelAutoReveal(false);
+  showControl.pending=null;showControl.active=null;showControl.assets=null;
+  showControl.presentedCount=0;showControl.lastPublishedId=null;showControl.round='';
+  showControl.revealStep=0;showControl.revealCount=0;showControl.armed=false;
+  showControl.pendingExampleOnPublish=null;
+  $('showExampleMode').checked=false;
+  showControl.stage='waiting';
+  await refreshManager();await refreshShowQueue();
+  publishScreen();
+  toast('전체 초기화 완료 · ① 세팅 대기 · '+completed.length+'개 완료 문제 다시 진행 가능 · 라운드 01부터 시작');
+ }catch(e){
+  toast('초기화 저장 오류: '+e.message+' · 남은 문제 상태 확인 후 다시 시도해주세요.');
+  await refreshManager();await refreshShowQueue();
+ }finally{showControl.preparing=false;button.disabled=false;showUpdateControls();}
 };
 $('showTitle').onclick=()=>showSetStage('title');
 $('showEmergency').onclick=()=>{showSetStage('emergency');toast('비상 안전 화면으로 전환했어요. 공개 정보는 모두 숨겼습니다.');};
