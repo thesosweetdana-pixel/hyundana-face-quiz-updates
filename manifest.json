@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.14",
-  "notes": "중계 중단 버튼이 Cloudflare Durable Object의 연결 중단 플래그를 설정해 모든 참가자 WebSocket 종료, 새 WebSocket/미디어 요청/화면 발행 차단. 참가자는 화면을 새로고침해야 중계 재개 후 다시 접속 가능. 이미 전송된 화면은 제거 불가. 중계 연결은 서버 중단 플래그 해제 후 공개 화면 전송. 종료 후 재개 시 화면 선택 버튼 복원. 기존 문제/사진/저장 데이터 불변.",
+  "version": "1.8.15",
+  "notes": "종료 후 새로고침 없이 '오프닝부터 다시 테스트' 버튼으로 진행 상태·라운드 카운터 초기화(완료 문제 및 원본 사진 영구 보존). 기존 '종료 취소 · 진행 재개'도 유지. '중계 중단'은 사용자 명시적 클릭과 확인 후에만 요청, 서버가 WebSocket 및 새 연결·이미지·로그인 토큰·공개 전송 차단. 중계 연결로 명시적 재개. 20명 실사용 지연은 별도 검증 필요.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "c5b3c25ec4ff7ba2ac461618859f93b2ca6607718e1d881f1ecfc9a09310a77a"
+      "sha256": "c6d9562559c491dc8fa6064e21db2cddd5fdaed0c768367d568846c5023c05f7"
     },
     {
       "path": "server.py",
