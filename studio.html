@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.8.3</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.8.4</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -119,7 +119,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.8.3</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.8.4</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -219,8 +219,11 @@
 <div class="show-buttons">
 <button class="btn" id="showWaiting">① 세팅 대기</button>
 <button class="btn" id="showTitle">② 오프닝</button>
-<button class="btn primary" id="showNextWithVideo">③ 다음 문제 준비중 MP4</button>
-<button class="btn" id="showEnd" style="border-color:#d77a95;color:#ac335e;font-weight:900">④ 감사합니다 · 종료 화면</button>
+<button class="btn" id="showNotice">③ 안내사항</button>
+<button class="btn" id="showRules">④ 게임 규칙</button>
+<button class="btn" id="showMainGame">▶ 본게임 시작 · 라운드 초기화</button>
+<button class="btn primary" id="showNextWithVideo">다음 문제 준비중 MP4</button>
+<button class="btn" id="showEnd" style="border-color:#d77a95;color:#ac335e;font-weight:900">감사합니다 · 종료 화면</button>
 <button class="btn" id="showResume" hidden>↩ 종료 취소 · 진행 재개</button>
 </div><p class="show-small">정답 공개 후에도 화면을 유지해요. 다음 문제 대기 영상·다음 문제 공개·감사합니다 화면은 진행자가 선택합니다.</p></section>
  <div class="show-main">
@@ -229,6 +232,7 @@
    <div id="showQueueStatus" class="show-alert">문제 관리실에서 「진행 준비」로 표시한 문제만 사용할 수 있어요.</div>
    <label class="showfield">진행 회차 <select id="showEpisodeSelect"><option value="1">1회차</option></select></label>
    <label class="showfield">진행할 문제 <select id="showQuestionSelect"><option value="">준비된 문제 없음</option></select></label>
+<label class="showfield" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showExampleMode" style="width:18px;height:18px"> 이 문제를 예시 문제로 공개 (ROUND 제외 · 진행 완료 처리 안 함)</label>
    <div class="show-buttons"><button class="btn" id="showPrepare">선택 문제 준비</button><button class="btn" id="showPrepareNext" hidden>기존 다음 준비</button></div>
    <div class="show-alert" id="showPreparedInfo">현재 준비된 문제가 없습니다.</div>
    <div class="show-buttons"><button class="btn primary" id="showStart">▶ 준비한 문제 공개</button><button class="btn primary" id="showAdvanceQuestion">▶ 다음 문제 공개</button><button class="btn" id="showVideoTest" hidden>영상 테스트</button></div>
@@ -253,6 +257,7 @@
 <label class="showfield">참가자용 HTTPS 주소 <input id="liveViewerUrl" type="url" placeholder="https://hyundana-quiz-live.계정.workers.dev" autocomplete="url"></label>
 <label class="showfield">진행자 전용 중계 비밀키 <input id="liveViewerToken" type="password" placeholder="Cloudflare에 등록한 PUBLISH_TOKEN" autocomplete="off"></label>
 <div class="show-buttons"><button class="btn primary" type="button" id="liveViewerConnect">중계 연결</button><button class="btn" type="button" id="liveViewerUpload">방송 화면 이미지·MP4 동기화</button><button class="btn" type="button" id="liveViewerDisconnect">중계 중단</button><button class="btn" type="button" id="liveViewerCopy">참가자 주소 복사</button></div>
+<div class="show-buttons"><label class="btn" style="cursor:pointer">안내사항 PNG 올리기 <input id="noticePosterFile" type="file" accept="image/png" hidden></label><label class="btn" style="cursor:pointer">게임 규칙 PNG 올리기 <input id="rulesPosterFile" type="file" accept="image/png" hidden></label></div>
 <div id="liveViewerStatus" class="show-alert" aria-live="polite">참가자용 중계 서버가 아직 연결되지 않았어요.</div>
 </details>
    <div class="show-alert" id="obsDiagnosticResult" hidden aria-live="polite"></div><div class="show-alert">OBS 브라우저 소스 주소는 http://127.0.0.1:8765/obs 입니다. 위 미리보기는 같은 OBS 화면을 축소해서 보여줍니다. 사진·글씨가 프레임과 어긋나면 새 버전을 적용한 뒤 「미리보기 새로고침」을 누르세요. 실제 OBS 브라우저 소스는 OBS 안에서도 새로고침해야 합니다. 이미지가 안 나오면 assets 폴더의 설치 파일을 확인하세요.</div>
@@ -695,7 +700,7 @@ function showUpdateControls(){
  const current=step>0&&step%2===1?letters[Math.floor((step-1)/2)]:null;
  const next=done?'공개 완료':step%2===0?`${letters[Math.floor(step/2)]} 원본`:'전체 합성';
  $('showPreparedInfo').textContent=pendingReady?`다음 문제 비공개 준비 완료: ${projectPeopleLabel(pending.entry.project)} · ${pending.round} · 공개 버튼을 누르기 전까지 OBS 화면에는 표시되지 않습니다.`:ready?`현재 문제: ${projectPeopleLabel(a.entry.project)} · ${a.round} · 원본 ${n}장과 합성 이미지 준비`:'현재 준비된 문제가 없습니다.';
- $('showRuntimeState').textContent=`상태: ${showControl.stage==='waiting'?'대기':showControl.stage==='title'?'콘텐츠 제목':showControl.stage==='question'?'문제 공개':showControl.stage==='reveal'?'정답 전환 중':showControl.stage==='summary'?'다음 문제 대기 영상':showControl.stage==='emergency'?'긴급 안전 화면':showControl.stage==='end'?'컨텐츠 종료':'대기'} · ${step}/${total}단계 · ${playing?(paused?'일시정지':'자동 재생 중'):done?'정답 공개 완료':showControl.armed?'공개 준비됨':'공개 잠금'}`;
+ $('showRuntimeState').textContent=`상태: ${showControl.stage==='waiting'?'대기':showControl.stage==='title'?'콘텐츠 제목':showControl.stage==='notice'?'안내사항':showControl.stage==='rules'?'게임 규칙':showControl.stage==='question'?'문제 공개':showControl.stage==='reveal'?'정답 전환 중':showControl.stage==='summary'?'다음 문제 대기 영상':showControl.stage==='emergency'?'긴급 안전 화면':showControl.stage==='end'?'컨텐츠 종료':'대기'} · ${step}/${total}단계 · ${playing?(paused?'일시정지':'자동 재생 중'):done?'정답 공개 완료':showControl.armed?'공개 준비됨':'공개 잠금'}`;
  $('showArm').textContent=showControl.armed?'🔓 공개 준비됨 (눌러 잠금)':'🔒 정답 공개 준비';$('showArm').classList.toggle('primary',showControl.armed);
  $('showRevealText').textContent=ready?`${playing?(paused?'⏸ 재생 일시정지':'▶ 자동 재생 중'):'대기'} · 다음 ${next} · 현재 ${current?'원본 '+current:'합성 얼굴'} · ${step}/${total}단계`:'문제를 준비한 뒤 공개할 수 있어요.';
  $('showArm').disabled=!ready||!live||done||playing;
@@ -708,7 +713,7 @@ function showUpdateControls(){
  $('showVideoTest').disabled=showControl.preparing||playing||showControl.stage==='end';
  const ended=showControl.stage==='end';
  $('showEnd').disabled=ended;$('showResume').hidden=!ended;
- if(ended){for(const id of ['showPrepare','showPrepareNext','showNextWithVideo','showAdvanceQuestion','showVideoTest','showStart','showArm','showReveal','showPause','showStop','showWaiting','showTitle','showSummary'])$(id).disabled=true;}
+ if(ended){for(const id of ['showNotice','showRules','showMainGame','showPrepare','showPrepareNext','showNextWithVideo','showAdvanceQuestion','showVideoTest','showStart','showArm','showReveal','showPause','showStop','showWaiting','showTitle','showSummary'])$(id).disabled=true;}
  $('showStageBadge').textContent=showControl.stage==='waiting'?'대기':showControl.stage==='title'?'타이틀':showControl.stage==='question'?'문제':showControl.stage==='reveal'?'정답 공개':showControl.stage==='summary'?'문제 대기 영상':showControl.stage==='emergency'?'긴급 화면':showControl.stage==='end'?'종료 화면':'대기';
  if(!ready){$('showPrivateAnswers').textContent='문제를 준비하면 이곳에만 정답이 표시됩니다.';}
  else{$('showPrivateAnswers').innerHTML=a.assets.persons.map((p,i)=>`<div class="show-priv-item"><img src="${p.image}" alt=""><span>${p.slot} · ${safeText(p.name)} / 출처: ${safeText(p.source)} ${i<Math.ceil(step/2)?'✓ 공개됨':''}</span></div>`).join('');}
@@ -788,13 +793,14 @@ async function showPrepareEntry(entry){
   const assets=composePreparedData(project,images);
   const allOrdered=sortEntries(await allStored());
   if(prepEpoch!==showControl.prepEpoch||showControl.stage==='end')return;
-  showControl.pending={entry,assets,round:`라운드 ${String(showControl.presentedCount+1).padStart(2,'0')}`};
+  showControl.pending={entry,assets,example:$('showExampleMode').checked,round:$('showExampleMode').checked?'예시 문제':`라운드 ${String(showControl.presentedCount+1).padStart(2,'0')}`};
   toast('다음 문제 비공개 준비 완료 · 다음 문제 준비중 MP4와 문제 공개는 직접 누를 때만 전환됩니다.');
  }catch(e){toast('문제 준비 실패: '+e.message);}
  finally{showControl.preparing=false;showUpdateControls();}
 }
-function assignBroadcastRound(entry){
+function assignBroadcastRound(entry,example=false){
  if(!entry?.id)return;
+ if(example){showControl.round='예시 문제';if(showControl.active)showControl.active.round='예시 문제';return;}
  if(showControl.lastPublishedId!==entry.id){
   showControl.presentedCount++;
   showControl.lastPublishedId=entry.id;
@@ -802,7 +808,7 @@ function assignBroadcastRound(entry){
  showControl.round='라운드 '+String(showControl.presentedCount).padStart(2,'0');
  if(showControl.active)showControl.active.round=showControl.round;
 }
-function showSetStage(stage){if(stage!=='summary')stopPostReveal();showControl.prepEpoch++;showControl.stage=stage;if(['waiting','title','emergency','end'].includes(stage)){cancelAutoReveal(false);showControl.armed=false;}publishScreen();}
+function showSetStage(stage){if(stage!=='summary')stopPostReveal();showControl.prepEpoch++;showControl.stage=stage;if(['waiting','title','notice','rules','emergency','end'].includes(stage)){cancelAutoReveal(false);showControl.armed=false;}publishScreen();}
 $('showRefresh').onclick=refreshShowQueue;
 
 // Diagnoses the local OBS relay from the controller tab. OBS source visibility
@@ -883,7 +889,8 @@ $('showAdvanceQuestion').onclick=async()=>{
   const all=sortEntries(await allStored());
   if(epoch!==showControl.prepEpoch||showControl.stage==='end'||showControl.stage!==prior)return;
   showControl.active={entry:next,assets,round:''};showControl.pending=null;
-  assignBroadcastRound(next);
+  showControl.active.example=$('showExampleMode').checked;
+  assignBroadcastRound(next,showControl.active.example);$('showExampleMode').checked=false;
   showControl.revealStep=0;showControl.revealCount=0;showControl.armed=false;
   $('showQuestionSelect').value=next.id;
   showSetStage('question');
@@ -892,6 +899,9 @@ $('showAdvanceQuestion').onclick=async()=>{
  finally{showControl.preparing=false;showUpdateControls();}
 };
 $('showWaiting').onclick=()=>showSetStage('waiting');
+$('showNotice').onclick=()=>showSetStage('notice');
+$('showRules').onclick=()=>showSetStage('rules');
+$('showMainGame').onclick=()=>{if(showControl.playing)return toast('정답 공개가 끝난 후 본게임을 시작해 주세요.');if(showControl.presentedCount>0&&!confirm('본게임 라운드를 ROUND 01부터 다시 시작할까요?'))return;showControl.presentedCount=0;showControl.lastPublishedId=null;$('showExampleMode').checked=false;showControl.pending=null;showSetStage('summary');toast('본게임 시작 준비 완료 · 다음 문제를 선택해 공개하면 ROUND 01입니다.');};
 $('showEnd').onclick=()=>{
  const pending=showControl.queue.length,completed=showControl.completed.length;
  if(!confirm(`지금 컨텐츠를 종료할까요?\n\n진행 완료 ${completed}개 · 아직 남은 문제 ${pending}개\n남은 문제는 삭제되거나 완료 처리되지 않고 계속 보관됩니다.\n정답 공개 및 다음 문제 자동 전환은 즉시 중단됩니다.`))return;
@@ -906,7 +916,8 @@ $('showStart').onclick=()=>{
  if(!selected?.assets||selected.entry?.status!=='ready'||!showControl.queue.some(e=>e.id===selected.entry.id))return toast('진행 준비된 문제를 먼저 선택해주세요.');
  stopPostReveal();cancelAutoReveal(false);
  if(showControl.pending){showControl.active=showControl.pending;showControl.pending=null;}
- assignBroadcastRound(showControl.active.entry);
+ showControl.active.example=$('showExampleMode').checked;
+ assignBroadcastRound(showControl.active.entry,showControl.active.example);$('showExampleMode').checked=false;
  showControl.revealCount=0;showControl.revealStep=0;showControl.armed=false;
  showSetStage('question');
 };
@@ -941,7 +952,7 @@ async function finishAutoReveal(epoch){
  if(showControl.revealStep%2!==0)showControl.revealStep++;
  showControl.revealCount=showControl.active.assets.count;
  showControl.stage='reveal';publishScreen();
- try{entry.status='done';entry.completedAt=new Date().toISOString();entry.updatedAt=entry.completedAt;await putStored(entry);await refreshManager();await refreshShowQueue();toast('정답 자동 공개 완료! 완료 목록으로 이동했어요.');}
+ try{if(showControl.active.example){toast('예시 문제 시연 완료 · 문제는 진행 준비 상태로 유지되고 라운드에도 포함되지 않습니다.');}else{entry.status='done';entry.completedAt=new Date().toISOString();entry.updatedAt=entry.completedAt;await putStored(entry);await refreshManager();await refreshShowQueue();toast('정답 자동 공개 완료! 완료 목록으로 이동했어요.');}}
  catch(e){toast('공개는 끝났지만 완료 저장에 실패했어요: '+e.message)}
  // Remain on the completed answer view until the host selects another scene.
 }
@@ -1148,6 +1159,24 @@ if(CREDITS)CREDITS.addEventListener('click',async()=>{
    label('방송 자료 동기화 '+good+'/'+names.length+'개 완료'+(failed.length?' · 오류: '+failed.join(' / '):'')+'. 참가자 페이지를 새로고침해 확인하세요.');
   }finally{$('liveViewerUpload').disabled=false}
  };
+
+ const uploadPoster=async(input,name)=>{
+  const file=input.files?.[0];input.value='';if(!file)return;
+  if(file.type!=='image/png'||file.size>18000000){label('PNG 파일만 업로드할 수 있습니다 (18MB 이하).');return;}
+  const u=normalise(urlEl.value),key=keyEl.value.trim();
+  if(!u||key.length<16){label('중계 HTTPS 주소와 비밀키를 먼저 입력해주세요.');return;}
+  label(name==='notice.png'?'안내사항 이미지 업로드 중…':'게임 규칙 이미지 업로드 중…');
+  try{
+   const result=await fetch(u+'/upload?name='+encodeURIComponent(name),{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/octet-stream'},body:await file.arrayBuffer()});
+   if(!result.ok)throw Error('HTTP '+result.status);
+   const check=await fetch(u+'/assets/'+name+'?cachebust='+Date.now(),{cache:'no-store'});
+   if(!check.ok)throw Error('업로드 확인 실패 HTTP '+check.status);
+   label('이미지 등록 완료: '+name+' · 진행실의 화면 버튼으로 공개할 수 있어요. 로컬 OBS와 참가자 화면은 새로고침하면 최신 이미지가 반영됩니다.');
+  }catch(e){label('포스터 업로드 실패: '+e.message)}
+ };
+ $('noticePosterFile').onchange=e=>uploadPoster(e.target,'notice.png');
+ $('rulesPosterFile').onchange=e=>uploadPoster(e.target,'rules.png');
+
  window.addEventListener('hyundana:public-screen',event=>publish(event.detail));
  if(enabled&&url&&token){label('저장된 참가자 중계 설정으로 연결 중…');setTimeout(()=>publish(window.HyundanaShowAdapter?.getPublicState()),1200)}
  setInterval(()=>{if(enabled)publish(window.HyundanaShowAdapter?.getPublicState())},20000);
