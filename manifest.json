@@ -6,22 +6,22 @@
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "c7ac635047c5a12349f1d9f931ea7c9c25716529a84021c34d6c77f024830df1"
+      "sha256": "e57bb6225dd367f0a8375cfd8569ddfe975886d63dae83b9a4d49da0f06dba30"
     },
     {
       "path": "server.py",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
-      "sha256": "6f19e316d18fe1de267494b8bfd3748b40e597f74d290b37fdab19530b3b37fe"
+      "sha256": "aaf342c3860dca61ffd5220fb719f0493d53a5016993c547a7abb405568d8863"
     },
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "d84a059cc6d57fa2e8caf725d33f73be298129006b612504d55db4f54dd1dbc0"
+      "sha256": "0bb344da149fd6164ac3a616ab3d3a25fec5203b3a7c0c0077f0ffa7664275d2"
     },
     {
       "path": "bridge.js",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/bridge.js",
-      "sha256": "d2f23e4568c9ea0e9716a2abb442497531ae5b0c0e65d70bf1479a2c1839399f"
+      "sha256": "c17c1bc97ce7cba8156e58e63a1766e082d8b84aac29668b5240b3c26a453b14"
     }
   ]
 }
