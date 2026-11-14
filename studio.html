@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.8.9</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.8.10</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -119,7 +119,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.8.9</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.8.10</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -685,13 +685,19 @@ const isLive=()=>['question','reveal','summary'].includes(showControl.stage);
 function neutralState(){return {version:2,stage:'waiting',round:'',image:null,revealed:[],focus:null,revealStep:0,revealTotal:0};}
 let publicScreen=neutralState();
 function composePreparedData(project,images){const size=720;
+ // Broadcast-only encoding: originals and saved projects remain untouched.
+ // Edge/Chrome support WebP with alpha; use high quality to reduce 30-viewer traffic.
+ function forBroadcast(canvas){
+  const webp=canvas.toDataURL('image/webp',0.94);
+  return webp.startsWith('data:image/webp;base64,')?webp:canvas.toDataURL('image/png');
+ }
  function renderLayer(index){const li=project.layers[index],img=images[index];const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;if(img)paintImage(canvas.getContext('2d'),{...li,image:img},size);return canvas;}
  const n=Number(project.count)||2;
  const paintLayers=Array.from({length:n},(_,i)=>renderLayer(i));
- function mix(indices){const c=document.createElement('canvas');c.width=size;c.height=size;const cx=c.getContext('2d',{willReadFrequently:true});const items=indices.map(i=>{const l=project.layers[i];return {data:paintLayers[i].getContext('2d',{willReadFrequently:true}).getImageData(0,0,size,size).data,weight:Math.max(0,Number(l.weight)||0),opacity:Math.max(0,Number(l.opacity)||0)/100};});const res=cx.createImageData(size,size),dest=res.data;for(let p=0;p<dest.length;p+=4){let total=0,r=0,g=0,b=0,left=1;for(const it of items){const a=it.data[p+3]/255*it.opacity,w=it.weight*a;if(w<=0)continue;total+=w;r+=it.data[p]*w;g+=it.data[p+1]*w;b+=it.data[p+2]*w;left*=1-a;}if(total){dest[p]=Math.round(r/total);dest[p+1]=Math.round(g/total);dest[p+2]=Math.round(b/total);dest[p+3]=Math.round(255*(1-left));}}cx.putImageData(res,0,0);return c.toDataURL('image/png');}
+ function mix(indices){const c=document.createElement('canvas');c.width=size;c.height=size;const cx=c.getContext('2d',{willReadFrequently:true});const items=indices.map(i=>{const l=project.layers[i];return {data:paintLayers[i].getContext('2d',{willReadFrequently:true}).getImageData(0,0,size,size).data,weight:Math.max(0,Number(l.weight)||0),opacity:Math.max(0,Number(l.opacity)||0)/100};});const res=cx.createImageData(size,size),dest=res.data;for(let p=0;p<dest.length;p+=4){let total=0,r=0,g=0,b=0,left=1;for(const it of items){const a=it.data[p+3]/255*it.opacity,w=it.weight*a;if(w<=0)continue;total+=w;r+=it.data[p]*w;g+=it.data[p+1]*w;b+=it.data[p+2]*w;left*=1-a;}if(total){dest[p]=Math.round(r/total);dest[p+1]=Math.round(g/total);dest[p+2]=Math.round(b/total);dest[p+3]=Math.round(255*(1-left));}}cx.putImageData(res,0,0);return forBroadcast(c);}
  // Assets are pre-rendered *privately* and no step is sent until its release button is clicked.
  const composite=mix(Array.from({length:n},(_,i)=>i));
- const persons=Array.from({length:n},(_,i)=>({slot:letters[i],name:project.layers[i].name,source:String(project.layers[i].source||''),image:paintLayers[i].toDataURL('image/png')}));
+ const persons=Array.from({length:n},(_,i)=>({slot:letters[i],name:project.layers[i].name,source:String(project.layers[i].source||''),image:forBroadcast(paintLayers[i])}));
  return {composite,persons,count:n};
 }
 async function refreshShowQueue(){try{const all=sortEntries(await allStored());showControl.queue=all.filter(e=>episodeOf(e)===showEpisode&&e.status==='ready'&&!requiredForReady(e.project));showControl.completed=all.filter(e=>episodeOf(e)===showEpisode&&e.status==='done');renderCompletedList();const current=$('showQuestionSelect').value;const sel=$('showQuestionSelect');sel.innerHTML=showControl.queue.length?showControl.queue.map((e,i)=>`<option value="${safeText(e.id)}">${String(i+1).padStart(2,'0')} · ${safeText(projectPeopleLabel(e.project))}</option>`).join(''):'<option value="">진행 준비된 문제가 없어요</option>';if(showControl.queue.some(e=>e.id===current))sel.value=current;
