@@ -276,7 +276,7 @@ class Handler(BaseHTTPRequestHandler):
                     raise urllib.error.HTTPError(newurl, 403, '허용되지 않은 이미지 리다이렉트', headers, fp)
                 return super().redirect_request(req, fp, code, msg, headers, newurl)
         try:
-            request = urllib.request.Request(target, headers={'User-Agent': 'HyundanaQuizPhotoImporter/1.7.3 (Commons licensed image fetch)', 'Accept': 'image/*'})
+            request = urllib.request.Request(target, headers={'User-Agent': 'HyundanaFaceQuiz/1.7.9 (https://github.com/thesosweetdana-pixel/hyundana-face-quiz-updates) Python-urllib/3', 'Accept': 'image/*'})
             opener = urllib.request.build_opener(CommonsRedirect())
             with opener.open(request, timeout=22) as response:
                 mime = response.headers.get_content_type()
@@ -289,7 +289,18 @@ class Handler(BaseHTTPRequestHandler):
                     return
             self._response(200, raw, mime)
         except urllib.error.HTTPError as exc:
-            self._response(502, {'error': 'Wikimedia 사진 HTTP ' + str(exc.code)})
+            if exc.code in (429, 503):
+                raw_retry = exc.headers.get('Retry-After', '') if exc.headers else ''
+                try:
+                    retry_seconds = max(5, min(3600, int(raw_retry)))
+                except (TypeError, ValueError):
+                    retry_seconds = 60
+                self._response(exc.code, {
+                    'error': 'Wikimedia 요청 제한 HTTP ' + str(exc.code) + ' — 잠시 후 다시 시도하세요.',
+                    'retry_after_seconds': retry_seconds,
+                })
+            else:
+                self._response(502, {'error': 'Wikimedia 사진 HTTP ' + str(exc.code)})
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
             self._response(502, {'error': '원본 사진 다운로드 실패: ' + str(exc)[:160]})
 
