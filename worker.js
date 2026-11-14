@@ -144,17 +144,18 @@ export class QuizRoom{
    await this.ctx.storage.put("asset:"+name+":meta",{size:bytes.length,count:parts});
    return json({ok:true,name,size:bytes.length});
   }
-  if(request.method==="GET"&&u.pathname.startsWith("/asset/")){
+  if((request.method==="GET"||request.method==="HEAD")&&u.pathname.startsWith("/asset/")){
    if(!await this.viewerAllowed(request.headers.get("X-Viewer-Session")||""))return json({error:"입장코드 인증이 필요합니다."},401);
    const name=u.pathname.split("/").pop(),meta=await this.ctx.storage.get("asset:"+name+":meta");
    if(!meta)return new Response("missing asset",{status:404});
+   if(request.method==="HEAD")return new Response(null,{status:200,headers:{"Content-Length":String(meta.size),"Content-Type":name.endsWith(".mp4")?"video/mp4":name.endsWith(".png")?"image/png":"image/webp","Cache-Control":"private, max-age=3600"}});
    const bytes=new Uint8Array(meta.size);
    for(let i=0;i<meta.count;i++){const part=await this.ctx.storage.get("asset:"+name+":"+i);if(!part)return new Response("asset unavailable",{status:503});bytes.set(part,i*700000);}
    const match=(request.headers.get("Range")||"").match(/^bytes=(\d+)-(\d*)$/);
    const start=match?Number(match[1]):0,end=match?(match[2]?Math.min(bytes.length-1,Number(match[2])):bytes.length-1):bytes.length-1;
    if(start>=bytes.length||end<start)return new Response(null,{status:416,headers:{"Content-Range":"bytes */"+bytes.length}});
    const type=name.endsWith(".mp4")?"video/mp4":name.endsWith(".png")?"image/png":"image/webp";
-   const head={"Content-Type":type,"Accept-Ranges":"bytes","Content-Length":String(end-start+1),"Cache-Control":"public, max-age=3600"};if(match)head["Content-Range"]="bytes "+start+"-"+end+"/"+bytes.length;
+   const head={"Content-Type":type,"Accept-Ranges":"bytes","Content-Length":String(end-start+1),"Cache-Control":"private, max-age=3600"};if(match)head["Content-Range"]="bytes "+start+"-"+end+"/"+bytes.length;
    return new Response(bytes.slice(start,end+1),{status:match?206:200,headers:head});
   }
   if(this.cachedUpdated===null)this.cachedUpdated=await this.ctx.storage.get("updated")||0;
@@ -286,6 +287,7 @@ export default {
   }
   if(u.pathname==="/"||u.pathname==="/watch")return Response.redirect(new URL("/obs",u.origin).toString(),302);
   if(u.pathname.startsWith("/assets/")){
+   if(request.method!=="GET"&&request.method!=="HEAD")return json({error:"method not allowed"},405);
    let remote;try{remote=await room.fetch(new Request("https://room/asset/"+u.pathname.split("/").pop(),{headers:{"Range":request.headers.get("Range")||"","X-Viewer-Session":viewerSession}}));}catch(e){return new Response("Cloudflare room temporarily unavailable",{status:503,headers});}
    if(remote.status!==404)return remote;
    const chk=await room.fetch(new Request("https://room/access/check",{headers:{"X-Viewer-Session":viewerSession}}));
