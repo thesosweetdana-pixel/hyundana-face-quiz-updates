@@ -1178,12 +1178,18 @@ if(CREDITS)CREDITS.addEventListener('click',async()=>{
   }
   sending=false;
  }
- $('liveViewerConnect').onclick=()=>{
+ $('liveViewerConnect').onclick=async()=>{
   const next=normalise(urlEl.value),key=keyEl.value.trim();
   if(!next||key.length<16){label('유효한 HTTPS 중계 주소와 16자 이상의 비밀키가 필요해요.');return;}
-  url=next;token=key;enabled=true;set('url',url);set('token',token);set('enabled','yes');
-  lastSentRev=null;lastSentSession=null;
-  label('로컬 OBS 승인 확인 중…');window.dispatchEvent(new Event('hyundana:request-public-commit'));
+  const button=$('liveViewerConnect');button.disabled=true;label('참가자 중계 재개 요청 중…');
+  try{
+   const response=await fetch(next+'/relay/start',{method:'POST',headers:{'Authorization':'Bearer '+key},cache:'no-store'});
+   if(!response.ok){let error='HTTP '+response.status;try{error=(await response.json()).error||error}catch(_){}throw Error(error)}
+   url=next;token=key;enabled=true;set('url',url);set('token',token);set('enabled','yes');
+   lastSentRev=null;lastSentSession=null;
+   label('중계 재개 완료 · 로컬 OBS 승인 확인 중…');window.dispatchEvent(new Event('hyundana:request-public-commit'));
+  }catch(e){label('중계 연결 실패: '+e.message+' · 서버 배포/비밀키 확인. 중계 상태가 변경됐는지는 서버에서 확인하세요.');}
+  finally{button.disabled=false}
  };
  $('liveViewerPasscodeVisibility').onclick=()=>{
   const input=$('liveViewerPasscode'),button=$('liveViewerPasscodeVisibility');
@@ -1205,7 +1211,18 @@ if(CREDITS)CREDITS.addEventListener('click',async()=>{
   }catch(e){label('입장코드 설정 실패: '+e.message+' · 중계 서버 배포 및 비밀키를 확인해 주세요.')}
   finally{button.disabled=false}
  };
- $('liveViewerDisconnect').onclick=()=>{enabled=false;queued=null;set('enabled','no');label('참가자 화면으로 보내는 연결을 중단했어요. (마지막 화면이 남을 수 있습니다.)')};
+ $('liveViewerDisconnect').onclick=async()=>{
+  enabled=false;queued=null;set('enabled','no');
+  const u=normalise(urlEl.value),key=keyEl.value.trim(),button=$('liveViewerDisconnect');
+  button.disabled=true;label('중계 중단 요청 중 · 새 화면 전송은 중단했어요…');
+  try{
+   if(!u||key.length<16)throw Error('서버 주소 또는 진행자 비밀키가 없습니다.');
+   const response=await fetch(u+'/relay/stop',{method:'POST',headers:{'Authorization':'Bearer '+key},cache:'no-store'});
+   if(!response.ok){let error='HTTP '+response.status;try{error=(await response.json()).error||error}catch(_){}throw Error(error)}
+   label('🔒 중계 중단 완료 · 참가자 WebSocket 연결 종료 · 서버의 신규 화면/이미지 전송 차단. 이미 표시된 마지막 화면은 참가자 브라우저에 남을 수 있습니다.');
+  }catch(e){label('⚠ 진행실의 새 화면 발행은 중단했지만 참가자 연결 종료는 확인되지 않았어요: '+e.message)}
+  finally{button.disabled=false}
+ };
  $('liveViewerPreflight').onclick=async()=>{
   const u=normalise(urlEl.value);if(!u){label('참가자 HTTPS 주소부터 확인해 주세요.');return;}
   const btn=$('liveViewerPreflight');btn.disabled=true;label('참가자 서버·화면 이미지·현재 접속자 확인 중…');
