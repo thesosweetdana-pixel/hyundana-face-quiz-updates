@@ -74,6 +74,7 @@ export class QuizRoom{
    return json({required:!!cfg,ok,stopped:await this.relayStopped()});
   }
   if(request.method==="POST"&&u.pathname==="/access/login"){
+   if(await this.relayStopped())return json({error:"진행자가 중계를 중단했습니다. 재개 후 다시 시도해 주세요."},503);
    const cfg=await this.getViewerConfig();
    if(!cfg)return json({ok:true,unlocked:true});
    const ip=String(request.headers.get("X-Viewer-IP")||"unknown").slice(0,90);
