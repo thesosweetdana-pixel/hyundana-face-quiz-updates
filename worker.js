@@ -89,6 +89,7 @@ export default {
  async fetch(request,env){
   const u=new URL(request.url),origin=request.headers.get("Origin")||"";
   if(request.method==="OPTIONS"&&(u.pathname==="/publish"||u.pathname==="/upload"))return new Response(null,{status:204,headers:cors(origin)});
+  if(u.pathname==="/health")return json({ok:true,release:"1.8.6",requiresLocalAck:true});
   const room=env.ROOM.get(env.ROOM.idFromName("live"));
   if(u.pathname==="/publish"){
    if(request.method!=="POST")return json({error:"not allowed"},405);
