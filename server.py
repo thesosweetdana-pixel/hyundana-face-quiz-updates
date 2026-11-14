@@ -331,6 +331,10 @@ class Handler(BaseHTTPRequestHandler):
             self._file('assets/standby.webp', 'image/webp')
         elif path == '/assets/intro.webp':
             self._file('assets/intro.webp', 'image/webp')
+        elif path == '/assets/notice.png':
+            self._file('assets/notice.png', 'image/png')
+        elif path == '/assets/rules.png':
+            self._file('assets/rules.png', 'image/png')
         elif path == '/api/public':
             params = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
             since = params.get('rev', [''])[0]
@@ -400,6 +404,34 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self._path()
+        if path == '/api/poster/upload':
+            # Loopback-only server: safe, fixed-name PNG upload, never trust arbitrary paths.
+            name = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get('name', [''])[0]
+            if name not in ('notice.png', 'rules.png'):
+                self._response(400, {'error': '지원하지 않는 포스터 파일 이름'})
+                return
+            try:
+                size = int(self.headers.get('Content-Length', '0'))
+            except ValueError:
+                size = 0
+            if not 8 <= size <= 8 * 1024 * 1024:
+                self._response(413, {'error': 'PNG 파일은 8MB 이하만 등록할 수 있습니다.'})
+                return
+            data = self.rfile.read(size)
+            if len(data) != size or not data.startswith(b'\x89PNG\r\n\x1a\n'):
+                self._response(400, {'error': '유효한 PNG 파일이 아닙니다.'})
+                return
+            try:
+                folder = ROOT / 'assets'
+                folder.mkdir(parents=True, exist_ok=True)
+                target = folder / name
+                temp = folder / ('.' + name + '.tmp')
+                temp.write_bytes(data)
+                os.replace(temp, target)
+                self._response(200, {'ok': True, 'name': name, 'bytes': size})
+            except OSError as exc:
+                self._response(500, {'error': '포스터 저장 실패: ' + str(exc)[:140]})
+            return
         if path not in {'/api/public', '/api/takeover', '/api/ping', '/api/release', '/api/update/check', '/api/update/apply', '/api/update/rollback'}:
             self._response(404, {'error': '알 수 없는 API'})
             return
