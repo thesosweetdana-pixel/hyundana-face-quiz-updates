@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.15",
-  "notes": "종료 후 새로고침 없이 '오프닝부터 다시 테스트' 버튼으로 진행 상태·라운드 카운터 초기화(완료 문제 및 원본 사진 영구 보존). 기존 '종료 취소 · 진행 재개'도 유지. '중계 중단'은 사용자 명시적 클릭과 확인 후에만 요청, 서버가 WebSocket 및 새 연결·이미지·로그인 토큰·공개 전송 차단. 중계 연결로 명시적 재개. 20명 실사용 지연은 별도 검증 필요.",
+  "version": "1.8.16",
+  "notes": "종료 화면의 '전체 진행 초기화 · 세팅 대기부터 다시 시작' 버튼: 현재 회차 완료 문제(예시 포함)를 진행 준비로 복원, 완료시간·예시완료 표식 삭제, 라운드 카운터·현재 문제·정답 공개 상태 초기화, ① 세팅 대기 송출. 원본 사진/문제 내용/다른 회차 유지. 중계 연결/중단 상태는 건드리지 않음.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "c6d9562559c491dc8fa6064e21db2cddd5fdaed0c768367d568846c5023c05f7"
+      "sha256": "3d64913fa84fac375607f6a7397cd991dbde29b6ebf2389969620f3c1bf745a5"
     },
     {
       "path": "server.py",
