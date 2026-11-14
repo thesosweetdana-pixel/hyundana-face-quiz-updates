@@ -34,6 +34,25 @@ export class QuizRoom{
  constructor(ctx,env){this.ctx=ctx;this.env=env;this.cachedState=null;this.cachedUpdated=null;}
  async fetch(request){
   const u=new URL(request.url);
+  if(request.method==="GET"&&u.pathname==="/socket"&&request.headers.get("Upgrade")?.toLowerCase()==="websocket"){
+   const pair=new WebSocketPair();
+   const [client,server]=Object.values(pair);
+   this.ctx.acceptWebSocket(server);
+   // Newly connected viewers receive the latest public scene exactly once.
+   try{
+    if(this.cachedState===null){
+     const count=await this.ctx.storage.get("count")||0;let value=empty;
+     if(count){
+      const parts=await Promise.all(Array.from({length:count},(_,i)=>this.ctx.storage.get("part:"+i)));
+      try{value=JSON.parse(parts.join(""))}catch(_){value=empty}
+     }
+     this.cachedState=value;
+    }
+    if(this.cachedUpdated===null)this.cachedUpdated=await this.ctx.storage.get("updated")||0;
+    server.send(JSON.stringify({revision:String(this.cachedUpdated),state:this.cachedState,connected:true}));
+   }catch(e){try{server.send(JSON.stringify({error:"Initial state temporarily unavailable"}))}catch(_){}}
+   return new Response(null,{status:101,webSocket:client});
+  }
   if(request.method==="POST"&&u.pathname==="/publish"){
    const presenter=request.headers.get("X-Show-Session")||"";
    const revision=Number(request.headers.get("X-Local-Revision"));
@@ -49,6 +68,10 @@ export class QuizRoom{
    const updated=Date.now();await this.ctx.storage.put("updated",updated);
    this.cachedState=state;this.cachedUpdated=updated;
    this.lastPresenter=presenter;this.lastLocalRevision=revision;
+   const update=JSON.stringify({revision:String(updated),state,connected:true});
+   for(const socket of this.ctx.getWebSockets()){
+    try{socket.send(update)}catch(e){try{socket.close(1011,"Delivery interrupted")}catch(_){}}
+   }
    return json({ok:true});
   }
   if(request.method==="POST"&&u.pathname==="/asset"){
@@ -105,7 +128,7 @@ export default {
  async fetch(request,env){
   const u=new URL(request.url),origin=request.headers.get("Origin")||"";
   if(request.method==="OPTIONS"&&(u.pathname==="/publish"||u.pathname==="/upload"))return new Response(null,{status:204,headers:cors(origin)});
-  if(u.pathname==="/health")return json({ok:true,release:"1.8.6",requiresLocalAck:true});
+  if(u.pathname==="/health")return json({ok:true,release:"1.8.9-ws",requiresLocalAck:true,transport:"websocket"});
   if(u.pathname==="/diagnostics"){
    try{
     if(!env.ROOM)return json({ok:false,release:"1.8.8-diagnostics",component:"ROOM",issue:"binding-missing"},503);
@@ -136,6 +159,11 @@ export default {
    const name=u.searchParams.get("name")||"";
    let response;try{response=await room.fetch(new Request("https://room/asset?name="+encodeURIComponent(name),{method:"POST",body:request.body}));}catch(e){return json({error:"Cloudflare ROOM unavailable; poster upload blocked"},503,cors(origin));}
    return new Response(response.body,{status:response.status,headers:{...cors(origin),"Content-Type":"application/json"}});
+  }
+  if(u.pathname==="/stream"){
+   if(request.headers.get("Upgrade")?.toLowerCase()!=="websocket")return json({error:"WebSocket upgrade required"},426);
+   try{return await room.fetch(new Request("https://room/socket",{headers:{"Upgrade":"websocket"}}))}
+   catch(e){return json({error:"WebSocket room unavailable"},503)}
   }
   if(u.pathname==="/state")return room.fetch("https://room/state");
   if(u.pathname==="/api/public"){
