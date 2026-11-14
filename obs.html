@@ -172,7 +172,24 @@
          remoteStatus='connected';signal('');
        }catch(e){remoteStatus='message-error';signal('화면 수신 오류 · 자동 재연결 중');socket.close()}
      };
-     socket.onclose=()=>{clearTimeout(initialTimer);if(spectatorSocket===socket)scheduleReconnect()};
+     socket.onclose=async()=>{
+       clearTimeout(initialTimer);
+       if(spectatorSocket!==socket)return;
+       // A disconnected authorized spectator keeps their last scene. Only a
+       // disconnection triggers one access check; there is no periodic polling.
+       try{
+         const res=await fetch('/access/status',{credentials:'same-origin',cache:'no-store'});
+         if(res.ok){
+           const access=await res.json();
+           if(access.required&&!access.ok){
+             remoteStatus='reauth-required';
+             signal('입장코드가 변경되었거나 인증이 만료되었어요. 새로고침 후 다시 입장해 주세요.');
+             return;
+           }
+         }
+       }catch(_){}
+       scheduleReconnect();
+     };
      socket.onerror=()=>{remoteStatus='network-error';socket.close()};
    }catch(e){scheduleReconnect()}
  }
