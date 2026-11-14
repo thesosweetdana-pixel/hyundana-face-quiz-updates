@@ -1130,7 +1130,7 @@ if(CREDITS)CREDITS.addEventListener('click',async()=>{
    const commit=queued;queued=null;
    if(commit.session===lastSentSession&&commit.revision===lastSentRev)continue;
    try{
-    const r=await fetch(url+'/publish',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(commit.state),cache:'no-store'});
+    const r=await fetch(url+'/publish',{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','X-Show-Session':commit.session,'X-Local-Revision':String(commit.revision)},body:JSON.stringify(commit.state),cache:'no-store'});
     if(!r.ok)throw Error('HTTP '+r.status);
     lastSentRev=commit.revision;lastSentSession=commit.session;
     label('참가자 화면 실시간 연결 정상 · 공개된 현재 화면만 전송 중\n참가자 링크: '+url+'/obs');
