@@ -14,7 +14,7 @@
 #scene[data-stage='question'] #mainStack,#scene[data-stage='reveal'] #mainStack{display:flex}
 #scene[data-stage='question'] #mainStack{left:80px;top:228px;width:1092px;height:595px}
 #scene[data-stage='reveal'] #mainStack{left:82px;top:263px;width:375px;height:562px;border-radius:13px}
-#mainStack img{position:absolute;max-width:100%;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .75s ease-in-out;}
+#mainStack img{position:absolute;max-width:100%;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity 1s ease-in-out;}
 #scene[data-stage='reveal'] #mainStack img{object-fit:cover}
 #answerCards{display:none;position:absolute;inset:0;pointer-events:none}
 #scene[data-stage='reveal'] #answerCards{display:block}
@@ -96,7 +96,7 @@
    // Swap buffers; the currently visible original remains behind the new original during a fade.
    back.src=front.src||next;back.style.transition='none';back.style.opacity=front.src?'1':'0';
    front.style.transition='none';front.style.opacity='0';front.src=next;
-   requestAnimationFrame(()=>requestAnimationFrame(()=>{if(token!==moveToken)return;front.style.transition='opacity .75s ease-in-out';back.style.transition='opacity .75s ease-in-out';front.style.opacity='1';back.style.opacity='0';}));
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{if(token!==moveToken)return;front.style.transition='opacity 1s ease-in-out';back.style.transition='opacity 1s ease-in-out';front.style.opacity='1';back.style.opacity='0';}));
  }
  function resetPhotos(){photoUrl='';++moveToken;$('frontPhoto').removeAttribute('src');$('backPhoto').removeAttribute('src');$('frontPhoto').style.opacity='0';$('backPhoto').style.opacity='0';}
  function roundLabel(str){const m=String(str||'').match(/(\d+)/);return 'ROUND '+(m?String(Number(m[1])).padStart(2,'0'):'01');}
@@ -127,6 +127,6 @@
    if(!d.unchanged)render(d.state,d.connected);
   }catch(e){revision=null;render(null,false)}setTimeout(poll,350)}
  render(null,false);void poll();
- window.HyundanaOBS={version:'1.7.1',getProtocol:()=> 'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage};
+ window.HyundanaOBS={version:'1.8.3',getProtocol:()=> 'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage};
 })();
 </script></body></html>
