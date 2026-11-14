@@ -728,7 +728,10 @@ function showUpdateControls(){
  $('showVideoTest').disabled=showControl.preparing||playing||showControl.stage==='end';
  const ended=showControl.stage==='end';
  $('showEnd').disabled=ended;$('showResume').hidden=!ended;
- if(ended){for(const id of ['showNotice','showRules','showMainGame','showPrepare','showPrepareNext','showNextWithVideo','showAdvanceQuestion','showVideoTest','showStart','showArm','showReveal','showPause','showStop','showWaiting','showTitle','showSummary'])$(id).disabled=true;}
+ // Broadcast scene selectors have no other gating conditions. Reset them on resume;
+ // the remaining controls retain their state-derived availability above.
+ for(const id of ['showNotice','showRules','showMainGame','showWaiting','showTitle'])$(id).disabled=ended;
+ if(ended){for(const id of ['showPrepare','showPrepareNext','showNextWithVideo','showAdvanceQuestion','showVideoTest','showStart','showArm','showReveal','showPause','showStop','showSummary'])$(id).disabled=true;}
  $('showStageBadge').textContent=showControl.stage==='waiting'?'대기':showControl.stage==='title'?'타이틀':showControl.stage==='question'?'문제':showControl.stage==='reveal'?'정답 공개':showControl.stage==='summary'?'문제 대기 영상':showControl.stage==='emergency'?'긴급 화면':showControl.stage==='end'?'종료 화면':'대기';
  if(!ready){$('showPrivateAnswers').textContent='문제를 준비하면 이곳에만 정답이 표시됩니다.';}
  else{$('showPrivateAnswers').innerHTML=a.assets.persons.map((p,i)=>`<div class="show-priv-item"><img src="${p.image}" alt=""><span>${p.slot} · ${safeText(p.name)} / 출처: ${safeText(p.source)} ${i<Math.ceil(step/2)?'✓ 공개됨':''}</span></div>`).join('');}
