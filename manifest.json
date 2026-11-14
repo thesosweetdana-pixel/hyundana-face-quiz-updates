@@ -1,17 +1,17 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.7.8",
-  "notes": "사진 CSV 가져오기 후 보관함 검색/초성 필터 초기화, IndexedDB 저장 결과 재검증, 사진별 실패 내역 전체 출력·TXT 저장. v1.7.7 진행/송출 분리 기능과 데이터 유지.",
+  "version": "1.7.9",
+  "notes": "Wikimedia HTTP 429 요청제한 감지 시 Retry-After를 존중하고 이후 이미지 요청을 보류. 기존 보관 원본 중복 다운로드 방지·다운로드 간격 조절·미완료 목록 안내. 문제 데이터 및 v1.7.7 진행실 기능 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "4e81fc51c319af585d7e21a8481830f1eb0c7476fe49e424f73f42c6979a0d2a"
+      "sha256": "1185e55a8867f547d3f571f0cb475dd25c0d191cfe4ffc3f0c164a6aec90f477"
     },
     {
       "path": "server.py",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
-      "sha256": "34315681aa28221872fa424faa6d0dcf9ad5d2ad61e1513339d5900221312802"
+      "sha256": "9f2836fb94d45a295d1c4d38092c90b5eaccf8e8ca26e09f4b0dfbb34b520afc"
     },
     {
       "path": "obs.html",
