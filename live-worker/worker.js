@@ -33,6 +33,13 @@ export class QuizRoom{
  constructor(ctx,env){this.ctx=ctx;this.env=env;this.cachedState=null;this.cachedUpdated=null;}
  async fetch(request){
   const u=new URL(request.url);
+  if(request.method==="GET"&&u.pathname==="/preflight"){
+   const names=["standby.webp","intro.webp","notice.png","rules.png","question.webp","answer.webp","next.mp4","end.webp"];
+   const assetMetas=await Promise.all(names.map(n=>this.ctx.storage.get("asset:"+n+":meta")));
+   return json({online:this.ctx.getWebSockets().length,transport:"websocket",
+     assets:names.map((name,i)=>({name,installed:!!assetMetas[i],size:assetMetas[i]?.size||0})),
+     release:"1.8.10"});
+  }
   if(request.method==="GET"&&u.pathname==="/viewers"){
    return json({online:this.ctx.getWebSockets().length,transport:"websocket",release:"1.8.10"});
   }
@@ -172,6 +179,12 @@ export default {
    if(request.headers.get("Upgrade")?.toLowerCase()!=="websocket")return json({error:"WebSocket upgrade required"},426);
    try{return await room.fetch(new Request("https://room/socket",{headers:{"Upgrade":"websocket"}}))}
    catch(e){return json({error:"WebSocket room unavailable"},503)}
+  }
+  if(u.pathname==="/preflight"){
+   try{
+    const result=await room.fetch("https://room/preflight");
+    return new Response(result.body,{status:result.status,headers:{...cors(origin),"Content-Type":"application/json;charset=utf-8"}});
+   }catch(e){return json({error:"Durable Object connection or free daily limit",ok:false},503,cors(origin))}
   }
   if(u.pathname==="/viewers"){
    try{
