@@ -121,7 +121,13 @@ answers.replaceChildren();if(stageName==='reveal'){for(const letter of ['A','B',
 if(stageName==='summary'&&change&&mediaReady){vid.currentTime=0;vid.play().catch(()=>{});}else if(stageName!=='summary')vid.pause();
 }
 async function poll(){try{const r=await fetch('/state',{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const data=await r.json();if(data.updated!==last){last=data.updated;render(data.state||{});}status.textContent='실시간 연결됨';}catch(e){status.textContent='재연결 중…';}setTimeout(poll,850);}
-fetch('/assets/next.mp4',{method:'HEAD'}).then(r=>{if(r.ok){vid.src='/assets/next.mp4';mediaReady=true}}).catch(()=>{});poll();
+fetch('/assets/next.mp4',{method:'HEAD'}).then(r=>{if(r.ok){vid.src='/assets/next.mp4';mediaReady=true}}).catch(()=>{});
+(function connect(){
+ const ws=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/stream');
+ ws.onmessage=e=>{try{const d=JSON.parse(e.data);if(d?.state){render(d.state);status.textContent='실시간 연결됨';}}catch(_){}};
+ ws.onclose=()=>{status.textContent='재연결 중…';setTimeout(connect,5000)};
+ ws.onerror=()=>{try{ws.close()}catch(_){}};
+})();
 })();</script></body></html>`;
 export default {
  async fetch(request,env){
@@ -175,7 +181,7 @@ export default {
   }
   if(u.pathname==="/obs"){
    try{
-    const upstream=await fetch("https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",{cf:{cacheTtl:300,cacheEverything:true}});
+    const upstream=await fetch("https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",{cf:{cacheTtl:0,cacheEverything:true}});
     if(upstream.ok){
      // Remote spectators must never be switched to the emergency/standby scene
      // merely because a single poll timed out. Keep the last valid stage.
