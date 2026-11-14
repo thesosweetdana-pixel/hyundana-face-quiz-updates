@@ -133,29 +133,48 @@
  // Local OBS continues reading localhost. Public viewers use one persistent,
  // hibernating WebSocket: no HTTP polling (and therefore no per-viewer DO quotas).
  const remote=location.hostname!=='127.0.0.1'&&location.hostname!=='localhost';
- let spectatorSocket=null,retryDelay=1200,remoteStatus='connecting';
+ let spectatorSocket=null,retryDelay=1000,remoteStatus='connecting',retryTimer=null,initialTimer=null;
+ const viewerSignal=document.createElement('div');
+ viewerSignal.setAttribute('aria-live','polite');
+ viewerSignal.style.cssText='position:absolute;bottom:12px;left:14px;z-index:50;padding:6px 12px;border-radius:8px;background:#24152fe6;color:#fff;font:600 15px system-ui;display:none;pointer-events:none';
+ viewerSignal.textContent='실시간 화면 연결 중…';
+ if(remote){document.body.appendChild(viewerSignal);viewerSignal.style.display='block'}
+ const signal=(message)=>{
+   if(!remote)return;
+   viewerSignal.style.display=message?'block':'none';
+   if(message)viewerSignal.textContent=message;
+ };
+ function scheduleReconnect(){
+   if(retryTimer)return;
+   remoteStatus='reconnecting';
+   signal('연결 재시도 중 · 마지막 정상 화면 유지');
+   const wait=retryDelay;
+   retryDelay=Math.min(12000,Math.round(retryDelay*1.6));
+   retryTimer=setTimeout(()=>{retryTimer=null;openSpectatorStream()},wait);
+ }
  function openSpectatorStream(){
    if(!remote)return;
    try{
-     spectatorSocket=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/stream');
-     spectatorSocket.onopen=()=>{retryDelay=1200;remoteStatus='connected';};
-     spectatorSocket.onmessage=event=>{
+     const socket=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/stream');
+     spectatorSocket=socket;
+     remoteStatus='connecting';
+     signal('실시간 화면 연결 중…');
+     let received=false;
+     initialTimer=setTimeout(()=>{if(!received&&spectatorSocket===socket)socket.close()},12000);
+     socket.onopen=()=>{retryDelay=1000;remoteStatus='connected';};
+     socket.onmessage=event=>{
        try{
          const data=JSON.parse(event.data);
-         if(!data?.state)return;
-         if(revision!==String(data.revision)){
-           revision=String(data.revision);render(data.state,data.connected!==false);
-         }
-         remoteStatus='connected';
-       }catch(e){remoteStatus='message-error'}
+         if(!data?.state){signal('화면 상태 동기화 중…');return}
+         received=true;clearTimeout(initialTimer);
+         const nextRev=String(data.revision);
+         if(revision!==nextRev){revision=nextRev;render(data.state,data.connected!==false)}
+         remoteStatus='connected';signal('');
+       }catch(e){remoteStatus='message-error';signal('화면 수신 오류 · 자동 재연결 중');socket.close()}
      };
-     spectatorSocket.onclose=()=>{
-       remoteStatus='reconnecting';
-       setTimeout(openSpectatorStream,retryDelay);
-       retryDelay=Math.min(20000,Math.round(retryDelay*1.6));
-     };
-     spectatorSocket.onerror=()=>{remoteStatus='network-error';try{spectatorSocket.close()}catch(_){}};
-   }catch(e){remoteStatus='reconnecting';setTimeout(openSpectatorStream,10000)}
+     socket.onclose=()=>{clearTimeout(initialTimer);if(spectatorSocket===socket)scheduleReconnect()};
+     socket.onerror=()=>{remoteStatus='network-error';socket.close()};
+   }catch(e){scheduleReconnect()}
  }
  render(null,false);
  if(remote)openSpectatorStream();else void poll();
