@@ -4,6 +4,22 @@
 // Only the host browser can publish; viewers can read the current disclosed state.
 const headers={"Cache-Control":"no-store","X-Content-Type-Options":"nosniff","Referrer-Policy":"no-referrer"};
 const originAllowed=o=>o==="http://127.0.0.1:8765";
+// Share public-state reads across simultaneous spectators in this Worker isolate.
+let sharedState=null,sharedStateAt=0,sharedStatePending=null;
+async function readSharedState(room){
+ if(sharedState&&Date.now()-sharedStateAt<1200)return sharedState;
+ if(sharedStatePending)return sharedStatePending;
+ sharedStatePending=(async()=>{
+  const r=await room.fetch("https://room/state");
+  if(!r.ok)throw Error("ROOM state HTTP "+r.status);
+  const data=await r.json();
+  if(!data||!data.state)throw Error("ROOM returned no state");
+  sharedState={state:data.state,updated:data.updated||0};
+  sharedStateAt=Date.now();
+  return sharedState;
+ })();
+ try{return await sharedStatePending}finally{sharedStatePending=null}
+}
 const cors=o=>({...headers,...(originAllowed(o)?{"Access-Control-Allow-Origin":o,"Vary":"Origin","Access-Control-Allow-Headers":"authorization,content-type,x-show-session,x-local-revision","Access-Control-Allow-Methods":"POST,OPTIONS"}:{})});
 const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{...headers,"Content-Type":"application/json;charset=utf-8",...extra}});
 const empty={stage:"waiting",round:"",image:null,revealed:[],focus:null,revealStep:0,revealTotal:0};
@@ -112,6 +128,7 @@ export default {
    if(!/^studio-[a-zA-Z0-9.-]{12,110}$/.test(presenter)||!Number.isSafeInteger(localRevision)||localRevision<0)
      return json({error:"update studio to v1.8.6: local OBS acknowledgement required"},409,cors(origin));
    const response=await room.fetch(new Request("https://room/publish",{method:"POST",body:request.body,headers:{"Content-Type":"application/json","X-Show-Session":presenter,"X-Local-Revision":String(localRevision)}}));
+   if(response.ok){sharedState=null;sharedStateAt=0;}
    return new Response(response.body,{status:response.status,headers:{...cors(origin),"Content-Type":"application/json"}});
   }
   if(u.pathname==="/upload"){
@@ -122,10 +139,12 @@ export default {
   }
   if(u.pathname==="/state")return room.fetch("https://room/state");
   if(u.pathname==="/api/public"){
-   const revHint=u.searchParams.get("rev");
-   const r=await room.fetch("https://room/state"+(revHint!==null?"?rev="+encodeURIComponent(revHint):"")),data=await r.json();
-   const rev=String(data.updated||0);
-   return json(data.unchanged?{revision:rev,unchanged:true,connected:true}:{revision:rev,unchanged:false,connected:true,state:data.state||empty});
+   try{
+    const data=await readSharedState(room),rev=String(data.updated||0);
+    return json(u.searchParams.get("rev")===rev?
+      {revision:rev,unchanged:true,connected:true}:
+      {revision:rev,unchanged:false,connected:true,state:data.state||empty});
+   }catch(e){return json({error:"relay temporarily unavailable",connected:false},503);}
   }
   if(u.pathname==="/obs"){
    try{
