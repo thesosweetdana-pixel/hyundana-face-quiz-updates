@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.7.8</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아 연예인 합성 퀴즈 · 제작실 · 문제 관리실 · 방송 진행실 v1.7.9</title>
 <style>
 /* v1.1.2: 0.5-unit click-based fine adjustments. Sliders remain draggable. */
 .ctrl .fine-row{display:flex;align-items:center;gap:7px;min-width:0}
@@ -119,7 +119,7 @@
 .duplicate-panel div+div{padding-top:6px;border-top:1px solid #ecdcbf}
 .duplicate-panel strong{font-weight:850}
 </style></head><body>
-<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.7.8</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
+<header class="top"><div class="brand"><span class="logo">✿</span> 현단아 퀴즈 연구실 <span class="pill" id="appVersion">v1.7.9</span></div><div class="top-actions"><button class="btn" id="updateBtn" type="button" title="프로그램 버전 확인">🔄 업데이트 확인</button><button class="btn" id="newBtn">＋ 새 문제</button><button class="btn" id="importBtn">프로젝트 불러오기</button><button class="btn tint" id="saveBtn">프로젝트 저장</button><button class="btn primary" id="exportBtn">PNG 내보내기</button></div></header>
 <div class="viewtabs" role="tablist" aria-label="작업실 화면"><button id="editorTab" class="viewtab active" role="tab" aria-selected="true">문제 제작실</button><button id="photoTab" class="viewtab" role="tab" aria-selected="false">연예인 사진 보관함 <span id="photoCount" class="countpill">0</span></button><button id="managerTab" class="viewtab" role="tab" aria-selected="false">문제 관리실 <span id="savedCount" class="countpill">0</span></button><button id="showTab" class="viewtab" role="tab" aria-selected="false">방송 진행실</button></div>
 
 <div id="updatePanel" hidden style="position:fixed;z-index:100;right:18px;top:74px;background:#fff;border:1px solid #d9e0eb;border-radius:14px;box-shadow:0 10px 35px #1f293730;padding:18px;width:min(420px,calc(100vw - 36px))">
@@ -903,7 +903,7 @@ ${d.notes||''}
  setTimeout(()=>{if(panel.hidden)check()},1800);
 })();
 
-/* Private Google Sheets selected-photo CSV import v1.7.4. */
+/* Private Google Sheets selected-photo CSV import v1.7.9. */
 (()=>{
 'use strict';
 const BTN=document.getElementById('sheetPhotoSync'),INFO=document.getElementById('sheetPhotoStatus'),CREDITS=document.getElementById('sheetCreditsExport');
@@ -913,6 +913,7 @@ const OPEN=document.createElement('button');OPEN.type='button';OPEN.className='b
 const INPUT=document.createElement('input');INPUT.type='file';INPUT.accept='.csv,text/csv';INPUT.hidden=true;BTN.after(INPUT);BTN.textContent='② 선택 사진 CSV 불러오기';
 INFO.textContent='비공개 시트 연결: ① 시트를 열고 「퀴즈실 가져오기」 탭 선택 → 파일 > 다운로드 > 쉼표로 구분된 값(.csv) → ② 내려받은 CSV 선택. 시트 공유 설정을 바꿀 필요는 없습니다.';
 let running=false;const message=s=>INFO.textContent=String(s);
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function parse(text){
  text=text.replace(/^\uFEFF/,'');const rows=[];let row=[],field='',q=false;
  for(let i=0;i<text.length;i++){let ch=text[i];if(q){if(ch==='"'){if(text[i+1]==='"'){field+='"';i++}else q=false}else field+=ch}else if(ch==='"')q=true;else if(ch===','){row.push(field);field=''}else if(ch==='\r'||ch==='\n'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(field);if(row.some(x=>x))rows.push(row);row=[];field=''}else field+=ch}
@@ -927,31 +928,42 @@ function extract(text){
 }
 function dataUrl(blob){return new Promise((yes,no)=>{const r=new FileReader();r.onload=()=>yes(r.result);r.onerror=()=>no(Error('파일 읽기 오류'));r.readAsDataURL(blob)})}
 async function run(file){
- if(running)return;running=true;BTN.disabled=true;let added=0,retained=0,fail=[];
+ if(running)return;running=true;BTN.disabled=true;let added=0,retained=0,fail=[],deferred=[],throttle=null,downloadCount=0;
  try{
   let picked=extract(await file.text());const seen=new Set();picked=picked.filter(r=>{let k=r.fileUrl.trim().replace(/_/g,' ').toLowerCase();if(seen.has(k))return false;seen.add(k);return true});
   if(!picked.length)throw Error('선택된 사진이 없습니다');
   const photos=await allPhotos();
   for(let i=0;i<picked.length;i++){
-   const r=picked[i];message('사진 '+(i+1)+'/'+picked.length+' · '+r.name+' · 새 '+added+' · 기존 '+retained+' · 실패 '+fail.length);
+   const r=picked[i];message('사진 '+(i+1)+'/'+picked.length+' · '+r.name+' · 새 '+added+' · 기존 '+retained+' · 실패 '+fail.length+' · 요청 제한 보류 '+deferred.length);
    try{
     const metadata={personId:r.personId,candidate:r.candidate,fileUrl:r.fileUrl,imageUrl:r.imageUrl,author:r.author,license:r.license,attribution:r.attribution,site:r.site,licenseReview:r.licenseReview,sheetReview:r.review,source:'Wikimedia Commons',lastSheetSync:new Date().toISOString()};
     const found=photos.find(p=>p.fileUrl===r.fileUrl&&p.dataUrl);
     if(found){Object.assign(found,metadata);await putPhoto(found);retained++;continue}
+    // Existing pictures are retained; do not request more images after Wikimedia throttles.
+    if(throttle){deferred.push(r.name+' '+r.candidate);continue}
     if(!r.imageUrl)throw Error('이미지 직접 URL 누락');
     const u=new URL(r.imageUrl);
     if(u.protocol!=='https:'||u.hostname!=='upload.wikimedia.org')throw Error('원본 이미지 URL 확인 필요');
+    if(downloadCount>0)await pause(1500); // respectful sequential requests
     const proxy='/api/photo?url='+encodeURIComponent(u.href);
     let response;
     try{response=await fetch(proxy,{cache:'no-store'});}catch(e){throw Error('로컬 사진 서버 연결 실패: '+(e.message||e))}
-    if(!response.ok){let reason='HTTP '+response.status;try{const info=await response.json();reason=info.error||reason}catch(_){}throw Error(reason)}
+    downloadCount++;
+    if(!response.ok){
+      let info={},reason='HTTP '+response.status;
+      try{info=await response.json();reason=info.error||reason}catch(_){}
+      if(response.status===429||response.status===503){
+        const limit=Error(reason);limit.throttled=true;limit.retryAfter=Number(info.retry_after_seconds)||60;throw limit;
+      }
+      throw Error(reason);
+    }
     const blob=await response.blob();if(!blob.type.startsWith('image/'))throw Error('이미지 형식 아님');
     if(blob.size>18*1024*1024)throw Error('18MB 초과');
     const data=await dataUrl(blob);await imageData(data);
     const name=decodeURIComponent(u.pathname.split('/').pop()||'original.jpg');
     const result=await registerPhoto({name:r.name,source:'Wikimedia Commons',fileName:name,dataUrl:data},photos);
     Object.assign(result.record,metadata);await putPhoto(result.record);if(result.created)added++;else retained++;
-   }catch(e){fail.push(r.name+' '+r.candidate+': '+(e.message||e))}
+   }catch(e){if(e.throttled){throttle={reason:e.message,retryAfter:e.retryAfter};deferred.push(r.name+' '+r.candidate)}else fail.push(r.name+' '+r.candidate+': '+(e.message||e))}
   }
   // Show all results after import. Previously a stale search/initial filter could hide saved photos.
   $('archiveSearch').value='';
@@ -960,14 +972,18 @@ async function run(file){
   const verified=await allPhotos();
   const selectedUrls=new Set(picked.map(p=>p.fileUrl));
   const saved=verified.filter(p=>selectedUrls.has(p.fileUrl)&&p.dataUrl);
-  const hidden=verified.length-saved.length;
-  message('CSV 선택 '+picked.length+'장 · 이번에 새 저장 '+added+'장 · 기존 보관 '+retained+'장 · 실패 '+fail.length+'장\n'+
-    '보관함 재검증: 전체 '+verified.length+'장 · 이번 CSV와 일치 '+saved.length+'장\n'+
-    (fail.length?'실패 원인:\n'+fail.join('\n'):'사진이 보관함에 표시됩니다.')+
-    '\n※ 검색/초성 필터를 전체로 초기화했습니다. 다른 버전의 브라우저에서는 이 PC 저장 사진이 공유되지 않습니다.');
-  if(fail.length){
-    const report=document.createElement('button');report.className='btn small';report.type='button';report.textContent='실패 목록 TXT 저장';
-    report.onclick=()=>download(new Blob([fail.join('\n')],{type:'text/plain;charset=utf-8'}),'퀴즈실_사진_가져오기_실패목록.txt');
+  const verifiedUrls=new Set(verified.filter(p=>p.fileUrl&&p.dataUrl).map(p=>p.fileUrl));
+  const missing=picked.filter(p=>!verifiedUrls.has(p.fileUrl));
+  const reasonLine=throttle?'Wikimedia 요청 제한: '+throttle.reason+'\n남은 '+deferred.length+'장은 요청하지 않고 보류했어요. 서버 안내 기준 '+Math.ceil(throttle.retryAfter/60)+'분 이상 지난 뒤 동일 CSV를 다시 불러오세요.\n':'';
+  message('CSV 선택 '+picked.length+'장 · 새 저장 '+added+'장 · 기존 보관 '+retained+'장 · 오류 '+fail.length+'장 · 요청 제한 보류 '+deferred.length+'장\n'+
+    '보관함 재검증: 전체 '+verified.length+'장 · 이번 CSV와 일치 '+saved.length+'장 · 아직 없는 사진 '+missing.length+'장\n'+
+    reasonLine+(fail.length?'개별 오류:\n'+fail.join('\n')+'\n':'')+
+    '\n※ 이미 보관한 사진은 다시 다운로드하지 않습니다. 기존 문제·사진은 유지됩니다.');
+  if(missing.length){
+    const report=document.createElement('button');report.className='btn small';report.type='button';report.textContent='아직 없는 사진 목록 TXT 저장';
+    report.onclick=()=>download(new Blob([missing.map(p=>p.name+' '+p.candidate+' | '+p.fileUrl).join('\n')+
+      '\n\n개별 오류:\n'+fail.join('\n')+
+      (throttle?'\n\n'+reasonLine:'')],{type:'text/plain;charset=utf-8'}),'퀴즈실_가져오기_미완료_사진.txt');
     INFO.appendChild(document.createElement('div')).appendChild(report);
   }
  }catch(e){message('가져오기 실패: '+e.message)}
