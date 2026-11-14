@@ -215,6 +215,11 @@ export default {
    const r=await room.fetch(new Request("https://room/access/config",{method:"POST",body:request.body,headers:{"Content-Type":"application/json"}}));
    return new Response(r.body,{status:r.status,headers:{...cors(origin),"Content-Type":"application/json;charset=utf-8"}});
   }
+  if(u.pathname==="/access/status"){
+   if(request.method!=="GET")return json({error:"method not allowed"},405);
+   const r=await room.fetch(new Request("https://room/access/check",{headers:{"X-Viewer-Session":viewerSession}}));
+   return new Response(r.body,{status:r.status,headers:{...headers,"Content-Type":"application/json;charset=utf-8"}});
+  }
   if(u.pathname==="/access/login"){
    if(request.method!=="POST")return json({error:"not allowed"},405);
    const r=await room.fetch(new Request("https://room/access/login",{method:"POST",body:request.body,headers:{"Content-Type":"application/json","X-Viewer-IP":request.headers.get("CF-Connecting-IP")||"unknown"}}));
