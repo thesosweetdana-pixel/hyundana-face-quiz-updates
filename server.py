@@ -452,7 +452,7 @@ class Handler(BaseHTTPRequestHandler):
         if not ok:
             self._response(409, {'ok': False, 'error': reason})
         else:
-            self._response(200, {'ok': True})
+            self._response(200, {'ok': True, 'revision': RELAY.revision})
 
 
 def main():
