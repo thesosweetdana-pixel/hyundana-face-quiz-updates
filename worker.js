@@ -1,4 +1,5 @@
 // Cloudflare Worker / Durable Object: public read-only quiz output.
+// Deployment refresh: low-latency spectator polling and cached state, 2026-11-14.
 // Set PUBLISH_TOKEN with: npx wrangler secret put PUBLISH_TOKEN
 // Only the host browser can publish; viewers can read the current disclosed state.
 const headers={"Cache-Control":"no-store","X-Content-Type-Options":"nosniff","Referrer-Policy":"no-referrer"};
