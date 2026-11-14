@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.8",
-  "notes": "재부팅 후 안정화: 안내사항/게임 규칙 PNG 로컬 저장·표시 지원, 참가자 서버 업로드 성공/실패 구분, 일시 통신 오류 시 마지막 정상 OBS 화면 유지, 중복된 OBS 안내문 정리. 기존 문제와 사진 유지.",
+  "version": "1.8.9",
+  "notes": "무료 실시간 중계 개선: 참가자 화면에 WebSocket 실시간 푸시 적용(빈번한 폴링 제거), 안내사항·게임 규칙 PNG를 자료 동기화에 포함. 기존 문제·사진 유지. Cloudflare Worker도 최신 코드 자동 배포되어야 하며 초과한 일일 무료 한도는 한국시간 오전 9시 초기화.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "60165826da0e460d8ed9ce7519f77b76961c486c0bb5be4dd5537e5d8320511d"
+      "sha256": "285cf84ec65ad88fb99067e30ff470947a6562e2c7de0864336e092989f9f17a"
     },
     {
       "path": "server.py",
@@ -16,7 +16,7 @@
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "971c1d812099eaaff2e810e863a30ccfa397d8d7736147e24507f6f5bf35648b"
+      "sha256": "4255e5d009b6d08b5443d2f2faea1343e43a9df4b62ea1397d723bb3df0ccd0b"
     },
     {
       "path": "bridge.js",
