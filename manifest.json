@@ -1,22 +1,22 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.7",
-  "notes": "예시 문제 정답 자동 공개 완료 시 진행 완료로 이동하고 본게임 ROUND에는 포함하지 않음. 본게임 시작 시 이전 문제 선택/준비 상태 초기화. 과거 진행한 예시 문제 수동 완료 버튼 추가. 저장된 다른 문제와 사진은 유지.",
+  "version": "1.8.8",
+  "notes": "재부팅 후 안정화: 안내사항/게임 규칙 PNG 로컬 저장·표시 지원, 참가자 서버 업로드 성공/실패 구분, 일시 통신 오류 시 마지막 정상 OBS 화면 유지, 중복된 OBS 안내문 정리. 기존 문제와 사진 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "d318e528a56b9806f54d3114cf18344e0ec56f2ee0f4446c4d23cd0db4818fd1"
+      "sha256": "60165826da0e460d8ed9ce7519f77b76961c486c0bb5be4dd5537e5d8320511d"
     },
     {
       "path": "server.py",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
-      "sha256": "27d88b03adb3967349cfd4b189df6d6acb2398a67914027ad8ba353e985b7b2c"
+      "sha256": "84ed445b3feb95df5f6dc332a6ecc114da5df5b96939b9de948ceaa820f4f3fc"
     },
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "7bca5ce5e2efc8576889c87f9b3aa4c6e5cf1e9d552e8a6ec3cf7ebecc11f226"
+      "sha256": "971c1d812099eaaff2e810e863a30ccfa397d8d7736147e24507f6f5bf35648b"
     },
     {
       "path": "bridge.js",
