@@ -1,22 +1,22 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.3",
-  "notes": "정답 자동 재생의 반복 확인 팝업 제거(잠금 유지), 원본 표시 기본 1.6초, OBS 및 진행실 페이드 1초, 저장 순번과 무관하게 공개된 문제 순서로 ROUND 번호 부여.",
+  "version": "1.8.4",
+  "notes": "안내사항/게임 규칙 포스터 송출 버튼, Cloudflare PNG 업로드, 실제 방송 라운드와 분리된 예시 문제 공개(진행완료 미처리). 이미지는 진행실에서 Cloudflare에 등록 필요.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "89589b4ef28ad64db660c34818d800767f3825bf2381bdca1f8b3cf4a88d43d4"
+      "sha256": "db641d746b3e1f678160aac46f08d8a10da3bb8e1277c42aa203e1a82858109e"
     },
     {
       "path": "server.py",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/server.py",
-      "sha256": "9f2836fb94d45a295d1c4d38092c90b5eaccf8e8ca26e09f4b0dfbb34b520afc"
+      "sha256": "e2e9d33ac0ae844e28a1dc2bf41935a7cac7ec0918609696d4fc961780b29e0c"
     },
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "86dd355a6d3ddb9f4b7ecd1b83f258181303958bd22ce82fe089654b5f8e3a43"
+      "sha256": "7bca5ce5e2efc8576889c87f9b3aa4c6e5cf1e9d552e8a6ec3cf7ebecc11f226"
     },
     {
       "path": "bridge.js",
