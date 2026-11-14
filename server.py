@@ -33,7 +33,7 @@ def safe_screen(stage='emergency'):
 
 
 def valid_image(value):
-    return isinstance(value, str) and len(value) < MAX_BODY and value.startswith('data:image/png;base64,')
+    return isinstance(value, str) and len(value) < MAX_BODY and value.startswith(('data:image/png;base64,', 'data:image/webp;base64,'))
 
 
 def sanitize_state(value):
