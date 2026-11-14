@@ -3,7 +3,7 @@
 // Only the host browser can publish; viewers can read the current disclosed state.
 const headers={"Cache-Control":"no-store","X-Content-Type-Options":"nosniff","Referrer-Policy":"no-referrer"};
 const originAllowed=o=>o==="http://127.0.0.1:8765";
-const cors=o=>({...headers,...(originAllowed(o)?{"Access-Control-Allow-Origin":o,"Vary":"Origin","Access-Control-Allow-Headers":"authorization,content-type","Access-Control-Allow-Methods":"POST,OPTIONS"}:{})});
+const cors=o=>({...headers,...(originAllowed(o)?{"Access-Control-Allow-Origin":o,"Vary":"Origin","Access-Control-Allow-Headers":"authorization,content-type,x-show-session,x-local-revision","Access-Control-Allow-Methods":"POST,OPTIONS"}:{})});
 const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{...headers,"Content-Type":"application/json;charset=utf-8",...extra}});
 const empty={stage:"waiting",round:"",image:null,revealed:[],focus:null,revealStep:0,revealTotal:0};
 function cleanState(raw){
@@ -18,6 +18,11 @@ export class QuizRoom{
  async fetch(request){
   const u=new URL(request.url);
   if(request.method==="POST"&&u.pathname==="/publish"){
+   const presenter=request.headers.get("X-Show-Session")||"";
+   const revision=Number(request.headers.get("X-Local-Revision"));
+   if(!/^studio-[a-zA-Z0-9.-]{12,110}$/.test(presenter)||!Number.isSafeInteger(revision)||revision<0)return json({error:"invalid presenter revision"},409);
+   // Dedupe repeated acknowledgements and never rewind the same controller.
+   if(this.lastPresenter===presenter&&this.lastLocalRevision!==undefined&&revision<=this.lastLocalRevision)return json({ok:true,unchanged:true});
    let raw;try{raw=await request.json();}catch{return json({error:"invalid json"},400);}
    if(JSON.stringify(raw).length>14000000)return json({error:"state too large"},413);
    const state=cleanState(raw);
@@ -26,6 +31,7 @@ export class QuizRoom{
    await this.ctx.storage.put("count",parts.length);
    const updated=Date.now();await this.ctx.storage.put("updated",updated);
    this.cachedState=state;this.cachedUpdated=updated;
+   this.lastPresenter=presenter;this.lastLocalRevision=revision;
    return json({ok:true});
   }
   if(request.method==="POST"&&u.pathname==="/asset"){
@@ -87,7 +93,12 @@ export default {
    if(request.method!=="POST")return json({error:"not allowed"},405);
    if(!originAllowed(origin))return json({error:"invalid origin"},403);
    if(!env.PUBLISH_TOKEN||request.headers.get("Authorization")!=="Bearer "+env.PUBLISH_TOKEN)return json({error:"unauthorized"},401, cors(origin));
-   const response=await room.fetch(new Request("https://room/publish",{method:"POST",body:request.body,headers:{"Content-Type":"application/json"}}));
+   // Reject legacy studio tabs which publish on independent timers without OBS ownership.
+   const presenter=request.headers.get("X-Show-Session")||"";
+   const localRevision=Number(request.headers.get("X-Local-Revision"));
+   if(!/^studio-[a-zA-Z0-9.-]{12,110}$/.test(presenter)||!Number.isSafeInteger(localRevision)||localRevision<0)
+     return json({error:"update studio to v1.8.6: local OBS acknowledgement required"},409,cors(origin));
+   const response=await room.fetch(new Request("https://room/publish",{method:"POST",body:request.body,headers:{"Content-Type":"application/json","X-Show-Session":presenter,"X-Local-Revision":String(localRevision)}}));
    return new Response(response.body,{status:response.status,headers:{...cors(origin),"Content-Type":"application/json"}});
   }
   if(u.pathname==="/upload"){
