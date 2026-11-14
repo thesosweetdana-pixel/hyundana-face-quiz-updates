@@ -94,7 +94,7 @@
   }
   el.style.fontSize=Math.max(min,size)+'px';
 }
- function setPhoto(next){if(!next || typeof next!=='string' || !next.startsWith('data:image/png;base64,')){photoUrl='';$('frontPhoto').style.opacity=0;$('backPhoto').style.opacity=0;return;}
+ function setPhoto(next){if(!next || typeof next!=='string' || !next.match(/^data:image\/(png|webp);base64,/)){photoUrl='';$('frontPhoto').style.opacity=0;$('backPhoto').style.opacity=0;return;}
    if(next===photoUrl)return;
    const front=$('frontPhoto'),back=$('backPhoto');const token=++moveToken;photoUrl=next;
    // Swap buffers; the currently visible original remains behind the new original during a fade.
@@ -117,7 +117,7 @@
    }else{vid.pause();vidWarn.hidden=true;}
    if(stage==='question'||stage==='reveal'){setPhoto(st?.image)}else if(changed){resetPhotos();}
    for(let i=0;i<3;i++){
-     const p=stage==='reveal' && Array.isArray(st?.revealed)?st.revealed.find(x=>x?.slot===slots[i] && typeof x?.image==='string' && x.image.startsWith('data:image/png;base64,')):null;
+     const p=stage==='reveal' && Array.isArray(st?.revealed)?st.revealed.find(x=>x?.slot===slots[i] && typeof x?.image==='string' && x.image.match(/^data:image\/(png|webp);base64,/)):null;
      const c=cards[i];c.box.style.display=p?'flex':'none';c.source.style.display=p?'flex':'none';c.name.style.display=p?'flex':'none';
      if(p){if(c.image.src!==p.image)c.image.src=p.image;c.source.textContent=p.source?'출처 : '+p.source:'';c.name.textContent=p.name||'';fitText(c.source,24,12);fitText(c.name,32,18);}
      else {c.image.removeAttribute('src');c.source.textContent='';c.name.textContent='';}
@@ -159,6 +159,6 @@
  }
  render(null,false);
  if(remote)openSpectatorStream();else void poll();
- window.HyundanaOBS={version:'1.8.9',getProtocol:()=>remote?'WebSocket /stream (push)':'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage,getConnection:()=>remoteStatus};
+ window.HyundanaOBS={version:'1.8.10',getProtocol:()=>remote?'WebSocket /stream (push)':'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage,getConnection:()=>remoteStatus};
 })();
 </script></body></html>
