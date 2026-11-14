@@ -34,6 +34,9 @@ export class QuizRoom{
  constructor(ctx,env){this.ctx=ctx;this.env=env;this.cachedState=null;this.cachedUpdated=null;}
  async fetch(request){
   const u=new URL(request.url);
+  if(request.method==="GET"&&u.pathname==="/viewers"){
+   return json({online:this.ctx.getWebSockets().length,transport:"websocket",release:"1.8.10"});
+  }
   if(request.method==="GET"&&u.pathname==="/socket"&&request.headers.get("Upgrade")?.toLowerCase()==="websocket"){
    const pair=new WebSocketPair();
    const [client,server]=Object.values(pair);
@@ -134,7 +137,7 @@ export default {
  async fetch(request,env){
   const u=new URL(request.url),origin=request.headers.get("Origin")||"";
   if(request.method==="OPTIONS"&&(u.pathname==="/publish"||u.pathname==="/upload"))return new Response(null,{status:204,headers:cors(origin)});
-  if(u.pathname==="/health")return json({ok:true,release:"1.8.9-ws",requiresLocalAck:true,transport:"websocket"});
+  if(u.pathname==="/health")return json({ok:true,release:"1.8.10-ws",requiresLocalAck:true,transport:"websocket"});
   if(u.pathname==="/diagnostics"){
    try{
     if(!env.ROOM)return json({ok:false,release:"1.8.8-diagnostics",component:"ROOM",issue:"binding-missing"},503);
@@ -170,6 +173,12 @@ export default {
    if(request.headers.get("Upgrade")?.toLowerCase()!=="websocket")return json({error:"WebSocket upgrade required"},426);
    try{return await room.fetch(new Request("https://room/socket",{headers:{"Upgrade":"websocket"}}))}
    catch(e){return json({error:"WebSocket room unavailable"},503)}
+  }
+  if(u.pathname==="/viewers"){
+   try{
+    const result=await room.fetch("https://room/viewers");
+    return new Response(result.body,{status:result.status,headers:{...cors(origin),"Content-Type":"application/json;charset=utf-8"}});
+   }catch(e){return json({online:null,error:"중계 서버 용량 또는 일일 한도를 확인하세요"},503,cors(origin))}
   }
   if(u.pathname==="/state")return room.fetch("https://room/state");
   if(u.pathname==="/api/public"){
