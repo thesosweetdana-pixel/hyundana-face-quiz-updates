@@ -73,7 +73,7 @@ export class QuizRoom{
    const code=String(body?.code||"").trim();
    const hash=await this.codeHash(code,cfg.salt);
    if(hash!==cfg.hash){
-    const count=((f&&now-f.since<300000)?f.count:0)+1;
+    const count=((f&&f.until<=now&&f.until>0)?0:((f&&now-f.since<300000)?f.count:0))+1;
     this.loginFailures.set(ip,{count,since:count===1?now:f.since,until:count>=5?now+30000:0});
     if(count>=5)return json({error:"5회 틀렸어요. 30초 뒤에 다시 입력할 수 있어요.",retryAfter:30},429);
     return json({error:"입장코드가 올바르지 않아요. 다시 입력해 주세요.",attempts:count},401);
@@ -194,7 +194,7 @@ fetch('/assets/next.mp4',{method:'HEAD'}).then(r=>{if(r.ok){vid.src='/assets/nex
 export default {
  async fetch(request,env){
   const u=new URL(request.url),origin=request.headers.get("Origin")||"";
-  if(request.method==="OPTIONS"&&(u.pathname==="/publish"||u.pathname==="/upload"))return new Response(null,{status:204,headers:cors(origin)});
+  if(request.method==="OPTIONS"&&(u.pathname==="/publish"||u.pathname==="/upload"||u.pathname==="/access/config"))return new Response(null,{status:204,headers:cors(origin)});
   if(u.pathname==="/health")return json({ok:true,release:"1.8.10-poll-guard",requiresLocalAck:true,transport:"websocket",legacyPollingBlocked:true});
   if(u.pathname==="/diagnostics"){
    try{
