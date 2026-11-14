@@ -130,7 +130,35 @@
    const d=await response.json();revision=d.revision;
    if(!d.unchanged)render(d.state,d.connected);
   }catch(e){/* Preserve last valid scene during temporary local network/renderer errors. */}setTimeout(poll,350)}
- render(null,false);void poll();
- window.HyundanaOBS={version:'1.8.8',getProtocol:()=> 'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage};
+ // Local OBS continues reading localhost. Public viewers use one persistent,
+ // hibernating WebSocket: no HTTP polling (and therefore no per-viewer DO quotas).
+ const remote=location.hostname!=='127.0.0.1'&&location.hostname!=='localhost';
+ let spectatorSocket=null,retryDelay=1200,remoteStatus='connecting';
+ function openSpectatorStream(){
+   if(!remote)return;
+   try{
+     spectatorSocket=new WebSocket((location.protocol==='https:'?'wss://':'ws://')+location.host+'/stream');
+     spectatorSocket.onopen=()=>{retryDelay=1200;remoteStatus='connected';};
+     spectatorSocket.onmessage=event=>{
+       try{
+         const data=JSON.parse(event.data);
+         if(!data?.state)return;
+         if(revision!==String(data.revision)){
+           revision=String(data.revision);render(data.state,data.connected!==false);
+         }
+         remoteStatus='connected';
+       }catch(e){remoteStatus='message-error'}
+     };
+     spectatorSocket.onclose=()=>{
+       remoteStatus='reconnecting';
+       setTimeout(openSpectatorStream,retryDelay);
+       retryDelay=Math.min(20000,Math.round(retryDelay*1.6));
+     };
+     spectatorSocket.onerror=()=>{remoteStatus='network-error';try{spectatorSocket.close()}catch(_){}};
+   }catch(e){remoteStatus='reconnecting';setTimeout(openSpectatorStream,10000)}
+ }
+ render(null,false);
+ if(remote)openSpectatorStream();else void poll();
+ window.HyundanaOBS={version:'1.8.9',getProtocol:()=>remote?'WebSocket /stream (push)':'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage,getConnection:()=>remoteStatus};
 })();
 </script></body></html>
