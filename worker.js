@@ -8,7 +8,7 @@ const cors=o=>({...headers,...(originAllowed(o)?{"Access-Control-Allow-Origin":o
 const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{...headers,"Content-Type":"application/json;charset=utf-8",...extra}});
 const empty={stage:"waiting",round:"",image:null,revealed:[],focus:null,revealStep:0,revealTotal:0};
 function cleanState(raw){
- if(!raw||!["waiting","title","question","reveal","summary","emergency","end"].includes(raw.stage))return empty;
+ if(!raw||!["waiting","title","notice","rules","question","reveal","summary","emergency","end"].includes(raw.stage))return empty;
  const image=x=>typeof x==="string"&&x.startsWith("data:image/png;base64,")&&x.length<12000000?x:null;
  const p=raw.stage==="reveal"&&Array.isArray(raw.revealed)?raw.revealed.slice(0,3).filter(x=>["A","B","C"].includes(x?.slot)).map(x=>({slot:x.slot,name:String(x.name||"").slice(0,90),source:String(x.source||"").slice(0,300),image:image(x.image)})):[];
  return {stage:raw.stage,round:String(raw.round||"").slice(0,80),image:["question","reveal"].includes(raw.stage)?image(raw.image):null,revealed:p,
@@ -31,7 +31,7 @@ export class QuizRoom{
   }
   if(request.method==="POST"&&u.pathname==="/asset"){
    const name=u.searchParams.get("name")||"";
-   if(!["question.webp","answer.webp","next.mp4","standby.webp","intro.webp","end.webp"].includes(name))return json({error:"unsupported asset"},400);
+   if(!["question.webp","answer.webp","next.mp4","standby.webp","intro.webp","end.webp","notice.png","rules.png"].includes(name))return json({error:"unsupported asset"},400);
    const bytes=new Uint8Array(await request.arrayBuffer());
    if(bytes.length<8||bytes.length>20000000)return json({error:"asset size limit"},413);
    const parts=Math.ceil(bytes.length/700000);
@@ -47,7 +47,7 @@ export class QuizRoom{
    const match=(request.headers.get("Range")||"").match(/^bytes=(\d+)-(\d*)$/);
    const start=match?Number(match[1]):0,end=match?(match[2]?Math.min(bytes.length-1,Number(match[2])):bytes.length-1):bytes.length-1;
    if(start>=bytes.length||end<start)return new Response(null,{status:416,headers:{"Content-Range":"bytes */"+bytes.length}});
-   const type=name.endsWith(".mp4")?"video/mp4":"image/webp";
+   const type=name.endsWith(".mp4")?"video/mp4":name.endsWith(".png")?"image/png":"image/webp";
    const head={"Content-Type":type,"Accept-Ranges":"bytes","Content-Length":String(end-start+1),"Cache-Control":"public, max-age=3600"};if(match)head["Content-Range"]="bytes "+start+"-"+end+"/"+bytes.length;
    return new Response(bytes.slice(start,end+1),{status:match?206:200,headers:head});
   }
