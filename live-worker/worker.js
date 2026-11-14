@@ -143,7 +143,7 @@ export default {
  async fetch(request,env){
   const u=new URL(request.url),origin=request.headers.get("Origin")||"";
   if(request.method==="OPTIONS"&&(u.pathname==="/publish"||u.pathname==="/upload"))return new Response(null,{status:204,headers:cors(origin)});
-  if(u.pathname==="/health")return json({ok:true,release:"1.8.10-ws",requiresLocalAck:true,transport:"websocket"});
+  if(u.pathname==="/health")return json({ok:true,release:"1.8.10-poll-guard",requiresLocalAck:true,transport:"websocket",legacyPollingBlocked:true});
   if(u.pathname==="/diagnostics"){
    try{
     if(!env.ROOM)return json({ok:false,release:"1.8.8-diagnostics",component:"ROOM",issue:"binding-missing"},503);
