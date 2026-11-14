@@ -24,7 +24,7 @@ HOST = '127.0.0.1'
 PORT = 8765
 HEARTBEAT_LIMIT = 15.0  # controller inactivity -> emergency screen
 MAX_BODY = 25 * 1024 * 1024
-ALLOWED_STAGES = {'waiting', 'title', 'question', 'reveal', 'summary', 'emergency', 'end'}
+ALLOWED_STAGES = {'waiting', 'title', 'notice', 'rules', 'question', 'reveal', 'summary', 'emergency', 'end'}
 UPDATER = Updater(ROOT)
 
 
