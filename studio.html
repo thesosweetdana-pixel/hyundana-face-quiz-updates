@@ -222,7 +222,6 @@
 <button class="btn" id="showNotice">③ 안내사항</button>
 <button class="btn" id="showRules">④ 게임 규칙</button>
 <button class="btn" id="showMainGame">▶ 본게임 시작 · 라운드 초기화</button>
-<button class="btn primary" id="showNextWithVideo">다음 문제 준비중 MP4</button>
 <button class="btn" id="showEnd" style="border-color:#d77a95;color:#ac335e;font-weight:900">감사합니다 · 종료 화면</button>
 <button class="btn" id="showResume" hidden>↩ 종료 취소 · 진행 재개</button>
 </div><p class="show-small">정답 공개 후에도 화면을 유지해요. 다음 문제 대기 영상·다음 문제 공개·감사합니다 화면은 진행자가 선택합니다.</p></section>
@@ -233,13 +232,11 @@
    <label class="showfield">진행 회차 <select id="showEpisodeSelect"><option value="1">1회차</option></select></label>
    <label class="showfield">진행할 문제 <select id="showQuestionSelect"><option value="">준비된 문제 없음</option></select></label>
 <label class="showfield" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showExampleMode" style="width:18px;height:18px"> 이 문제를 예시 문제로 공개 (ROUND 제외 · 정답 공개 후 진행 완료)</label>
-<div class="show-buttons"><button class="btn" type="button" id="showMarkPriorExampleDone">이전에 진행한 예시 문제 완료 처리</button></div>
    <div class="show-buttons"><button class="btn" id="showPrepare">선택 문제 준비</button><button class="btn" id="showPrepareNext" hidden>기존 다음 준비</button></div>
    <div class="show-alert" id="showPreparedInfo">현재 준비된 문제가 없습니다.</div>
-   <div class="show-buttons"><button class="btn primary" id="showStart">▶ 준비한 문제 공개</button><button class="btn primary" id="showAdvanceQuestion">▶ 다음 문제 공개</button><button class="btn" id="showVideoTest" hidden>영상 테스트</button></div>
+   <div class="show-buttons"><button class="btn primary" id="showStart">▶ 준비한 문제 공개</button><button class="btn primary" id="showAdvanceQuestion">▶ 다음 문제 공개</button><button class="btn primary" id="showNextWithVideo">▶ 다음 문제 준비중 MP4</button><button class="btn" id="showVideoTest" hidden>영상 테스트</button></div>
    <hr style="border:0;border-top:1px solid #e8eaf2;margin:16px 0">
    <h3>② 정답 자동 공개</h3>
-   <div class="show-alert warn">「정답 공개 준비」 → 「정답 자동 재생」을 누르면 합성 → A → 합성 → B → 합성 → C → 합성을 진행해요. <b>마지막 합성 화면은 계속 유지</b>되며, 다음 문제로 자동 이동하지 않아요.</div>
    <div class="show-buttons"><button class="btn" id="showArm">🔒 정답 공개 준비</button><button class="btn primary" id="showReveal">▶ 정답 자동 재생</button><button class="btn" id="showPause" disabled>⏸ 일시정지</button><button class="btn" id="showStop" disabled>■ 공개 중단</button></div>
    <p class="show-small" id="showRevealText">아직 정답을 공개하지 않았습니다.</p><div class="show-duration"><label for="showHoldDuration">원본 표시 시간</label><select id="showHoldDuration"><option value="1600" selected>1.6초</option><option value="2000">2초</option><option value="2300">2.3초</option></select><span class="show-small">합성 화면도 약 1.3초 유지 · 페이드 약 1초</span></div>
    <details class="show-extras"><summary>기타 방송 제어</summary><div class="show-buttons"><button class="btn" id="showSummary">합성 얼굴로 복귀</button><button class="btn" id="showEmergency" style="border-color:#d89898;color:#9f4040">긴급 안전 화면</button></div></details>
@@ -856,21 +853,6 @@ $('showObsPreview').addEventListener('load',()=>{
 });
 $('openPublicOutput').onclick=()=>{const w=window.open('/obs','HyundanaOBS','width=1280,height=720,resizable=yes');if(!w)toast('팝업이 차단되었어요. 아래 OBS 화면 열기를 이용해주세요.');};
 $('showPrepare').onclick=async()=>{const e=showControl.queue.find(x=>x.id===$('showQuestionSelect').value);await showPrepareEntry(e);};
-$('showMarkPriorExampleDone').onclick=async()=>{
- const entry=showControl.queue.find(e=>e.id===$('showQuestionSelect').value);
- if(!entry)return toast('완료 처리할 예시 문제를 목록에서 선택해 주세요.');
- if(showControl.playing||showControl.preparing)return toast('정답 공개나 문제 준비가 끝난 뒤 처리해 주세요.');
- if(!confirm('이전에 시연한 예시 문제를 진행 완료로 이동할까요? 이 문제는 본게임 목록에서 제외되며 ROUND는 증가하지 않습니다.'))return;
- try{
-  entry.status='done';entry.wasExample=true;
-  entry.completedAt=new Date().toISOString();entry.updatedAt=entry.completedAt;
-  await putStored(entry);
-  if(showControl.pending?.entry?.id===entry.id)showControl.pending=null;
-  if(showControl.active?.entry?.id===entry.id){showControl.active=null;showControl.round='';showControl.revealStep=0;showControl.revealCount=0;showControl.armed=false;showSetStage('summary');}
-  await refreshManager();await refreshShowQueue();
-  toast('예시 문제를 진행 완료로 이동했어요. ROUND에는 포함되지 않습니다.');
- }catch(e){toast('예시 문제 완료 저장 실패: '+e.message)}
-};
 $('showPrepareNext').onclick=async()=>{const idx=showControl.queue.findIndex(e=>e.id===showControl.active?.entry.id),next=showControl.queue[idx+1]||showControl.queue[0];if(!next)return toast('준비된 문제가 없어요.');$('showQuestionSelect').value=next.id;await showPrepareEntry(next);};
 $('showVideoTest').onclick=()=>{
  if(showControl.preparing||showControl.playing||showControl.stage==='end')return toast('문제 공개 중에는 테스트 영상을 실행할 수 없어요.');
