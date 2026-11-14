@@ -31,9 +31,11 @@
 #scene[data-stage='summary'] #videoPanel{display:block}
 #safety{display:none;position:absolute;inset:0;background:#24152f;color:white;font-size:46px;font-weight:800;align-items:center;justify-content:center}
 #scene[data-stage='emergency'] #safety{display:flex}
-#endPanel,#standbyPanel,#introPanel{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#endPanel,#standbyPanel,#introPanel,#noticePanel,#rulesPanel{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
 #scene[data-stage='waiting'] #standbyPanel{display:block}
 #scene[data-stage='title'] #introPanel{display:block}
+#scene[data-stage='notice'] #noticePanel{display:block}
+#scene[data-stage='rules'] #rulesPanel{display:block}
 #scene[data-stage='end'] #endPanel{display:block}
 #endFallback{display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:#fff;font-size:70px;font-weight:900;background:radial-gradient(circle,#693183,#29133f)}
 #scene[data-stage='end'][data-end-image='missing'] #endPanel{display:none}
@@ -47,7 +49,7 @@
 <img id="questionBg" alt="문제 공개 디자인"/><img id="answerBg" alt="정답 공개 디자인"/>
 <div id="roundNum" aria-label="현재 라운드"></div>
 <div id="mainStack"><img id="backPhoto" alt=""/><img id="frontPhoto" alt="합성 사진 또는 공개된 원본"/></div>
-<div id="answerCards"></div><img id="standbyPanel" alt="참가자 세팅 대기 · 준비중"><img id="introPanel" alt="현단아의 뉴뀨? 콘텐츠 오프닝"><img id="endPanel" alt="현단아의 뉴뀨? · 감사합니다"><div id="endFallback">♡ 감사합니다 ♡</div><video id="videoPanel" muted autoplay playsinline preload="auto"></video><div id="videoWarn" hidden></div><div id="safety">방송 화면 준비 중</div><div id="cardWarning"></div>
+<div id="answerCards"></div><img id="standbyPanel" alt="참가자 세팅 대기 · 준비중"><img id="introPanel" alt="현단아의 뉴뀨? 콘텐츠 오프닝"><img id="noticePanel" alt="현단아의 뉴뀨 안내사항"><img id="rulesPanel" alt="현단아의 뉴뀨 게임 규칙"><img id="endPanel" alt="현단아의 뉴뀨? · 감사합니다"><div id="endFallback">♡ 감사합니다 ♡</div><video id="videoPanel" muted autoplay playsinline preload="auto"></video><div id="videoWarn" hidden></div><div id="safety">방송 화면 준비 중</div><div id="cardWarning"></div>
 </div>
 <script>
 (()=>{'use strict';
@@ -64,6 +66,8 @@
 
  $('questionBg').src=questionBg;$('answerBg').src=answerBg;vid.src=waitVideo;
  $('standbyPanel').src='/assets/standby.webp';$('introPanel').src='/assets/intro.webp';
+ const posterBase=location.hostname==='127.0.0.1'||location.hostname==='localhost'?'https://hyundana-quiz-live.thesosweetdana.workers.dev':'';
+ $('noticePanel').src=posterBase+'/assets/notice.png';$('rulesPanel').src=posterBase+'/assets/rules.png';
  const endPanel=$('endPanel');scene.dataset.endImage='missing';endPanel.onload=()=>{scene.dataset.endImage='ready'};endPanel.onerror=()=>{scene.dataset.endImage='missing'};endPanel.src='/assets/end.webp';
  const slots=['A','B','C'];
  const cards=[];
@@ -99,8 +103,8 @@
    requestAnimationFrame(()=>requestAnimationFrame(()=>{if(token!==moveToken)return;front.style.transition='opacity 1s ease-in-out';back.style.transition='opacity 1s ease-in-out';front.style.opacity='1';back.style.opacity='0';}));
  }
  function resetPhotos(){photoUrl='';++moveToken;$('frontPhoto').removeAttribute('src');$('backPhoto').removeAttribute('src');$('frontPhoto').style.opacity='0';$('backPhoto').style.opacity='0';}
- function roundLabel(str){const m=String(str||'').match(/(\d+)/);return 'ROUND '+(m?String(Number(m[1])).padStart(2,'0'):'01');}
- function render(st,connected){let stage=(connected&&st&&typeof st.stage==='string')?st.stage:'emergency';if(!['question','reveal','summary','waiting','title','emergency','end'].includes(stage))stage='emergency';
+ function roundLabel(str){if(String(str||'').toLowerCase().includes('example')||String(str||'').includes('예시'))return '예시 문제';const m=String(str||'').match(/(\d+)/);return 'ROUND '+(m?String(Number(m[1])).padStart(2,'0'):'01');}
+ function render(st,connected){let stage=(connected&&st&&typeof st.stage==='string')?st.stage:'emergency';if(!['question','reveal','summary','waiting','title','notice','rules','emergency','end'].includes(stage))stage='emergency';
    const changed=stage!==sceneStage;sceneStage=stage;scene.dataset.stage=stage;
    $('roundNum').textContent=roundLabel(st?.round);
    if(stage==='summary'){
@@ -127,6 +131,6 @@
    if(!d.unchanged)render(d.state,d.connected);
   }catch(e){revision=null;render(null,false)}setTimeout(poll,350)}
  render(null,false);void poll();
- window.HyundanaOBS={version:'1.8.3',getProtocol:()=> 'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage};
+ window.HyundanaOBS={version:'1.8.4',getProtocol:()=> 'GET /api/public?rev=<last revision>',getSceneState:()=>sceneStage};
 })();
 </script></body></html>
