@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.7.9",
-  "notes": "Wikimedia HTTP 429 요청제한 감지 시 Retry-After를 존중하고 이후 이미지 요청을 보류. 기존 보관 원본 중복 다운로드 방지·다운로드 간격 조절·미완료 목록 안내. 문제 데이터 및 v1.7.7 진행실 기능 유지.",
+  "version": "1.8.0",
+  "notes": "연예인 사진 전체 삭제(원본 연동 문제의 해당 사진만 제거·제작 중 전환), 회차별·전체 문제 일괄 진행 준비, OBS 로컬 송출 연결/파일 진단 추가. 사진·문제 데이터는 사용자 명시 조작 전까지 보존.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "1185e55a8867f547d3f571f0cb475dd25c0d191cfe4ffc3f0c164a6aec90f477"
+      "sha256": "68b2be63f6024863e8876a17ff1906b851efc6f4fdf91bebb74aecd367a4e08c"
     },
     {
       "path": "server.py",
