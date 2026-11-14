@@ -42,11 +42,12 @@ export class QuizRoom{
    if(!meta)return new Response("missing asset",{status:404});
    const bytes=new Uint8Array(meta.size);
    for(let i=0;i<meta.count;i++){const part=await this.ctx.storage.get("asset:"+name+":"+i);if(!part)return new Response("asset unavailable",{status:503});bytes.set(part,i*700000);}
-   const match=(request.headers.get("Range")||"").match(/^bytes=(\\d+)-(\\d*)$/);
+   const match=(request.headers.get("Range")||"").match(/^bytes=(\d+)-(\d*)$/);
    const start=match?Number(match[1]):0,end=match?(match[2]?Math.min(bytes.length-1,Number(match[2])):bytes.length-1):bytes.length-1;
    if(start>=bytes.length||end<start)return new Response(null,{status:416,headers:{"Content-Range":"bytes */"+bytes.length}});
    const type=name.endsWith(".mp4")?"video/mp4":"image/webp";
-   return new Response(bytes.slice(start,end+1),{status:match?206:200,headers:{"Content-Type":type,"Accept-Ranges":"bytes","Content-Range":match?"bytes "+start+"-"+end+"/"+bytes.length:undefined,"Content-Length":String(end-start+1),"Cache-Control":"public, max-age=3600"}});
+   const head={"Content-Type":type,"Accept-Ranges":"bytes","Content-Length":String(end-start+1),"Cache-Control":"public, max-age=3600"};if(match)head["Content-Range"]="bytes "+start+"-"+end+"/"+bytes.length;
+   return new Response(bytes.slice(start,end+1),{status:match?206:200,headers:head});
   }
   const count=await this.ctx.storage.get("count")||0;let state=empty;
   if(count){const parts=[];for(let i=0;i<count;i++)parts.push(await this.ctx.storage.get("part:"+i)||"");try{state=JSON.parse(parts.join(""))}catch{state=empty}}
