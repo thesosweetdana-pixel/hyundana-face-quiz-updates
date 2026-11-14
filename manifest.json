@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.13",
-  "notes": "진행실 버튼 순서(준비한 문제 공개 → MP4 → 다음 문제 공개) 및 색상 구분. 진행실·참가자 공통코드 보기/숨기기. 인증 쿠키 파싱, HEAD 이미지 접근 제어, 인증 변경 후 재접속 반복 방지. 대기 중 불필요한 반복 조회 없음. 실제 20명 지연 검증 별도 필요. 기존 문제와 사진 데이터 유지. 업데이트 파일의 실제 SHA-256 체크섬 재생성.",
+  "version": "1.8.14",
+  "notes": "중계 중단 버튼이 Cloudflare Durable Object의 연결 중단 플래그를 설정해 모든 참가자 WebSocket 종료, 새 WebSocket/미디어 요청/화면 발행 차단. 참가자는 화면을 새로고침해야 중계 재개 후 다시 접속 가능. 이미 전송된 화면은 제거 불가. 중계 연결은 서버 중단 플래그 해제 후 공개 화면 전송. 종료 후 재개 시 화면 선택 버튼 복원. 기존 문제/사진/저장 데이터 불변.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "e57bb6225dd367f0a8375cfd8569ddfe975886d63dae83b9a4d49da0f06dba30"
+      "sha256": "c5b3c25ec4ff7ba2ac461618859f93b2ca6607718e1d881f1ecfc9a09310a77a"
     },
     {
       "path": "server.py",
@@ -16,7 +16,7 @@
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "0bb344da149fd6164ac3a616ab3d3a25fec5203b3a7c0c0077f0ffa7664275d2"
+      "sha256": "d7337e43f11ce261086f74014461f9a60a861c426e24805b0f167e44f928691c"
     },
     {
       "path": "bridge.js",
