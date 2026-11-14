@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.2",
-  "notes": "Cloudflare 참가자 전용 배포 HTTPS 주소를 진행실 실시간 중계 설정에 자동 입력. 별도 비밀키 등록 필요. 문제/OBS 기존 기능 유지.",
+  "version": "1.8.3",
+  "notes": "정답 자동 재생의 반복 확인 팝업 제거(잠금 유지), 원본 표시 기본 1.6초, OBS 및 진행실 페이드 1초, 저장 순번과 무관하게 공개된 문제 순서로 ROUND 번호 부여.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "28987722ad39c1e00a0ac421b123af9d65c95c3ae8881983fb0e0083c9f88d24"
+      "sha256": "89589b4ef28ad64db660c34818d800767f3825bf2381bdca1f8b3cf4a88d43d4"
     },
     {
       "path": "server.py",
@@ -16,7 +16,7 @@
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "341c10eaa119e3d283af5b88309ed0de89a52a2f2a91762ad56cdff8332002e7"
+      "sha256": "86dd355a6d3ddb9f4b7ecd1b83f258181303958bd22ce82fe089654b5f8e3a43"
     },
     {
       "path": "bridge.js",
