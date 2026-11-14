@@ -258,6 +258,8 @@
 <div class="show-alert" style="margin:10px 0">외부 참가자는 Cloudflare HTTPS 주소로 시청합니다. 재부팅 후 중계 오류가 표시되면 연결 상태를 확인해 주세요.</div>
 <label class="showfield">참가자용 HTTPS 주소 <input id="liveViewerUrl" type="url" placeholder="https://hyundana-quiz-live.계정.workers.dev" autocomplete="url"></label>
 <label class="showfield">진행자 전용 중계 비밀키 <input id="liveViewerToken" type="password" placeholder="Cloudflare에 등록한 PUBLISH_TOKEN" autocomplete="off"></label>
+<div class="show-buttons" style="align-items:end;flex-wrap:wrap"><label class="showfield" style="flex:1;min-width:170px">참가자 공통 입장코드 (4~32자)<input id="liveViewerPasscode" type="password" minlength="4" maxlength="32" placeholder="참가자에게 알려줄 입장코드" autocomplete="new-password"></label><button class="btn" type="button" id="liveViewerSetPasscode">🔒 입장코드 설정·변경</button></div>
+<p class="show-small">입장코드는 참가자에게만 안내하세요. 설정 후 비밀번호 입력 화면이 활성화됩니다. 변경하면 기존 참가자 연결이 끊기며 새 코드로 다시 입장해야 합니다.</p>
 <div class="show-buttons"><button class="btn primary" type="button" id="liveViewerConnect">중계 연결</button><button class="btn" type="button" id="liveViewerUpload">방송 화면 이미지·MP4 동기화</button><button class="btn" type="button" id="liveViewerDisconnect">중계 중단</button><button class="btn" type="button" id="liveViewerCopy">참가자 주소 복사</button><button class="btn" type="button" id="liveViewerPreflight">30명 방송 전 점검</button></div>
 <div class="show-buttons"><label class="btn" style="cursor:pointer">안내사항 PNG 올리기 <input id="noticePosterFile" type="file" accept="image/png" hidden></label><label class="btn" style="cursor:pointer">게임 규칙 PNG 올리기 <input id="rulesPosterFile" type="file" accept="image/png" hidden></label></div>
 <div id="liveViewerStatus" class="show-alert" aria-live="polite">참가자용 중계 서버가 아직 연결되지 않았어요.</div>
@@ -1172,6 +1174,20 @@ if(CREDITS)CREDITS.addEventListener('click',async()=>{
   url=next;token=key;enabled=true;set('url',url);set('token',token);set('enabled','yes');
   lastSentRev=null;lastSentSession=null;
   label('로컬 OBS 승인 확인 중…');window.dispatchEvent(new Event('hyundana:request-public-commit'));
+ };
+ $('liveViewerSetPasscode').onclick=async()=>{
+  const u=normalise(urlEl.value),key=keyEl.value.trim(),code=$('liveViewerPasscode').value.trim();
+  if(!u||key.length<16)return label('먼저 참가자 서버 주소와 진행자 전용 중계 비밀키를 입력해 주세요.');
+  if(code.length<4||code.length>32)return label('입장코드는 4~32자로 입력해 주세요.');
+  const button=$('liveViewerSetPasscode');button.disabled=true;
+  try{
+   const response=await fetch(u+'/access/config',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({code}),cache:'no-store'});
+   const data=await response.json();
+   if(!response.ok)throw Error(data.error||'HTTP '+response.status);
+   $('liveViewerPasscode').value='';
+   label('🔒 참가자 공통 입장코드 설정 완료. 참가자는 /obs에서 코드를 입력해야 합니다. 기존 참가자 연결은 새 코드 입력이 필요해요.');
+  }catch(e){label('입장코드 설정 실패: '+e.message+' · 중계 서버 배포 및 비밀키를 확인해 주세요.')}
+  finally{button.disabled=false}
  };
  $('liveViewerDisconnect').onclick=()=>{enabled=false;queued=null;set('enabled','no');label('참가자 화면으로 보내는 연결을 중단했어요. (마지막 화면이 남을 수 있습니다.)')};
  $('liveViewerPreflight').onclick=async()=>{
