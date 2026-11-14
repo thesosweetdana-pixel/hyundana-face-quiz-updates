@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.12",
-  "notes": "진행실 버튼 정리(다음 문제 MP4 버튼을 다음 문제 공개 옆으로 배치, 예시 문제 중복 완료 버튼 제거, 정답 공개 설명 문구 삭제). 참가자 공통 입장코드 설정 UI와 Cloudflare 서버 인증 추가. 인증 전에는 WebSocket과 이미지 접근 차단, 5회 오류 시 30초 재시도 제한. 진행자 중계 비밀키 필요. 기존 문제·원본 사진 수정 없음.",
+  "version": "1.8.13",
+  "notes": "진행실 버튼 순서(준비한 문제 공개 → MP4 → 다음 문제 공개) 및 색상 구분. 진행실·참가자 공통코드 보기/숨기기. 인증 쿠키 파싱, HEAD 이미지 접근 제어, 인증 변경 후 재접속 반복 방지. 대기 중 불필요한 반복 조회 없음. 실제 20명 지연 검증 별도 필요. 기존 문제와 사진 데이터 유지.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "2c63a61d34251bc2ab89d3adc7b9d9455a2bee349dc5a5f3d42771e22dfdc6c6"
+      "sha256": "ad354facff9d3bf3ce53440264af4af532761652fc5a14dbc234ef97ce4675b7"
     },
     {
       "path": "server.py",
@@ -16,7 +16,7 @@
     {
       "path": "obs.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",
-      "sha256": "b4235f02898e928e0867c716efec67fd7ef96c1990258ba0b4b74f1e34dfbfa5"
+      "sha256": "0bb344da149fd6164ac3a616ab3d3a25fec5203b3a7c0c0077f0ffa7664275d2"
     },
     {
       "path": "bridge.js",
