@@ -108,7 +108,16 @@ export default {
    try{
     const upstream=await fetch("https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",{cf:{cacheTtl:300,cacheEverything:true}});
     if(upstream.ok){
-     const html=(await upstream.text()).replace("setTimeout(poll,350)","setTimeout(poll,300)");
+     // Remote spectators must never be switched to the emergency/standby scene
+     // merely because a single poll timed out. Keep the last valid stage.
+     let html=await upstream.text();
+     html=html.replace("const timer=setTimeout(()=>controller.abort(),2700)", "const timer=setTimeout(()=>controller.abort(),9000)")
+      .replace("}catch(e){revision=null;render(null,false)}setTimeout(poll,350)",
+       "}catch(e){/* preserve last successfully received public stage on network failure */}setTimeout(poll,300)");
+     if(u.searchParams.has("debug")){
+       html=html.replace("if(!d.unchanged)render(d.state,d.connected);",
+        "if(!d.unchanged)render(d.state,d.connected);document.title='참가자 진단 · '+sceneStage+' · rev '+revision;");
+     }
      return new Response(html,{headers:{...headers,"Content-Type":"text/html;charset=utf-8"}});
     }
    }catch(_){}
