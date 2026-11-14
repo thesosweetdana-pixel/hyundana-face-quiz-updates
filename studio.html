@@ -791,7 +791,6 @@ async function showPrepareEntry(entry){
   const images=await Promise.all(project.layers.slice(0,n).map(l=>imageData(l.dataUrl)));
   if(prepEpoch!==showControl.prepEpoch||showControl.stage==='end')return;
   const assets=composePreparedData(project,images);
-  const allOrdered=sortEntries(await allStored());
   if(prepEpoch!==showControl.prepEpoch||showControl.stage==='end')return;
   showControl.pending={entry,assets,example:$('showExampleMode').checked,round:$('showExampleMode').checked?'예시 문제':`라운드 ${String(showControl.presentedCount+1).padStart(2,'0')}`};
   toast('다음 문제 비공개 준비 완료 · 다음 문제 준비중 MP4와 문제 공개는 직접 누를 때만 전환됩니다.');
@@ -916,8 +915,9 @@ $('showStart').onclick=()=>{
  if(!selected?.assets||selected.entry?.status!=='ready'||!showControl.queue.some(e=>e.id===selected.entry.id))return toast('진행 준비된 문제를 먼저 선택해주세요.');
  stopPostReveal();cancelAutoReveal(false);
  if(showControl.pending){showControl.active=showControl.pending;showControl.pending=null;}
- showControl.active.example=$('showExampleMode').checked;
- assignBroadcastRound(showControl.active.entry,showControl.active.example);$('showExampleMode').checked=false;
+ showControl.pendingExampleOnPublish=showControl.active.example;
+ showControl.active.example=showControl.pendingExampleOnPublish??showControl.active.example??$('showExampleMode').checked;
+ assignBroadcastRound(showControl.active.entry,showControl.active.example);$('showExampleMode').checked=false;showControl.pendingExampleOnPublish=null;
  showControl.revealCount=0;showControl.revealStep=0;showControl.armed=false;
  showSetStage('question');
 };
