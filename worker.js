@@ -14,7 +14,7 @@ function cleanState(raw){
  focus:raw.stage==="reveal"&&raw.focus?{slot:String(raw.focus.slot||""),name:String(raw.focus.name||"").slice(0,90),source:String(raw.focus.source||"").slice(0,300)}:null,revealStep:Number(raw.revealStep)||0,revealTotal:Number(raw.revealTotal)||0};
 }
 export class QuizRoom{
- constructor(ctx,env){this.ctx=ctx;this.env=env;}
+ constructor(ctx,env){this.ctx=ctx;this.env=env;this.cachedState=null;this.cachedUpdated=null;}
  async fetch(request){
   const u=new URL(request.url);
   if(request.method==="POST"&&u.pathname==="/publish"){
@@ -22,9 +22,10 @@ export class QuizRoom{
    if(JSON.stringify(raw).length>14000000)return json({error:"state too large"},413);
    const state=cleanState(raw);
    const packed=JSON.stringify(state);const parts=packed.match(/[\s\S]{1,800000}/g)||[];
-   for(let i=0;i<parts.length;i++)await this.ctx.storage.put("part:"+i,parts[i]);
+   await Promise.all(parts.map((part,i)=>this.ctx.storage.put("part:"+i,part)));
    await this.ctx.storage.put("count",parts.length);
-   await this.ctx.storage.put("updated",Date.now());
+   const updated=Date.now();await this.ctx.storage.put("updated",updated);
+   this.cachedState=state;this.cachedUpdated=updated;
    return json({ok:true});
   }
   if(request.method==="POST"&&u.pathname==="/asset"){
@@ -49,10 +50,18 @@ export class QuizRoom{
    const head={"Content-Type":type,"Accept-Ranges":"bytes","Content-Length":String(end-start+1),"Cache-Control":"public, max-age=3600"};if(match)head["Content-Range"]="bytes "+start+"-"+end+"/"+bytes.length;
    return new Response(bytes.slice(start,end+1),{status:match?206:200,headers:head});
   }
-  const count=await this.ctx.storage.get("count")||0;let state=empty;
-  if(count){const parts=[];for(let i=0;i<count;i++)parts.push(await this.ctx.storage.get("part:"+i)||"");try{state=JSON.parse(parts.join(""))}catch{state=empty}}
-  const updated=await this.ctx.storage.get("updated")||0;
-  return json({state,updated});
+  if(this.cachedUpdated===null)this.cachedUpdated=await this.ctx.storage.get("updated")||0;
+  const updated=this.cachedUpdated;
+  if(u.searchParams.has("rev")&&u.searchParams.get("rev")===String(updated))return json({updated,unchanged:true});
+  if(this.cachedState===null){
+   const count=await this.ctx.storage.get("count")||0;let state=empty;
+   if(count){
+    const parts=await Promise.all(Array.from({length:count},(_,i)=>this.ctx.storage.get("part:"+i)));
+    try{state=JSON.parse(parts.join(""))}catch{state=empty}
+   }
+   this.cachedState=state;
+  }
+  return json({state:this.cachedState,updated});
  }
 }
 const VIEWER=String.raw`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>현단아의 뉴뀨? 참가자 화면</title><style>
@@ -89,15 +98,16 @@ export default {
   }
   if(u.pathname==="/state")return room.fetch("https://room/state");
   if(u.pathname==="/api/public"){
-   const r=await room.fetch("https://room/state"),data=await r.json();
-   const rev=String(data.updated||0),same=u.searchParams.get("rev")===rev;
-   return json(same?{revision:rev,unchanged:true,connected:true}:{revision:rev,unchanged:false,connected:true,state:data.state||empty});
+   const revHint=u.searchParams.get("rev");
+   const r=await room.fetch("https://room/state"+(revHint!==null?"?rev="+encodeURIComponent(revHint):"")),data=await r.json();
+   const rev=String(data.updated||0);
+   return json(data.unchanged?{revision:rev,unchanged:true,connected:true}:{revision:rev,unchanged:false,connected:true,state:data.state||empty});
   }
   if(u.pathname==="/obs"){
    try{
     const upstream=await fetch("https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/obs.html",{cf:{cacheTtl:300,cacheEverything:true}});
     if(upstream.ok){
-     const html=(await upstream.text()).replace("setTimeout(poll,350)","setTimeout(poll,1200)");
+     const html=(await upstream.text()).replace("setTimeout(poll,350)","setTimeout(poll,300)");
      return new Response(html,{headers:{...headers,"Content-Type":"text/html;charset=utf-8"}});
     }
    }catch(_){}
