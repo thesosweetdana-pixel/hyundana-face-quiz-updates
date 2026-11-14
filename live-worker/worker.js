@@ -126,14 +126,14 @@ export default {
    const localRevision=Number(request.headers.get("X-Local-Revision"));
    if(!/^studio-[a-zA-Z0-9.-]{12,110}$/.test(presenter)||!Number.isSafeInteger(localRevision)||localRevision<0)
      return json({error:"update studio to v1.8.6: local OBS acknowledgement required"},409,cors(origin));
-   const response=await room.fetch(new Request("https://room/publish",{method:"POST",body:request.body,headers:{"Content-Type":"application/json","X-Show-Session":presenter,"X-Local-Revision":String(localRevision)}}));
+   let response;try{response=await room.fetch(new Request("https://room/publish",{method:"POST",body:request.body,headers:{"Content-Type":"application/json","X-Show-Session":presenter,"X-Local-Revision":String(localRevision)}}));}catch(e){return json({error:"Cloudflare ROOM unavailable; inspect Durable Object logs and quotas"},503,cors(origin));}
    if(response.ok){sharedState=null;sharedStateAt=0;}
    return new Response(response.body,{status:response.status,headers:{...cors(origin),"Content-Type":"application/json"}});
   }
   if(u.pathname==="/upload"){
    if(request.method!=="POST"||!originAllowed(origin)||!env.PUBLISH_TOKEN||request.headers.get("Authorization")!=="Bearer "+env.PUBLISH_TOKEN)return json({error:"unauthorized"},401,cors(origin));
    const name=u.searchParams.get("name")||"";
-   const response=await room.fetch(new Request("https://room/asset?name="+encodeURIComponent(name),{method:"POST",body:request.body}));
+   let response;try{response=await room.fetch(new Request("https://room/asset?name="+encodeURIComponent(name),{method:"POST",body:request.body}));}catch(e){return json({error:"Cloudflare ROOM unavailable; poster upload blocked"},503,cors(origin));}
    return new Response(response.body,{status:response.status,headers:{...cors(origin),"Content-Type":"application/json"}});
   }
   if(u.pathname==="/state")return room.fetch("https://room/state");
@@ -166,7 +166,7 @@ export default {
   }
   if(u.pathname==="/"||u.pathname==="/watch")return Response.redirect(new URL("/obs",u.origin).toString(),302);
   if(u.pathname.startsWith("/assets/")){
-   const remote=await room.fetch(new Request("https://room/asset/"+u.pathname.split("/").pop(),{headers:{"Range":request.headers.get("Range")||""}}));
+   let remote;try{remote=await room.fetch(new Request("https://room/asset/"+u.pathname.split("/").pop(),{headers:{"Range":request.headers.get("Range")||""}}));}catch(e){return new Response("Cloudflare room temporarily unavailable",{status:503,headers});}
    if(remote.status!==404)return remote;
    return env.ASSETS?env.ASSETS.fetch(request):new Response("asset not installed",{status:404});
   }
