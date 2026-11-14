@@ -24,7 +24,7 @@ const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status
 const empty={stage:"waiting",round:"",image:null,revealed:[],focus:null,revealStep:0,revealTotal:0};
 function cleanState(raw){
  if(!raw||!["waiting","title","notice","rules","question","reveal","summary","emergency","end"].includes(raw.stage))return empty;
- const image=x=>typeof x==="string"&&x.startsWith("data:image/png;base64,")&&x.length<12000000?x:null;
+ const image=x=>typeof x==="string"&&/^data:image\/(png|webp);base64,/.test(x)&&x.length<12000000?x:null;
  const p=raw.stage==="reveal"&&Array.isArray(raw.revealed)?raw.revealed.slice(0,3).filter(x=>["A","B","C"].includes(x?.slot)).map(x=>({slot:x.slot,name:String(x.name||"").slice(0,90),source:String(x.source||"").slice(0,300),image:image(x.image)})):[];
  return {stage:raw.stage,round:String(raw.round||"").slice(0,80),image:["question","reveal"].includes(raw.stage)?image(raw.image):null,revealed:p,
  focus:raw.stage==="reveal"&&raw.focus?{slot:String(raw.focus.slot||""),name:String(raw.focus.name||"").slice(0,90),source:String(raw.focus.source||"").slice(0,300)}:null,revealStep:Number(raw.revealStep)||0,revealTotal:Number(raw.revealTotal)||0};
