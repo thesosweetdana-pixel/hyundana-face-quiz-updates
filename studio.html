@@ -1317,19 +1317,39 @@ if(CREDITS)CREDITS.addEventListener('click',async()=>{
     {method:'POST',headers:{'Content-Type':'application/octet-stream'},body:bytes,cache:'no-store'});}
   catch(e){label('로컬 포스터 저장 실패: '+e.message);return;}
   if(!local.ok){let msg='HTTP '+local.status;try{const d=await local.json();msg=d.error||msg}catch(_){}label('로컬 포스터 저장 실패: '+msg);return;}
-  // Same-machine OBS always reads locally saved PNG and does not depend on Cloudflare.
   $('obsRefresh').click();
-  label(name+' 로컬 방송 화면 등록 완료 ✓ · 외부 참가자 화면 동기화 중…');
+  label(name+' 로컬 등록 완료 ✓ · 참가자 서버에 이미지 등록 확인 중…');
   const u=normalise(urlEl.value),key=keyEl.value.trim();
-  if(!u||key.length<16){label(name+' 로컬 방송 화면 등록 완료 ✓ / 참가자 서버는 중계 HTTPS 주소와 비밀키 확인 필요');return;}
+  if(!u||key.length<16){label(name+' 로컬 등록 완료 ✓ / 참가자 서버 등록은 HTTPS 주소 및 진행자 비밀키가 필요합니다. 중계는 재개하지 않았습니다.');return;}
+  let sha;
+  try{
+   const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',bytes));
+   sha=Array.from(digest,b=>b.toString(16).padStart(2,'0')).join('');
+  }catch(e){label(name+' 로컬 등록 완료 ✓ / 파일 지문 계산 실패: '+e.message);return;}
+  const verify=async()=>{
+   const res=await fetch(u+'/upload/status?name='+encodeURIComponent(name),
+    {method:'GET',headers:{Authorization:'Bearer '+key},cache:'no-store'});
+   if(!res.ok){let message='HTTP '+res.status;try{message=(await res.json()).error||message}catch(_){}throw Error(message)}
+   const info=await res.json();
+   return !!(info.ok&&info.sha256===sha&&info.size===bytes.byteLength);
+  };
   try{
    const response=await fetch(u+'/upload?name='+encodeURIComponent(name),
     {method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/octet-stream'},body:bytes,cache:'no-store'});
-   if(!response.ok){let msg='HTTP '+response.status;try{const d=await response.json();msg=d.error||msg}catch(_){}throw Error(msg);}
-   const verify=await fetch(u+'/assets/'+name+'?v='+Date.now(),{cache:'no-store'});
-   if(!verify.ok)throw Error('참가자 이미지 확인 HTTP '+verify.status);
-   label(name+' 등록 성공 ✓ 로컬 방송 / ✓ 참가자 화면. 참가자 페이지 새로고침 시 반영됩니다.');
-  }catch(e){label(name+' 로컬 방송 등록 ✓, 참가자 서버 등록 실패 ✗: '+e.message+' · Cloudflare 중계 연결 상태를 확인해 주세요.');}
+   if(!response.ok){let msg='HTTP '+response.status;try{const d=await response.json();msg=d.error||msg}catch(_){}throw Error(msg)}
+   const saved=await response.json();
+   if(!saved.ok||saved.sha256!==sha||saved.size!==bytes.byteLength)throw Error('업로드 응답의 이미지 지문 불일치');
+   const confirmed=await verify();
+   if(!confirmed)throw Error('참가자 서버 이미지 지문 검증 실패');
+   label(name+' 등록 및 검증 완료 ✓ 로컬 OBS / ✓ 참가자 서버 · 중계 중단 상태를 변경하지 않았습니다. 참가자 화면에 적용하려면 새로고침이 필요합니다.');
+  }catch(e){
+   // A failed fetch may happen after the remote server saved the image. Check
+   // the private metadata once; never read the participant asset or resume relay.
+   try{
+    if(await verify()){label(name+' 등록 및 검증 완료 ✓ 로컬 OBS / ✓ 참가자 서버 · 네트워크 응답은 불안정했지만 저장 지문이 일치합니다. 중계 상태는 변경하지 않았습니다.');return;}
+   }catch(_){}
+   label(name+' 로컬 등록 완료 ✓ / 참가자 서버 등록 미확인 ✗: '+e.message+' · 중계는 재개하지 않았습니다. 서버 주소·비밀키·네트워크를 확인해 주세요.');
+  }
  };
  $('noticePosterFile').onchange=e=>uploadPoster(e.target,'notice.png');
  $('rulesPosterFile').onchange=e=>uploadPoster(e.target,'rules.png');
