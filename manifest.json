@@ -1,12 +1,12 @@
 {
   "application": "hyundana-face-quiz",
-  "version": "1.8.16",
-  "notes": "종료 화면의 '전체 진행 초기화 · 세팅 대기부터 다시 시작' 버튼: 현재 회차 완료 문제(예시 포함)를 진행 준비로 복원, 완료시간·예시완료 표식 삭제, 라운드 카운터·현재 문제·정답 공개 상태 초기화, ① 세팅 대기 송출. 원본 사진/문제 내용/다른 회차 유지. 중계 연결/중단 상태는 건드리지 않음.",
+  "version": "1.8.17",
+  "notes": "안내사항·규칙 PNG를 중계 중단 상태에서도 서버에 업로드 가능. 참가자 공개 이미지 조회 대신 진행자 인증된 /upload/status의 SHA-256+파일 크기로 등록 확인. 실패한 응답 뒤에도 메타데이터로 저장 여부 1회 재확인. 중계 상태는 변경하지 않음. 기존 문제·사진·방송 로직 변경 없음.",
   "files": [
     {
       "path": "studio.html",
       "url": "https://raw.githubusercontent.com/thesosweetdana-pixel/hyundana-face-quiz-updates/main/studio.html",
-      "sha256": "79cc47424170c6a06278a3abe7ddee2e90e15bbda26b612c1d88a1d557140364"
+      "sha256": "3e0c7c72aa5d335479984eaa9658f4226a412f9424e71d9ade25c37aa84fe63d"
     },
     {
       "path": "server.py",
