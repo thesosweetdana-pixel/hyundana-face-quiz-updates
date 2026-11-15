@@ -147,6 +147,12 @@ export class QuizRoom{
    }
    return json({ok:true});
   }
+  if(request.method==="GET"&&u.pathname==="/asset/status"){
+   const name=u.searchParams.get("name")||"";
+   if(!["question.webp","answer.webp","next.mp4","standby.webp","intro.webp","end.webp","notice.png","rules.png"].includes(name))return json({error:"unsupported asset"},400);
+   const meta=await this.ctx.storage.get("asset:"+name+":meta");
+   return json({ok:!!meta,name,size:meta?.size||0,sha256:meta?.sha256||null,stopped:await this.relayStopped()});
+  }
   if(request.method==="POST"&&u.pathname==="/asset"){
    const name=u.searchParams.get("name")||"";
    if(!["question.webp","answer.webp","next.mp4","standby.webp","intro.webp","end.webp","notice.png","rules.png"].includes(name))return json({error:"unsupported asset"},400);
@@ -154,8 +160,10 @@ export class QuizRoom{
    if(bytes.length<8||bytes.length>20000000)return json({error:"asset size limit"},413);
    const parts=Math.ceil(bytes.length/700000);
    for(let i=0;i<parts;i++)await this.ctx.storage.put("asset:"+name+":"+i,bytes.slice(i*700000,(i+1)*700000));
-   await this.ctx.storage.put("asset:"+name+":meta",{size:bytes.length,count:parts});
-   return json({ok:true,name,size:bytes.length});
+   const digest=new Uint8Array(await crypto.subtle.digest("SHA-256",bytes));
+   const sha256=Array.from(digest,b=>b.toString(16).padStart(2,"0")).join("");
+   await this.ctx.storage.put("asset:"+name+":meta",{size:bytes.length,count:parts,sha256});
+   return json({ok:true,name,size:bytes.length,sha256});
   }
   if((request.method==="GET"||request.method==="HEAD")&&u.pathname.startsWith("/asset/")){
    if(await this.relayStopped())return json({error:"중계 중단 상태입니다."},503);
@@ -209,7 +217,7 @@ fetch('/assets/next.mp4',{method:'HEAD'}).then(r=>{if(r.ok){vid.src='/assets/nex
 export default {
  async fetch(request,env){
   const u=new URL(request.url),origin=request.headers.get("Origin")||"";
-  if(request.method==="OPTIONS"&&(u.pathname==="/publish"||u.pathname==="/upload"||u.pathname==="/access/config"||u.pathname==="/relay/stop"||u.pathname==="/relay/start"))return new Response(null,{status:204,headers:cors(origin)});
+  if(request.method==="OPTIONS"&&(u.pathname==="/publish"||u.pathname==="/upload"||u.pathname==="/upload/status"||u.pathname==="/access/config"||u.pathname==="/relay/stop"||u.pathname==="/relay/start"))return new Response(null,{status:204,headers:cors(origin)});
   if(u.pathname==="/health")return json({ok:true,release:"1.8.10-poll-guard",requiresLocalAck:true,transport:"websocket",legacyPollingBlocked:true});
   if(u.pathname==="/diagnostics"){
    try{
@@ -261,6 +269,14 @@ export default {
    let response;try{response=await room.fetch(new Request("https://room/publish",{method:"POST",body:request.body,headers:{"Content-Type":"application/json","X-Show-Session":presenter,"X-Local-Revision":String(localRevision)}}));}catch(e){return json({error:"Cloudflare ROOM unavailable; inspect Durable Object logs and quotas"},503,cors(origin));}
    if(response.ok){sharedState=null;sharedStateAt=0;}
    return new Response(response.body,{status:response.status,headers:{...cors(origin),"Content-Type":"application/json"}});
+  }
+  if(u.pathname==="/upload/status"){
+   if(request.method!=="GET"||!originAllowed(origin)||!env.PUBLISH_TOKEN||request.headers.get("Authorization")!=="Bearer "+env.PUBLISH_TOKEN)return json({error:"unauthorized"},401,cors(origin));
+   const name=u.searchParams.get("name")||"";
+   try{
+    const r=await room.fetch(new Request("https://room/asset/status?name="+encodeURIComponent(name)));
+    return new Response(r.body,{status:r.status,headers:{...cors(origin),"Content-Type":"application/json;charset=utf-8"}});
+   }catch(e){return json({error:"asset status check failed"},503,cors(origin))}
   }
   if(u.pathname==="/upload"){
    if(request.method!=="POST"||!originAllowed(origin)||!env.PUBLISH_TOKEN||request.headers.get("Authorization")!=="Bearer "+env.PUBLISH_TOKEN)return json({error:"unauthorized"},401,cors(origin));
